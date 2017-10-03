@@ -20,4 +20,7 @@
     Public transport As New unit_selection, aircombat As New unit_selection, airdefence As New unit_selection
     Public ca_defenders As New unit_selection
     Public night As Boolean
+    Public sys_dir As String, g_dir As String, d_dir As String
+    Public golden As Color = Color.Goldenrod, defa As Color = SystemColors.Control
+
 End Module

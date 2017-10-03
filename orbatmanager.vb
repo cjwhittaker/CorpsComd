@@ -124,7 +124,7 @@
         Else
 
         End If
-
+        mgt = ""
     End Sub
 
     Private Sub accept_unit_properties(ByVal a As cUnit)

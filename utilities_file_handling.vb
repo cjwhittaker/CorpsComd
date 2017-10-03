@@ -32,10 +32,10 @@
     End Sub
 
     Public Sub load_equipment()
-        If Not My.Computer.FileSystem.FileExists("equipment.dat") Then Exit Sub
+        If Not My.Computer.FileSystem.FileExists(d_dir + "\" + "equipment.dat") Then Exit Sub
 
         equipment = New Collection
-        Using MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser("equipment.dat")
+        Using MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(d_dir + "\" + "equipment.dat")
             MyReader.TextFieldType = FileIO.FieldType.Delimited
             MyReader.SetDelimiters(",")
             Dim currentRow As String()
@@ -46,7 +46,7 @@
                     e.loadfromfile(currentRow)
                     equipment.Add(e, e.title, After:=equipment.Count)
                 Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
-                    MsgBox("Line " & ex.Message & _
+                    MsgBox("Line " & ex.Message &
                     "is not valid and will be skipped.")
                 End Try
             End While
@@ -61,10 +61,10 @@
         file.Close()
     End Sub
     Public Sub load_subunits()
-        If Not My.Computer.FileSystem.FileExists("subunits.dat") Then Exit Sub
+        If Not My.Computer.FileSystem.FileExists(d_dir + "\" + "subunits.dat") Then Exit Sub
         TOE = New Collection
         unittypes = New Collection
-        Using MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser("subunits.dat")
+        Using MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(d_dir + "\" + "subunits.dat")
             MyReader.TextFieldType = FileIO.FieldType.Delimited
             MyReader.SetDelimiters(",")
             Dim currentRow As String()
@@ -84,7 +84,7 @@
                         unittypes.Add(unittype, unittype.title)
                     End If
                 Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
-                    MsgBox("Line " & ex.Message & _
+                    MsgBox("Line " & ex.Message &
                     "is not valid and will be skipped.")
                 End Try
             End While

@@ -81,8 +81,8 @@
             End While
         End Using
         load_orbat()
-        load_equipment()
-        load_subunits()
+        'load_equipment()
+        'load_subunits()
         p1_orbat_manager.Enabled = True
         p2_orbat_manager.Enabled = True
         nextturn.Enabled = True
@@ -441,4 +441,15 @@ closeprogram:
 
     End Sub
 
+    Private Sub scenariodefaults_Load(sender As Object, e As EventArgs) Handles Me.Load
+        sys_dir = My.Computer.FileSystem.SpecialDirectories.MyDocuments + "\Corps Commander"
+        g_dir = sys_dir + "\Graphics\"
+        d_dir = sys_dir + "\Data\"
+        'g_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Graphics\"
+        'd_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Data\"
+
+        load_equipment()
+        load_subunits()
+
+    End Sub
 End Class

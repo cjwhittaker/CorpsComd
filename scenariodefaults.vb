@@ -75,6 +75,8 @@
             End While
         End Using
         scenario_name.Text = Mid(Replace(scenario, sys_dir, ""), 2)
+        p1_tree = New TreeView
+        p2_tree = New TreeView
         load_orbat()
         load_events()
         enable_data_entry(True)
@@ -161,6 +163,8 @@
             .comdtree.HideSelection = False
             .ShowDialog()
         End With
+        populate_command_structure(p1_tree, player1.Text, "Orbat")
+        populate_command_structure(p2_tree, player2.Text, "Orbat")
     End Sub
 
     Private Sub maintain_player_names(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles player1.Leave, player2.Leave

@@ -63,8 +63,8 @@
             End If
         Else
         End If
-
     End Sub
+
 
     Private Sub group_edit()
         no = check_next_to_edit(comdtree.TopNode)
@@ -330,19 +330,6 @@
 
     End Sub
 
-    Private Sub closeorbat(ByVal sender As System.Object, ByVal e As EventArgs) Handles Me.Closed
-        Dim col As Collection
-        col = New Collection
-        For x As Integer = orbat.Count To 1 Step -1
-            If orbat(x).nation = orbatside Then
-                col.Add(orbat(x), orbat(x).title)
-                orbat.Remove(x)
-            End If
-        Next
-        reorderorbat(comdtree.TopNode, col)
-        col.Clear()
-    End Sub
-
     Private Sub go_generate_subunits(ByVal u As cunit)
         If u.comd = 0 Then Exit Sub
         For Each x As cunit In orbat
@@ -388,14 +375,6 @@
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         printorbattofile()
-    End Sub
-
-    Private Sub reorderorbat(no As TreeNode, col As Collection)
-        orbat.Add(col(no.Text), no.Text)
-        If col(no.Text).loaded <> "" Then orbat.Add(col(col(no.Text).loaded), col(no.Text).loaded)
-        For Each n As TreeNode In no.Nodes
-            reorderorbat(n, col)
-        Next
     End Sub
 
     Private Sub select_type_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
@@ -464,6 +443,5 @@
         Loop
 
     End Function
-
 
 End Class

@@ -1,5 +1,5 @@
 ﻿Module utilities_file_handling
-    Dim file As System.IO.StreamWriter, MyReader As Microsoft.VisualBasic.FileIO.TextFieldParser
+    Dim file As System.IO.StreamWriter, x As String = "", MyReader As Microsoft.VisualBasic.FileIO.TextFieldParser, myType As Type = GetType(cunit), properties As System.Reflection.PropertyInfo() = myType.GetProperties()
 
     Public Sub load_orbat()
         If Not My.Computer.FileSystem.FileExists(Replace(scenario, ".sce", ".orb")) Then Exit Sub
@@ -50,15 +50,21 @@
     End Sub
     Public Sub save_orbat()
         If IsNothing(orbat) Then Exit Sub
+        populate_command_structure(p1_tree, scenariodefaults.player1.Text, "Orbat")
+        populate_command_structure(p2_tree, scenariodefaults.player2.Text, "Orbat")
         file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".orb"), False)
-        Dim myType As Type = GetType(cunit)
-        Dim x As String = "", y As String = "", n As String = ""
-        Dim properties As System.Reflection.PropertyInfo() = myType.GetProperties()
+        Dim y As String = "", n As String = ""
         For Each p As System.Reflection.PropertyInfo In properties
             y = y + p.Name + ","
         Next
         file.WriteLine(y)
-        For Each u As cunit In orbat
+        save_command_structure(p1_tree.Nodes(0))
+        save_command_structure(p2_tree.Nodes(0))
+        file.Close()
+    End Sub
+    Private Sub save_command_structure(no As TreeNode)
+        u = orbat(no.Text)
+        For i As Integer = 1 To 2
             x = ""
             For Each p As System.Reflection.PropertyInfo In properties
                 If x <> "" Then x = x + ","
@@ -71,9 +77,20 @@
                 End If
             Next
             file.WriteLine(x)
+
+            If i = 1 And u.loaded <> "" Then
+                u = orbat(u.loaded)
+            Else
+                Exit For
+            End If
         Next
-        file.Close()
+        For Each n As TreeNode In no.Nodes
+            save_command_structure(n)
+        Next
     End Sub
+
+
+
     Public Sub load_equipment()
         If Not My.Computer.FileSystem.FileExists(d_dir + "equipment.dat") Then Exit Sub
         Dim pnames As New Collection, equip As cequipment

@@ -9,6 +9,7 @@
     Public p1_hqs As Collection, p2_HQs As Collection
     Public p1_units As Collection, p2_Units As Collection
     Public p1_orbat As Collection, p2_orbat As Collection
+    Public p1_tree As TreeView, p2_tree As TreeView
     Public p1_cap As Integer, p2_cap As Integer, p1_sead As Integer, p2_sead As Integer
     Public ph_units As Collection, enemy As Collection
     Public smokefiredthisturn As Boolean

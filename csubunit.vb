@@ -41,6 +41,7 @@
     Property title() As String
         Get
             Return pTitle
+            Return ptitle
         End Get
         Set(ByVal Value As String)
             pTitle = Value

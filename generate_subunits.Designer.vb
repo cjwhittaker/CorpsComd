@@ -49,7 +49,7 @@ Partial Class generate_subunits
         '
         Me.quality.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.quality.FormattingEnabled = True
-        Me.quality.Items.AddRange(New Object() {"A", "B", "C", "D"})
+        Me.quality.Items.AddRange(New Object() {"9", "8", "7", "6", "5", "4", "3", "2", "1"})
         Me.quality.Location = New System.Drawing.Point(295, 172)
         Me.quality.Name = "quality"
         Me.quality.Size = New System.Drawing.Size(214, 32)

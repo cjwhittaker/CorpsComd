@@ -45,6 +45,11 @@ Partial Class assault
         Me.select_cover = New System.Windows.Forms.Button()
         Me.cover = New System.Windows.Forms.Label()
         Me.fight = New System.Windows.Forms.Button()
+        Me.debus = New System.Windows.Forms.Button()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Panel1.SuspendLayout()
+        Me.Panel2.SuspendLayout()
         Me.SuspendLayout()
         '
         'a_arty_spt
@@ -54,12 +59,13 @@ Partial Class assault
         Me.a_arty_spt.FullRowSelect = True
         Me.a_arty_spt.GridLines = True
         Me.a_arty_spt.HideSelection = False
-        Me.a_arty_spt.Location = New System.Drawing.Point(311, 83)
+        Me.a_arty_spt.Location = New System.Drawing.Point(1015, 83)
         Me.a_arty_spt.Name = "a_arty_spt"
         Me.a_arty_spt.Size = New System.Drawing.Size(236, 473)
         Me.a_arty_spt.TabIndex = 62
         Me.a_arty_spt.UseCompatibleStateImageBehavior = False
         Me.a_arty_spt.View = System.Windows.Forms.View.Details
+        Me.a_arty_spt.Visible = False
         '
         'ColumnHeader3
         '
@@ -76,7 +82,7 @@ Partial Class assault
         Me.assaulting.BackColor = System.Drawing.Color.Transparent
         Me.assaulting.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.assaulting.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.assaulting.Location = New System.Drawing.Point(30, 83)
+        Me.assaulting.Location = New System.Drawing.Point(42, 39)
         Me.assaulting.Name = "assaulting"
         Me.assaulting.Size = New System.Drawing.Size(199, 35)
         Me.assaulting.TabIndex = 64
@@ -88,7 +94,7 @@ Partial Class assault
         Me.Label6.AutoSize = True
         Me.Label6.BackColor = System.Drawing.Color.Transparent
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(81, 59)
+        Me.Label6.Location = New System.Drawing.Point(93, 15)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(96, 24)
         Me.Label6.TabIndex = 63
@@ -100,7 +106,7 @@ Partial Class assault
         Me.supporting.BackColor = System.Drawing.Color.Transparent
         Me.supporting.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.supporting.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.supporting.Location = New System.Drawing.Point(30, 155)
+        Me.supporting.Location = New System.Drawing.Point(42, 111)
         Me.supporting.Name = "supporting"
         Me.supporting.Size = New System.Drawing.Size(199, 35)
         Me.supporting.TabIndex = 66
@@ -112,7 +118,7 @@ Partial Class assault
         Me.Label2.AutoSize = True
         Me.Label2.BackColor = System.Drawing.Color.Transparent
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(78, 131)
+        Me.Label2.Location = New System.Drawing.Point(90, 87)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(102, 24)
         Me.Label2.TabIndex = 65
@@ -132,6 +138,7 @@ Partial Class assault
         Me.d_arty_spt.TabIndex = 67
         Me.d_arty_spt.UseCompatibleStateImageBehavior = False
         Me.d_arty_spt.View = System.Windows.Forms.View.Details
+        Me.d_arty_spt.Visible = False
         '
         'ColumnHeader1
         '
@@ -148,7 +155,7 @@ Partial Class assault
         Me.Label1.AutoSize = True
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(706, 59)
+        Me.Label1.Location = New System.Drawing.Point(93, 11)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(97, 24)
         Me.Label1.TabIndex = 63
@@ -160,7 +167,7 @@ Partial Class assault
         Me.defending.BackColor = System.Drawing.Color.Transparent
         Me.defending.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.defending.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.defending.Location = New System.Drawing.Point(655, 83)
+        Me.defending.Location = New System.Drawing.Point(42, 35)
         Me.defending.Name = "defending"
         Me.defending.Size = New System.Drawing.Size(199, 35)
         Me.defending.TabIndex = 64
@@ -171,12 +178,13 @@ Partial Class assault
         '
         Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(311, 45)
+        Me.Label3.Location = New System.Drawing.Point(1015, 45)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(236, 35)
         Me.Label3.TabIndex = 63
         Me.Label3.Text = "Attackers Artillery Support"
         Me.Label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.Label3.Visible = False
         '
         'Label4
         '
@@ -188,12 +196,13 @@ Partial Class assault
         Me.Label4.TabIndex = 63
         Me.Label4.Text = "Defenders Artillery Support"
         Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.Label4.Visible = False
         '
         'engr
         '
         Me.engr.Appearance = System.Windows.Forms.Appearance.Button
         Me.engr.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.engr.Location = New System.Drawing.Point(30, 214)
+        Me.engr.Location = New System.Drawing.Point(42, 170)
         Me.engr.Name = "engr"
         Me.engr.Size = New System.Drawing.Size(199, 42)
         Me.engr.TabIndex = 68
@@ -205,7 +214,7 @@ Partial Class assault
         '
         Me.defile.Appearance = System.Windows.Forms.Appearance.Button
         Me.defile.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.defile.Location = New System.Drawing.Point(30, 262)
+        Me.defile.Location = New System.Drawing.Point(42, 218)
         Me.defile.Name = "defile"
         Me.defile.Size = New System.Drawing.Size(199, 42)
         Me.defile.TabIndex = 69
@@ -217,7 +226,7 @@ Partial Class assault
         '
         Me.uphill.Appearance = System.Windows.Forms.Appearance.Button
         Me.uphill.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.uphill.Location = New System.Drawing.Point(655, 214)
+        Me.uphill.Location = New System.Drawing.Point(42, 166)
         Me.uphill.Name = "uphill"
         Me.uphill.Size = New System.Drawing.Size(199, 42)
         Me.uphill.TabIndex = 68
@@ -229,7 +238,7 @@ Partial Class assault
         '
         Me.afv_spt.Appearance = System.Windows.Forms.Appearance.Button
         Me.afv_spt.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.afv_spt.Location = New System.Drawing.Point(655, 262)
+        Me.afv_spt.Location = New System.Drawing.Point(42, 214)
         Me.afv_spt.Name = "afv_spt"
         Me.afv_spt.Size = New System.Drawing.Size(199, 42)
         Me.afv_spt.TabIndex = 68
@@ -241,7 +250,7 @@ Partial Class assault
         '
         Me.atgw_spt.Appearance = System.Windows.Forms.Appearance.Button
         Me.atgw_spt.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.atgw_spt.Location = New System.Drawing.Point(655, 310)
+        Me.atgw_spt.Location = New System.Drawing.Point(42, 262)
         Me.atgw_spt.Name = "atgw_spt"
         Me.atgw_spt.Size = New System.Drawing.Size(199, 42)
         Me.atgw_spt.TabIndex = 70
@@ -253,7 +262,7 @@ Partial Class assault
         '
         Me.select_cover.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.select_cover.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.select_cover.Location = New System.Drawing.Point(655, 358)
+        Me.select_cover.Location = New System.Drawing.Point(42, 310)
         Me.select_cover.Name = "select_cover"
         Me.select_cover.Size = New System.Drawing.Size(199, 42)
         Me.select_cover.TabIndex = 71
@@ -264,7 +273,7 @@ Partial Class assault
         '
         Me.cover.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.cover.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cover.Location = New System.Drawing.Point(655, 403)
+        Me.cover.Location = New System.Drawing.Point(42, 364)
         Me.cover.Name = "cover"
         Me.cover.Size = New System.Drawing.Size(199, 42)
         Me.cover.TabIndex = 72
@@ -274,42 +283,77 @@ Partial Class assault
         'fight
         '
         Me.fight.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.fight.Location = New System.Drawing.Point(468, 581)
+        Me.fight.Location = New System.Drawing.Point(201, 562)
         Me.fight.Name = "fight"
         Me.fight.Size = New System.Drawing.Size(268, 63)
         Me.fight.TabIndex = 73
         Me.fight.Text = "Resolve the Assualt"
         Me.fight.UseVisualStyleBackColor = True
         '
+        'debus
+        '
+        Me.debus.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.debus.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.debus.Location = New System.Drawing.Point(42, 118)
+        Me.debus.Name = "debus"
+        Me.debus.Size = New System.Drawing.Size(199, 42)
+        Me.debus.TabIndex = 74
+        Me.debus.Text = "Debus Infantry"
+        Me.debus.UseVisualStyleBackColor = True
+        '
+        'Panel1
+        '
+        Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.Panel1.Controls.Add(Me.debus)
+        Me.Panel1.Controls.Add(Me.select_cover)
+        Me.Panel1.Controls.Add(Me.cover)
+        Me.Panel1.Controls.Add(Me.atgw_spt)
+        Me.Panel1.Controls.Add(Me.afv_spt)
+        Me.Panel1.Controls.Add(Me.uphill)
+        Me.Panel1.Controls.Add(Me.defending)
+        Me.Panel1.Controls.Add(Me.Label1)
+        Me.Panel1.Location = New System.Drawing.Point(350, 80)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(290, 449)
+        Me.Panel1.TabIndex = 75
+        '
+        'Panel2
+        '
+        Me.Panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.Panel2.Controls.Add(Me.defile)
+        Me.Panel2.Controls.Add(Me.engr)
+        Me.Panel2.Controls.Add(Me.supporting)
+        Me.Panel2.Controls.Add(Me.Label2)
+        Me.Panel2.Controls.Add(Me.assaulting)
+        Me.Panel2.Controls.Add(Me.Label6)
+        Me.Panel2.Location = New System.Drawing.Point(26, 80)
+        Me.Panel2.Name = "Panel2"
+        Me.Panel2.Size = New System.Drawing.Size(290, 449)
+        Me.Panel2.TabIndex = 76
+        '
         'assault
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1284, 662)
+        Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
+        Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.ClientSize = New System.Drawing.Size(684, 661)
+        Me.Controls.Add(Me.Panel2)
+        Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.fight)
-        Me.Controls.Add(Me.select_cover)
-        Me.Controls.Add(Me.cover)
-        Me.Controls.Add(Me.atgw_spt)
-        Me.Controls.Add(Me.defile)
-        Me.Controls.Add(Me.afv_spt)
-        Me.Controls.Add(Me.uphill)
-        Me.Controls.Add(Me.engr)
         Me.Controls.Add(Me.d_arty_spt)
-        Me.Controls.Add(Me.supporting)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.defending)
-        Me.Controls.Add(Me.Label1)
-        Me.Controls.Add(Me.assaulting)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.Label6)
         Me.Controls.Add(Me.a_arty_spt)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "assault"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "assault"
+        Me.Panel1.ResumeLayout(False)
+        Me.Panel1.PerformLayout()
+        Me.Panel2.ResumeLayout(False)
+        Me.Panel2.PerformLayout()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
     Friend WithEvents a_arty_spt As System.Windows.Forms.ListView
@@ -334,4 +378,7 @@ Partial Class assault
     Friend WithEvents select_cover As System.Windows.Forms.Button
     Friend WithEvents cover As System.Windows.Forms.Label
     Friend WithEvents fight As System.Windows.Forms.Button
+    Friend WithEvents debus As Button
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents Panel2 As Panel
 End Class

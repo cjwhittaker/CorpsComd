@@ -17,3 +17,24 @@ C:\Users\Colin Whittaker\Documents\Visual Studio 2008\Projects\CorpsComd\CorpsCo
 C:\Users\Colin Whittaker\Documents\Visual Studio 2008\Projects\CorpsComd\CorpsComd\bin\Release\CorpsComd.exe.config
 C:\Users\Colin Whittaker\Documents\Visual Studio 2008\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.assault.resources
 C:\Users\Colin Whittaker\Documents\Visual Studio 2008\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.mov_rates.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Release\CorpsComd.exe.config
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.exe
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.xml
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.pdb
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Release\CorpsComd.exe
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Release\CorpsComd.pdb
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Release\CorpsComd.xml
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.assault.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.event_manager.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.mov_rates.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.morale_test.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.SplashScreen1.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.unit_selection.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.combat.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.generate_subunits.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.movement.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.Resources.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.orbatmanager.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.resultform.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.scenariodefaults.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Release\CorpsComd.vbproj.GenerateResource.Cache

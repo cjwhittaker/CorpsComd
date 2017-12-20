@@ -1,15 +1,18 @@
 ﻿Public Class orbatmanager
-    Public n As cUnit
-    Dim no As TreeNode, mgt As String = "", parentnode As New TreeNode, orbatside As String
+    Public n As cunit, orbatside As String
+    Dim no As TreeNode, mgt As String = "", parentnode As New TreeNode, currcomd As Integer
     Dim neworbat As Collection
     Dim file As System.IO.StreamWriter
     Private Sub selectnode(ByVal sender As Object, ByVal e As System.Windows.Forms.TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
         Dim x As Integer = 1, parentnode As New TreeNode
         If comdtree.SelectedNode Is Nothing Then Exit Sub
         selectunit(orbat(e.Node.Text))
+        currcomd = orbat(e.Node.Text).comd
+        mgt = ""
         If Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Left Then
             'insert new units
             mgt = "insert"
+            purpose.Text = "Inserting a new Command"
             comdtree.Enabled = False
             selectedunit.Enabled = True
             n = New cunit
@@ -20,38 +23,37 @@
             'insert sub units
             mgt = "insert-subunits"
             go_generate_subunits(orbat(e.Node.Text))
-            populate_command_structure(orbatside)
+            populate_command_structure(comdtree, orbatside, "Orbat")
+        ElseIf Control.ModifierKeys = Keys.Alt And e.Button = Windows.Forms.MouseButtons.Left And e.Node.text <> comdtree.TopNode.text Then
+            'Clone Unit
+            mgt = "clone"
+            purpose.Text = "Cloning a Command"
+            no = e.Node
+            comdtree.Enabled = False
+            selectedunit.Enabled = True
+            n = New cunit
+            n.parent = e.Node.Text
+            selectunit(n)
+
         ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.Left Then
             'mark to edit
             mgt = "edit"
-            If e.Node.BackColor = Color.DarkGoldenrod Then
-                e.Node.BackColor = Color.White
+            purpose.Text = "Editing a Command"
+            n = New cunit
+            n = orbat(e.Node.Text)
+            selectunit(n)
+            If e.Node.BackColor = golden Then
+                e.Node.BackColor = nostatus
             Else
-                e.Node.BackColor = Color.DarkGoldenrod
+                e.Node.BackColor = golden
             End If
         ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.Right Then
             ' edit
             Dim editunit As Boolean = False
             mgt = "edit"
-            If e.Node.BackColor <> Color.DarkGoldenrod Then e.Node.BackColor = Color.DarkGoldenrod
-            For Each anode In comdtree.Nodes
-                If anode.backcolor = Color.DarkGoldenrod Then
-                    editunit = True
-                    no = anode
-                    Exit For
-                Else
-                    no = check_next_to_edit(anode)
-                    If Not (no Is Nothing) Then editunit = True : Exit For
-                End If
-            Next
-            If editunit Then
-                comdtree.Enabled = False
-                selectedunit.Enabled = True
-                n = New cunit
-                n = orbat(no.Text)
-                selectunit(n)
-            End If
-
+            purpose.Text = "Editing a Command"
+            If e.Node.BackColor <> golden Then e.Node.BackColor = golden
+            group_edit()
         ElseIf Control.ModifierKeys = Keys.Shift + Keys.Control Then
             'delete units
             If comdtree.SelectedNode.Level = 0 Then Exit Sub
@@ -63,14 +65,32 @@
         End If
 
     End Sub
+
+    Private Sub group_edit()
+        no = check_next_to_edit(comdtree.TopNode)
+        If Not no Is Nothing Then
+            no.BackColor = nostatus
+            comdtree.Enabled = False
+            selectedunit.Enabled = True
+            n = New cunit
+            n = orbat(no.Text)
+            selectunit(n)
+        Else
+            comdtree.Enabled = True
+            selectedunit.Enabled = False
+            purpose.Text = ""
+
+        End If
+    End Sub
+
     Private Function check_next_to_edit(ByVal x As TreeNode)
         check_next_to_edit = Nothing
         Dim t As TreeNode, t1 As TreeNode
         For Each t In x.Nodes
-            If Not t.BackColor = Color.DarkGoldenrod Then
+            If Not t.BackColor = golden Then
                 t1 = check_next_to_edit(t)
                 If Not (t1 Is Nothing) Then
-                    If t1.BackColor = Color.DarkGoldenrod Then check_next_to_edit = t1 : Exit Function
+                    If t1.BackColor = golden Then check_next_to_edit = t1 : Exit Function
                 End If
             Else
                 check_next_to_edit = t : Exit Function
@@ -78,53 +98,65 @@
         Next
     End Function
 
-    Private Sub finish_edit() Handles confirm.Click
-        Dim editunit As Boolean = False, t1 As TreeNode
-        If mgt = "edit" Then
-            orbat.Remove(n.title)
-            If orbat.Contains(title.Text) Or nullentry() Then orbat.Add(n, n.title) : Exit Sub
-            no.Text = title.Text
-            no.BackColor = Color.White
-            accept_unit_properties(n)
-            For Each t In comdtree.Nodes
-                t1 = check_next_to_edit(t)
-                If Not (t1 Is Nothing) Then no = t1 : editunit = True : Exit For
-            Next
-            If editunit Then
-                n = New cUnit
-                n = orbat(no.Text)
-                selectunit(n)
+    Private Sub finish_edit(sender As Object, e As EventArgs) Handles confirm.Click, reject.Click
+        If mgt = "edit" And sender.name = "confirm" Then
+            currcomd = orbat(orbat(no.Text).parent).comd
+            orbat.Remove(no.Text)
+            If orbat.Contains(title.Text) Or nullentry() Then
+                orbat.Add(n, n.title)
             Else
-                comdtree.Enabled = True
-                selectedunit.Enabled = False
+                accept_unit_properties(n)
+                If no.Text <> title.Text And orbat(title.Text).comd > 0 Then
+                    For Each u As cunit In orbat
+                        If u.parent = no.Text Then u.parent = title.Text
+                    Next
+                End If
+                no.Text = title.Text
             End If
-        ElseIf mgt = "reject" Then
-            If Not (no Is Nothing) Then no.BackColor = Color.White
-            selectunit(n)
-            For Each t In comdtree.Nodes
-                t1 = check_next_to_edit(t)
-                If Not (t1 Is Nothing) Then no = t1 : editunit = True : Exit For
-            Next
-            If editunit Then
-                n = New cUnit
-                n = orbat(no.Text)
-                selectunit(n)
-            Else
-                comdtree.Enabled = True
-                selectedunit.Enabled = False
-                selectunit(orbat(comdtree.SelectedNode.Text))
-            End If
-        ElseIf mgt = "insert" Then
+            group_edit()
+        ElseIf sender.name = "reject" Then
+            group_edit()
+        ElseIf mgt = "insert" And sender.name = "confirm" Then
             If orbat.Contains(title.Text) Or nullentry() Then Exit Sub
             accept_unit_properties(n)
             comdtree.SelectedNode.Nodes.Add(n.title, n.title)
             comdtree.ExpandAll()
             comdtree.Enabled = True
             selectedunit.Enabled = False
+            purpose.Text = ""
+        ElseIf mgt = "clone" And sender.name = "confirm" Then
+            If orbat.Contains(title.Text) Then title.Text = renamed(title.Text)
+            cloneorbat(no, no.Text, orbat(no.Text).parent)
+            populate_command_structure(comdtree, orbatside, "Orbat")
+            comdtree.Enabled = True
+            selectedunit.Enabled = False
+            selectunit(orbat(comdtree.SelectedNode.Text))
+            purpose.Text = ""
         Else
 
         End If
-        mgt = ""
+    End Sub
+
+    Private Sub cloneorbat(nt As TreeNode, origin As String, newpar As String)
+        Dim c As New cunit, par As String = orbat(nt.Text).parent
+        c = orbat(nt.Text).Clone
+        If InStr(c.title, origin) > 0 Then
+            c.title = Replace(c.title, origin, title.Text)
+        Else
+            c.title = renamed(c.title)
+        End If
+        If nt.Text <> no.Text Then
+            If InStr(c.parent, origin) > 0 Then
+                c.parent = Replace(c.parent, origin, title.Text)
+            Else
+                c.parent = newpar
+            End If
+
+        End If
+        orbat.Add(c, c.title)
+        For Each nn As TreeNode In nt.Nodes
+            cloneorbat(nn, origin, c.title)
+        Next
     End Sub
 
     Private Sub accept_unit_properties(ByVal a As cUnit)
@@ -132,7 +164,7 @@
         With a
             .title = title.Text
             .comd = 6 - comd.SelectedIndex
-            .quality = quality.SelectedItem
+            .quality = Val(quality.SelectedItem)
             .nation = orbatside
             .initial = Val(strength.Text)
         End With
@@ -144,45 +176,60 @@
         selectunit(a)
 
     End Sub
+
     Private Sub selectunit(ByVal u As cUnit)
         title.Text = u.title
         comd.SelectedIndex = 6 - u.comd
         comd.Enabled = True
-        quality.SelectedItem = u.quality
+        quality.SelectedItem = Trim(Str(u.quality))
         strength.Text = u.initial
         If u.parent = "root" Then
-            quality.SelectedIndex = 1
             comd.Enabled = False
             strength.Enabled = False
+        ElseIf mgt = "clone" Then
+            comd.Enabled = False
+            strength.Enabled = False
+            quality.Enabled = False
+            equip.Enabled = False
         ElseIf u.comd > 0 Or mgt = "insert" Then
-            quality.SelectedIndex = 1
             strength.Enabled = False
             equip.Text = "HQ"
         ElseIf mgt = "reject" Then
             strength.Enabled = False
             equip.Text = "HQ"
-        Else
+        ElseIf u.comd = 0 Then
             strength.Enabled = True
-            equip.Text = equipment(u.equipment).title
+            equip.Enabled = False
+            equip.Text = u.equipment
+        Else
         End If
     End Sub
 
-    Private Sub reject_edit(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles reject.Click
-        mgt = "reject"
-        finish_edit()
+    Private Sub comd_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comd.SelectedIndexChanged
+        If 6 - sender.SelectedIndex <= 0 Then
+            strength.Enabled = True
+            'equip.Enabled = True
+            'equip.Text = u.equipment
+        Else
+            strength.Enabled = False
+            equip.Enabled = False
+            equip.Text = "HQ"
+        End If
     End Sub
+
     Private Function nullentry()
         If title.Text = "" Or quality.SelectedIndex < 0 Or comd.SelectedIndex < 0 Then
             nullentry = False
         ElseIf n.parent = "root" Then
             nullentry = False
-        ElseIf u.comd > 6 - comd.SelectedIndex Then
+        ElseIf currcomd > 6 - comd.SelectedIndex Then
             nullentry = False
         Else
             nullentry = True
         End If
     End Function
-    Public Sub comdtree_ItemDrag(ByVal sender As System.Object, _
+
+    Public Sub comdtree_ItemDrag(ByVal sender As System.Object,
     ByVal e As System.Windows.Forms.ItemDragEventArgs) _
     Handles comdtree.ItemDrag
 
@@ -190,6 +237,7 @@
         DoDragDrop(e.Item, DragDropEffects.Move)
 
     End Sub
+
     Public Sub comdtree_DragOver(ByVal sender As System.Object, ByVal e As DragEventArgs) Handles comdtree.DragOver
 
         'Check that there is a TreeNode being dragged 
@@ -201,7 +249,7 @@
         'As the mouse moves over nodes, provide feedback to 
         'the user by highlighting the node that is the 
         'current drop target
-        Dim pt As Point = _
+        Dim pt As Point =
             CType(sender, TreeView).PointToClient(New Point(e.X, e.Y))
         Dim targetNode As TreeNode = selectedTreeview.GetNodeAt(pt)
 
@@ -229,12 +277,13 @@
         e.Effect = DragDropEffects.Move
 
     End Sub
-    Public Sub comdtree_DragEnter(ByVal sender As System.Object, _
+
+    Public Sub comdtree_DragEnter(ByVal sender As System.Object,
         ByVal e As System.Windows.Forms.DragEventArgs) _
         Handles comdtree.DragEnter
 
         'See if there is a TreeNode being dragged
-        If e.Data.GetDataPresent("System.Windows.Forms.TreeNode", _
+        If e.Data.GetDataPresent("System.Windows.Forms.TreeNode",
             True) Then
             'TreeNode found allow move effect
             e.Effect = DragDropEffects.Move
@@ -244,8 +293,9 @@
         End If
 
     End Sub
-    Public Sub comdtree_DragDrop(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles comdtree.DragDrop
 
+    Public Sub comdtree_DragDrop(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles comdtree.DragDrop
+        Dim l As String = ""
         'Check that there is a TreeNode being dragged
         If e.Data.GetDataPresent("System.Windows.Forms.TreeNode", True) = False Then Exit Sub
 
@@ -258,6 +308,9 @@
         If orbat(targetNode.Text).comd < orbat(dropNode.Text).comd Then Exit Sub
         If targetNode Is Nothing Then Exit Sub
         orbat(dropNode.Text).parent = targetNode.Text
+        l = orbat(dropNode.Text).loaded
+        If orbat(dropNode.Text).loaded <> "" Then orbat(orbat(dropNode.Text).loaded).parent = targetNode.Text
+
         'Remove the drop node from its current location
         dropNode.Remove()
 
@@ -272,52 +325,20 @@
         dropNode.EnsureVisible()
         comdtree.SelectedNode = dropNode
 
+
     End Sub
 
-    Public Sub populate_command_structure(ByVal currentside As String)
-        Dim TopNode As TreeNode, u As New cUnit, x As Integer = 0
-        orbatside = currentside
-        For Each u In orbat
-            If u.root And u.nation = orbatside Then Exit For
-        Next
-        comdtree.Nodes.Clear()
-        TopNode = comdtree.Nodes.Add(key:=u.title, text:=u.title)
-        CreateNodes(ParentNode:=TopNode, currentcomd:=u.title)
-        comdtree.ExpandAll()
-        comdtree.SelectedNode = TopNode
-        selectunit(orbat(comdtree.SelectedNode.Text))
-    End Sub
-    Private Sub CreateNodes(ByRef ParentNode As TreeNode, ByRef currentcomd As String)
-        Dim subNode As New TreeNode, commandname As String, x As Integer, keynode As String
-        For x = 1 To orbat.Count
-            If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
-                If Not orbat(x).embussed Then
-                    commandname = orbat(x).Title
-                    keynode = orbat(x).title
-                    subNode = ParentNode.Nodes.Add(text:=commandname, key:=keynode)
-                    subNode.Tag = keynode
-                End If
-                'subNode.BackColor = Color.White
-                If orbat(x).comd > 0 Then
-                    CreateNodes(ParentNode:=subNode, currentcomd:=orbat(x).title)
-                End If
+    Private Sub closeorbat(ByVal sender As System.Object, ByVal e As EventArgs) Handles Me.Closed
+        Dim col As Collection
+        col = New Collection
+        For x As Integer = orbat.Count To 1 Step -1
+            If orbat(x).nation = orbatside Then
+                col.Add(orbat(x), orbat(x).title)
+                orbat.Remove(x)
             End If
         Next
-    End Sub
-
-    Private Sub closeorbat(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
-        Dim x As Integer = 0, root As cunit = Nothing
-        For Each u As cunit In orbat
-            x = 0
-            If u.nation = orbatside Then
-                For Each c As cunit In orbat
-                    If c.parent = u.title Then x = x + 1
-                Next
-                u.no_of_units = x
-            End If
-        Next
-        sort()
-
+        reorderorbat(comdtree.TopNode, col)
+        col.Clear()
     End Sub
 
     Private Sub go_generate_subunits(ByVal u As cunit)
@@ -351,9 +372,10 @@
         file.Close()
 
     End Sub
+
     Private Sub printunit(ByVal currentcomd As String, ByVal indentlevel As Integer)
-        Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + orbat(currentcomd).equipment + ")", "")
-        file.WriteLine(Space(indentlevel * 5) + n + Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
+        Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
+        file.WriteLine(Space(indentlevel * 5) + n) 'Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
 
         For x = 1 To orbat.Count
             If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
@@ -365,25 +387,14 @@
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         printorbattofile()
     End Sub
-    Private Sub reorderorbat(ByRef x As cunit)
-        If InStr(x.title, "/") = 0 Then
-            x.sort = x.title
-        ElseIf InStr(x.title, "HQ") <> 0 Then
-            x.sort = Chr(44) + Mid(x.title, InStr(x.title, "/")) + Strings.Left(x.title, InStr(x.title, "/") - 1)
-        Else
-            x.sort = Mid(x.title, InStr(x.title, "/")) + Strings.Left(x.title, InStr(x.title, "/") - 1)
-        End If
-        neworbat.Add(x, x.title)
-        If x.comd = 0 Then
-            Exit Sub
-        End If
-        For Each u As cunit In orbat
-            If u.parent = x.title Then
-                reorderorbat(u)
-            End If
+
+    Private Sub reorderorbat(no As TreeNode, col As Collection)
+        orbat.Add(col(no.Text), no.Text)
+        If col(no.Text).loaded <> "" Then orbat.Add(col(col(no.Text).loaded), col(no.Text).loaded)
+        For Each n As TreeNode In no.Nodes
+            reorderorbat(n, col)
         Next
     End Sub
-
 
     Private Sub select_type_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
         For Each x As cunittype In unittypes
@@ -398,34 +409,59 @@
     End Sub
 
     Private Sub loadvehicles_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loadvehicles.Click
-        Dim passenger As String = "", sub_id As String = ""
+        Dim tpt As String = ""
         If InStr(sender.text, "Embus") > 0 Then
-            loadvehicles.Text = "Debus all Passengers"
+            loadvehicles.Text = "Dismount all Passengers"
             For Each u As cunit In orbat
                 If u.nation = orbatside Then
-                    If u.troopcarrier And u.loaded = "" Then
-                        sub_id = Strings.Left(u.title, 1) + "1"
-                        passenger = sub_id + Mid(u.title, 2)
-                        If orbat.Contains(passenger) Then
-                            u.loaded = passenger
-                            orbat(u.loaded).loaded = u.title
+                    If Not u.troopcarrier And u.loaded = "" And u.debussed Then
+                        tpt = Replace(u.title, "#", "")
+                        If orbat.Contains(tpt) Then
+                            u.loaded = tpt
+                            u.debussed = False
+                            orbat(tpt).loaded = u.title
+                            orbat(tpt).debussed = False
                         End If
                     End If
                 End If
             Next
-
         Else
             loadvehicles.Text = "Embus all Passengers"
             For Each u As cunit In orbat
                 If u.nation = orbatside Then
                     If u.troopcarrier And Not u.loaded = "" Then
                         orbat(u.loaded).loaded = ""
+                        orbat(u.loaded).debussed = True
                         u.loaded = ""
+                        u.debussed = True
                     End If
                 End If
             Next
 
         End If
-        populate_command_structure(orbatside)
+        populate_command_structure(comdtree, orbatside, "Orbat")
     End Sub
+
+    Public Function renamed(ByVal title As String)
+        Dim prefix As String, t As String
+        If InStr(title, "/") = 0 Then
+            prefix = "1"
+            t = "/" + title
+        Else
+            prefix = Strings.Left(title, InStr(title, "/") - 1)
+            t = Strings.Mid(title, InStr(title, "/"))
+        End If
+        renamed = prefix + t
+        Do Until Not orbat.Contains(renamed)
+            If Val(prefix) > 0 Then
+                prefix = Trim(Val(prefix + 1))
+            Else
+                prefix = Chr(Asc(prefix) + 1)
+            End If
+            renamed = prefix + t
+        Loop
+
+    End Function
+
+
 End Class

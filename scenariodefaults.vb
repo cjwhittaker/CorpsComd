@@ -1,5 +1,5 @@
 ﻿Public Class scenariodefaults
-    Public quit As Boolean = False, phase As Integer, playerphase As Integer, deployment_complete As Boolean = False
+    Public quit As Boolean = False, deployment_complete As Boolean = False
     Public Sub New()
         ' This call is required by the Windows Form Designer.
         InitializeComponent()
@@ -7,26 +7,13 @@
     End Sub
 
     Private Sub start_time_inc_ValueChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles start_time_inc.ValueChanged
-        Dim mins As Integer, duskmins As Integer
-        duskmins = Hour(TimeValue(Dusk.Text)) * 60 + Minute(TimeValue(Dusk.Text))
-        mins = (390 + 30 * start_time_inc.Value)
-        If mins > duskmins Then start_time_inc.Value = start_time_inc.Value - 1 : Exit Sub
-        start_time.Text = Format(TimeSerial(0, mins, 0), "HH:mm")
+        Dim hrs As Integer
+        hrs = (0 + 1 * start_time_inc.Value)
+        If hrs > 23 Then start_time_inc.Value = start_time_inc.Value - 1 : Exit Sub
+        start_time.Text = Format(TimeSerial(hrs, 0, 0), "HH:mm")
         Current_time.Text = start_time.Text
-
+        gamedate = DateAdd(DateInterval.Hour, -Hour(gamedate) + hrs, gamedate)
     End Sub
-
-    Private Sub dusk_inc_ValueChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles dusk_inc.ValueChanged
-        Dim duskmins As Integer, mins As Integer
-        duskmins = (16 * 60 + 30 + 30 * dusk_inc.Value)
-        mins = Hour(TimeValue(start_time.Text)) * 60 + Minute(TimeValue(start_time.Text))
-        If duskmins < mins Then dusk_inc.Value = dusk_inc.Value + 1 : Exit Sub
-
-        Dusk.Text = Format(TimeSerial(0, duskmins, 0), "HH:mm")
-
-
-    End Sub
-
 
     Private Sub loadscenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loadscenario.Click
         'Dim y As String
@@ -48,15 +35,23 @@
                     If currentRow(0) = "player1=" Then
                         player1.Text = currentRow(1)
                         player1_init.Text = currentRow(2)
+                        lock_1.Text = currentRow(3)
                         player1.Tag = player1.Text
                     ElseIf currentRow(0) = "player2=" Then
                         player2.Text = currentRow(1)
                         player2_init.Text = currentRow(2)
+                        lock_2.Text = currentRow(3)
                         player2.Tag = player2.Text
+                    ElseIf currentRow(0) = "gamedate=" Then
+                        gamedate = DateValue(currentRow(1))
+                        DateTimePicker1.Value = gamedate
                     ElseIf currentRow(0) = "starttime=" Then
                         start_time.Text = currentRow(1)
+                        start_time_inc.Value = Val(currentRow(1))
+                    ElseIf currentRow(0) = "dawn=" Then
+                        sunrise.Text = currentRow(1)
                     ElseIf currentRow(0) = "dusk=" Then
-                        Dusk.Text = currentRow(1)
+                        sunset.Text = currentRow(1)
                     ElseIf currentRow(0) = "currenttime=" Then
                         Current_time.Text = currentRow(1)
                     ElseIf currentRow(0) = "gameturn=" Then
@@ -70,23 +65,22 @@
                     ElseIf currentRow(0) = "game phase=" Then
                         phase = currentRow(1)
                     ElseIf currentRow(0) = "smoke fired=" Then
-                        smokefiredlasturn = Val(currentRow(1))
-                        smokefiredthisturn = Val(currentRow(2))
+                        smokefiredthisturn = Val(currentRow(1))
                     Else
                     End If
                 Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
-                    MsgBox("Line " & ex.Message & _
+                    MsgBox("Line " & ex.Message &
                     "is not valid and will be skipped.")
                 End Try
             End While
         End Using
+        scenario_name.Text = Mid(Replace(scenario, sys_dir, ""), 2)
         load_orbat()
-        'load_equipment()
-        'load_subunits()
-        p1_orbat_manager.Enabled = True
-        p2_orbat_manager.Enabled = True
-        nextturn.Enabled = True
-        If gameturn.Text > 1 Then enable_data_entry(False) Else enable_data_entry(True)
+        load_events()
+        enable_data_entry(True)
+        If lock_1.Text = "Locked" Then lock_orbats(lock_1, Nothing)
+        If lock_2.Text = "Locked" Then lock_orbats(lock_2, Nothing)
+        If Not lock_1.Enabled And Not lock_2.Enabled Then enable_data_entry(False)
     End Sub
 
     Private Sub savescenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles savescenario.Click
@@ -96,80 +90,77 @@
             newscenario = SaveFileDialog1.FileName
             If newscenario <> scenario Then scenario = newscenario
             savedata(scenario)
-            save_orbat()
+            scenario_name.Text = Mid(Replace(scenario, sys_dir, ""), 2)
 
         End If
+
     End Sub
+
     Private Sub reset_parent()
         For Each u As cunit In orbat
             If u.comd > 0 Then
                 For Each n As cunit In orbat
-                    If Val(n.parent) = u.serialno Then n.parent = u.title
+                    If Val(n.parent) = u.sorties Then n.parent = u.title
                 Next
             End If
         Next
     End Sub
-    Private Sub inc_turn()
-        gameturn.Text = gameturn.Text + 1
-        Current_time.Text = Format(TimeSerial(Hour(TimeValue(Current_time.Text)), Minute(TimeValue(Current_time.Text)) + 60, 0), "HH:mm")
-    End Sub
 
-    Private Sub enable_data_entry(ByRef setting As Boolean)
+    Public Sub enable_data_entry(ByRef setting As Boolean)
         start_time_inc.Enabled = setting
-        dusk_inc.Enabled = setting
         start_time.Enabled = setting
-        Dusk.Enabled = setting
+        DateTimePicker1.Enabled = setting
         Current_time.Enabled = setting
         gameturn.Enabled = setting
         player1.Enabled = setting
         player2.Enabled = setting
         player1_init.Enabled = setting
         player2_init.Enabled = setting
-        deployment_complete = Not setting
-
+        p1_orbat_manager.Enabled = setting
+        p2_orbat_manager.Enabled = setting
+        lock_1.Enabled = setting
+        lock_2.Enabled = setting
+        manage_events.Enabled = setting
+        nextturn.Enabled = Not setting
     End Sub
 
     Private Sub newscenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles newscenario.Click
         reset_form()
         orbat = New Collection
-        p1_orbat_manager.Enabled = True
-        p2_orbat_manager.Enabled = True
-        nextturn.Enabled = True
     End Sub
 
     Private Sub reset_form()
-        start_time.Text = TimeValue("10:00")
-        Dusk.Text = TimeValue("18:00")
-        start_time_inc.Value = (Hour(start_time.Text) * 60 + Minute(start_time.Text) - 390) / 30
-        dusk_inc.Value = (Hour(Dusk.Text) * 60 + Minute(Dusk.Text) - (16 * 60 + 30)) / 30
+        event_list = New Collection
+        orbat = New Collection
+        start_time.Text = TimeValue("00:00")
+        DateTimePicker1_ValueChanged(DateTimePicker1, Nothing)
+        start_time_inc.Value = (10)
         Current_time.Text = start_time.Text
         player1.Text = "" : player1.Tag = "" : player1_init.Text = "" : ph = ""
         player2.Text = "" : player2.Tag = "" : player2_init.Text = "" : nph = ""
+        lock_1.Text = "Lock P1 Orbat"
+        lock_2.Text = "Lock P2 Orbat"
         gameturn.Text = 1
         enable_data_entry(True)
-        phase = 0
+        phase = 1
         playerphase = 1
         quit = True
         Randomize()
     End Sub
 
     Private Sub manage_orbats(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles p1_orbat_manager.Click, p2_orbat_manager.Click
-        Dim t As Button, p As String, f As String
-        t = sender
-        p = Strings.Left(t.Name, 2) : f = Strings.Right(t.Name, 4)
+        Dim p As String, f As String
+        p = Strings.Left(sender.Name, 2) : f = Strings.Right(sender.Name, 4)
         If (player1.Text = "" And p = "p1") Or (player2.Text = "" And p = "p2") Then Exit Sub
         If (orbat Is Nothing) Then Exit Sub
-        If p = "p1" Then p = player1.Text Else p = player2.Text
-        orbatmanager.Tag = f
-
+        If p = "p1" Then orbatmanager.orbatside = player1.Text Else orbatmanager.orbatside = player2.Text
+        populate_command_structure(orbatmanager.comdtree, orbatmanager.orbatside, "Orbat")
         With orbatmanager
-            .orbattitle.Text = p + " - Order of Battle"
-            .populate_command_structure(p)
+            .orbattitle.Text = orbatmanager.orbatside + " - Order of Battle"
             .selectedunit.Visible = True
             .comdtree.HideSelection = False
             .ShowDialog()
         End With
-        deployment_complete = True
     End Sub
 
     Private Sub maintain_player_names(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles player1.Leave, player2.Leave
@@ -192,8 +183,7 @@
         End If
     End Sub
 
-
-    Private Sub reset_scenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles reset_scenario.Click
+    Private Sub reset_scenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
         If orbat Is Nothing Then Exit Sub
         If orbat.Count = 0 Then Exit Sub
         Dim newscenario As String
@@ -210,235 +200,105 @@
 
     End Sub
 
-
-    Private Sub determineinitiative()
-        Dim p1_roll As Integer = 0, p2_roll As Integer = 0
-        'ph = player2.Text : nph = player1.Text
-        'Exit Sub
-        Do
-            p1_roll = d6() + Val(player1_init.Text) : p2_roll = d6() + Val(player2_init.Text)
-        Loop Until p1_roll <> p2_roll
-        If p1_roll > p2_roll Then
-            ph = player1.Text : nph = player2.Text
-        Else
-            ph = player2.Text : nph = player1.Text
-        End If
-        With resultform
-            .ok_button.Visible = True
-            .result.Text = "Initiative Phase" + vbNewLine + vbNewLine + ph + " is the First Player "
-            .ShowDialog()
-            .ok_button.Visible = False
-        End With
-        For Each u As cunit In orbat
-            If u.indirect Then u.smoke = 2
-        Next
-        phase = 1
-    End Sub
     Private Sub nextturn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles nextturn.Click
-        Dim tmp As String
         If orbat Is Nothing Or orbat.Count <= 2 Then Exit Sub
-        'If player1.Text = "" Or player2.Text = "" Or Current_time.Text = Dusk.Text Then GoTo avoidturninc
-        If gameturn.Text = 1 Then enable_data_entry(False)
-        Randomize(3600 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
-        'demoralisationrecovery.units.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent)
-        sort()
-        transport.Name = "transport"
-        demoralisationrecovery.Name = "demoralisationrecovery"
-        opportunityfire.Name = "opportunityfire"
-        aircombat.Name = "aircombat"
-        airdefence.Name = "airdefence"
-        ca_defenders.Name = "ca_defender"
-        'Me.Hide()
-        p1_hqs = New Collection
-        p2_HQs = New Collection
-        p1_orbat = New Collection
-        p2_orbat = New Collection
-        p1_units = New Collection
-        p2_Units = New Collection
-        oppfire = False
-        For Each u As cunit In orbat
-            If u.nation = player1.Text Then
-                p1_orbat.Add(u, u.title)
-            Else
-                p2_orbat.Add(u, u.title)
-            End If
-        Next
-
-        For Each u As cunit In p1_orbat
-            If u.comd > 0 Then p1_hqs.Add(u, u.title) Else p1_units.Add(u, u.title)
-        Next
-        For Each u As cunit In p2_orbat
-            If u.comd > 0 Then p2_HQs.Add(u, u.title) Else p2_Units.Add(u, u.title)
-        Next
+        Me.Visible = False
+        gt = Val(gameturn.Text)
+        If Hour(TimeValue(Current_time.Text)) > dusk Or Hour(TimeValue(Current_time.Text)) < 24 - dawn Then night = True Else night = False
         Do
-            If Hour(TimeValue(Current_time.Text)) > Val(Dusk.Text) Or Hour(TimeValue(Current_time.Text)) < 24 - Val(Dusk.Text) Then night = True Else night = False
-            If playerphase = 1 And phase = 0 Then determineinitiative()
-            oppfire = False
-            If playerphase >= 2 And phase = 1 Then
-                tmp = ph
-                ph = nph
-                nph = tmp
-                If playerphase > 2 Then playerphase = 1
-            End If
-            If ph = player1.Text Then
-                ph_hqs = New Collection
-                ph_hqs = p1_hqs
-                ph_units = New Collection
-                ph_units = p1_units
-                enemy = New Collection
-                enemy = p2_Units
-            Else
-                ph_hqs = New Collection
-                ph_hqs = p2_HQs
-                ph_units = New Collection
-                ph_units = p2_Units
-                enemy = New Collection
-                enemy = p1_units
-            End If
-            'Phase 0 - determine command points
-            If phase = 1 Then
-                For Each u As cunit In ph_hqs
-                    u.comdpts = generatecomdpts(u.quality, u.no_of_units)
-                Next
+            Select Case phase
+                Case 0 : initialise_turn()
+                Case 1 : determineinitiative()
+                Case 2 : command_and_control()
+                Case 3 : air_mission_planning()
+                Case 4 : break_emcon()
+                Case 5 : artillery_allocation_planning()
+                Case 6 : deploy_air_missions()
+                Case 7 : air_to_air(True)
+                Case 8 : ground_to_air("CAP")
+                Case 9 : air_to_air(False)
+                Case 10 : ground_to_air("SEAD")
+                Case 11 : conduct_sead()
+                Case 12 : ground_to_air("Ground Attack")
+                Case 13 : conduct_air_to_ground()
+                Case 14 : artillery_area_fire()
+                Case 15 : artillery_interdiction_markers()
+                Case 16 : cb_fire()
+                Case 17 : fire_and_movement()
+                Case 18 : end_sorties()
+                Case 19 : morale_recovery()
+            End Select
 
-                'phase 0 - allocate tactical points per unit based on quality and role
-                For Each u As cunit In ph_units
-                    If u.quality = "A" Or u.loiter Then
-                        u.tacticalpts = 4
-                    ElseIf u.quality = "B" Then
-                        u.tacticalpts = 3
-                    Else
-                        u.tacticalpts = 2
-                    End If
-                    If u.routed Or u.demoralised Then u.tacticalpts = 0
-                    u.fired = False
-                    u.moved = False
-                    u.comdpts = 0
-                Next
-                For Each u As cunit In enemy
-                    If u.atgw Or (u.airdefence And u.role <> "AC") Or (u.Airsuperiority And u.airborne) Then
-                        u.tacticalpts = 3
-                    ElseIf u.role <> "AC" Then
-                        u.tacticalpts = 4
-                    Else
-
-                    End If
-                    u.comdpts = 0
-                Next
-            End If
-            '***** Start debug point
-            'phase = 5
-            'Phase 1 - morale recovery
-            If phase = 1 Then
-                Moralerecovery()
-                'Phase 1 - spend command points to rally BGs from demoralised and units from rout or repulsed
-                populate_lists(demoralisationrecovery.units, ph_hqs, "Demoralisation", "")
-                If demoralisationrecovery.units.Items.Count > 0 Then demoralisationrecovery.ShowDialog()
-                For Each subject As cunit In ph_units
-                    If subject.routed Or subject.repulsed Then
-                        With movement
-                            .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + gameturn.Text
-                            .current_phase.Text = movement.Text
-                            .options_for("Morale Recovery")
-                            .Tag = "Morale Recovery"
-                            .ShowDialog()
-                        End With
-                        Exit For
-                    End If
-                Next
-                phase = phase + 1
-            End If
-            'phase 2 - Air  Tasking
-            If phase = 2 Then
-                With movement
-                    .Text = "Air Tasking Phase for " + ph + " - Game Turn " + gameturn.Text
-                    .current_phase.Text = movement.Text
-                    .Tag = "Air Tasking"
-                    .options_for("Air Tasking")
-                    .ShowDialog()
-                End With
-                phase = phase + 1
-            End If
-            'phase 3 - Air Superiority Combat
-            If phase = 3 Then
-                aircombat.Tag = "Air Superiority"
-                If checkaircombat(aircombat.Tag, ph_units) And checkaircombat(aircombat.Tag, enemy) Then
-                    populate_lists(aircombat.units, ph_units, aircombat.Tag, "")
-                    populate_lists(combat.targets, enemy, "Air Targets", "")
-                    ewsupport(enemy, aircombat.Tag)
-                    aircombat.ShowDialog()
-                End If
-                phase = phase + 1
-            End If
-            'phase 4 - Air Ground attack
-            If phase = 4 Then
-                aircombat.Tag = "Air-Ground Attack"
-                If checkaircombat(aircombat.Tag, ph_units) Then
-                    populate_lists(aircombat.units, ph_units, aircombat.Tag, "")
-                    populate_lists(combat.targets, enemy, "Ground Attack Targets", "")
-                    aircombat.ShowDialog()
-                End If
-                phase = phase + 1
-            End If
-            aircombat.Tag = ""
-            'Phase 5 - Execute Tactical Actions
-            If phase = 5 Then
-                populate_lists(opportunityfire.units, enemy, "Opportunity Fire", "")
-                populate_lists(ca_defenders.units, enemy, "Close Assault", "")
-                populate_lists(combat.targets, enemy, "Ground Targets", "")
-                With movement
-                    .Text = "Tactical Action Phase for " + ph + " - Game Turn " + gameturn.Text
-                    .current_phase.Text = movement.Text
-                    .Tag = "Tactical Action"
-                    .options_for("Tactical Action")
-                    .ShowDialog()
-                End With
-                smokefiredthisturn = False
-                phase = phase + 1
-                If smokefiredlasturn Then
-                    MsgBox("Remove all smoke fired during the last tactical action phase before this one", vbOKOnly + vbInformation, "Remove Smoke")
-                End If
-                If smokefiredthisturn Then smokefiredlasturn = True Else smokefiredlasturn = False
+            phase = phase + 1
+            'If phase = 2 Then phase = 17
+            'If phase = 18 Then phase = 20
+            savedata(scenario)
+            If phase = 3 Or phase = 6 Or phase = 14 Or phase = 17 Then
+                If MsgBox("Do you wish to quit the program", MsgBoxStyle.YesNo, "Quit Program") = MsgBoxResult.Yes Then Me.Close()
             End If
 
-            'Phase 6 - reduce sortie length of Hels
-            Dim endsortie As String = ""
-            For Each subject As cunit In ph_units
-                If subject.airborne Then
-                    If subject.routed Or subject.repulsed Then subject.sorties = 0 Else subject.sorties = subject.sorties - 1
-                    If subject.sorties = 0 Then
-                        subject.airborne = False
-                        subject.sorties = -equipment(subject.equipment).sortie
-                        endsortie = endsortie + subject.title + ", "
-                    End If
-                ElseIf subject.sorties <= 0 Then
-                    subject.sorties = subject.sorties + 1
-                Else
-                End If
-            Next
-            If endsortie <> "" Then
-                With resultform
-                    .result.Text = "Sorties end for" + vbNewLine + endsortie
-                    .ShowDialog()
-                End With
-            End If
-            playerphase = playerphase + 1
-            phase = 1
-            'savedata(scenario)
-            If quit Then GoTo closeprogram
-        Loop Until playerphase > 2
-        inc_turn()
-avoidturninc:
+        Loop Until phase = 20
+        Me.Visible = True
+        If smokefiredthisturn Then MsgBox("Remove all smoke fired during the last tactical action phase before this one", vbOKOnly + vbInformation, "Remove Smoke")
+        smokefiredthisturn = False
+        gameturn.Text = gameturn.Text + 1
+        gamedate = DateAdd(DateInterval.Hour, 1, gamedate)
+        gt = Val(gameturn.Text)
+        Current_time.Text = Format(gamedate, "HH:mm")
         If Not Me.Visible Then Me.Show()
-        Exit Sub
-closeprogram:
-        If quit Then Me.Close()
+
     End Sub
 
+    Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs)
+        For Each u As cunit In orbat
+            If u.parent = "115 MRR" And u.comd = 0 Then
+                If u.indirect Then u.eligibleCB = True
+            End If
+        Next
+    End Sub
 
+    Private Sub lock_orbats(sender As Object, e As EventArgs) Handles lock_1.Click, lock_2.Click
+        sender.text = "Locked"
+        If sender.name = "lock_1" Then
+            lock_1.Text = "Locked"
+            p1_orbat_manager.Enabled = False
+            player1.Enabled = False
+            player1_init.Enabled = False
+            lock_1.Enabled = False
+        Else
+            lock_2.Text = "Locked"
+            p2_orbat_manager.Enabled = False
+            player2.Enabled = False
+            player2_init.Enabled = False
+            lock_2.Enabled = False
+        End If
 
-    Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles test_button.Click
+    End Sub
 
+    Private Sub DateTimePicker1_ValueChanged(sender As Object, e As EventArgs) Handles DateTimePicker1.ValueChanged
+        gamedate = DateTimePicker1.Value
+        calcdawn()
+    End Sub
+
+    Private Sub calcdawn()
+
+        Dim yr As Integer
+        If DateAndTime.Day(gamedate) < 23 And DateAndTime.Month(gamedate) <= 9 Then yr = Year(gamedate) - 1 Else yr = Year(gamedate)
+        dawn = Int(0.5 + (6 + 2 * Math.Sin(2 * Math.PI * DateDiff(DateInterval.Day, DateSerial(yr, 9, 23), gamedate) / 365)))
+        sunrise.Text = Format(TimeSerial(dawn, 0, 0), "HH:mm")
+        dusk = Int(0.5 + (18 - 2 * Math.Sin(2 * Math.PI * DateDiff(DateInterval.Day, DateSerial(yr, 9, 23), gamedate) / 365)))
+        sunset.Text = Format(TimeSerial(dusk, 0, 0), "HH:mm")
+
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs)
+        Stop
+
+    End Sub
+
+    Private Sub manage_events_Click(sender As Object, e As EventArgs) Handles manage_events.Click
+        If event_list Is Nothing Then event_list = New Collection
+        event_manager.ShowDialog()
     End Sub
 
     Private Sub scenariodefaults_Load(sender As Object, e As EventArgs) Handles Me.Load
@@ -452,4 +312,6 @@ closeprogram:
         load_subunits()
 
     End Sub
+
+
 End Class

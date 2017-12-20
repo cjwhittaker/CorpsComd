@@ -22,6 +22,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -34,7 +35,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -59,6 +59,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -90,6 +93,7 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationEvents.vb" />
     <Compile Include="assault.Designer.vb">
       <DependentUpon>assault.vb</DependentUpon>
     </Compile>
@@ -97,16 +101,37 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="cequipment.vb" />
+    <Compile Include="cevents.vb" />
     <Compile Include="common_variables.vb" />
     <Compile Include="cunit.vb" />
     <Compile Include="csubunit.vb" />
     <Compile Include="cunittype.vb" />
+    <Compile Include="event_manager.designer.vb">
+      <DependentUpon>event_manager.vb</DependentUpon>
+    </Compile>
+    <Compile Include="event_manager.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Game_sequence.vb" />
     <Compile Include="mov_rates.Designer.vb">
       <DependentUpon>mov_rates.vb</DependentUpon>
     </Compile>
     <Compile Include="mov_rates.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="morale_test.designer.vb">
+      <DependentUpon>morale_test.vb</DependentUpon>
+    </Compile>
+    <Compile Include="morale_test.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SplashScreen1.designer.vb">
+      <DependentUpon>SplashScreen1.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SplashScreen1.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tests.vb" />
     <Compile Include="unit_selection.Designer.vb">
       <DependentUpon>unit_selection.vb</DependentUpon>
     </Compile>
@@ -165,14 +190,24 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Utilities.vb" />
+    <Compile Include="Utilities_air_ops.vb" />
     <Compile Include="utilities_file_handling.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="assault.resx">
       <DependentUpon>assault.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="event_manager.resx">
+      <DependentUpon>event_manager.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="mov_rates.resx">
       <DependentUpon>mov_rates.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="morale_test.resx">
+      <DependentUpon>morale_test.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SplashScreen1.resx">
+      <DependentUpon>SplashScreen1.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="unit_selection.resx">
       <DependentUpon>unit_selection.vb</DependentUpon>
@@ -204,6 +239,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="My Project\app.manifest" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>

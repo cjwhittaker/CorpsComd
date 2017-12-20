@@ -31,6 +31,7 @@ Partial Class resultform
         '
         'ok_button
         '
+        Me.ok_button.DialogResult = System.Windows.Forms.DialogResult.Cancel
         Me.ok_button.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ok_button.Location = New System.Drawing.Point(328, 354)
         Me.ok_button.Name = "ok_button"
@@ -45,6 +46,7 @@ Partial Class resultform
         Me.result.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.result.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.result.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.result.ForeColor = System.Drawing.Color.White
         Me.result.Location = New System.Drawing.Point(12, 9)
         Me.result.Name = "result"
         Me.result.Size = New System.Drawing.Size(410, 332)
@@ -54,9 +56,8 @@ Partial Class resultform
         '
         'yb
         '
-        Me.yb.DialogResult = System.Windows.Forms.DialogResult.Yes
         Me.yb.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.yb.Location = New System.Drawing.Point(116, 354)
+        Me.yb.Location = New System.Drawing.Point(12, 354)
         Me.yb.Name = "yb"
         Me.yb.Size = New System.Drawing.Size(94, 47)
         Me.yb.TabIndex = 2
@@ -66,9 +67,8 @@ Partial Class resultform
         '
         'nb
         '
-        Me.nb.DialogResult = System.Windows.Forms.DialogResult.No
         Me.nb.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.nb.Location = New System.Drawing.Point(222, 353)
+        Me.nb.Location = New System.Drawing.Point(167, 354)
         Me.nb.Name = "nb"
         Me.nb.Size = New System.Drawing.Size(94, 47)
         Me.nb.TabIndex = 3
@@ -80,6 +80,7 @@ Partial Class resultform
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(434, 411)
         Me.Controls.Add(Me.nb)

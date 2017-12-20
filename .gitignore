@@ -1,3 +1,13 @@
 
 *.exe
 *.pdb
+bin/Debug/CorpsComd.exe
+bin/Debug/CorpsComd.exe
+*.exe
+*.pdb
+*.manifest
+*.vbproj
+*.user
+*.Cache
+*.exe
+*.exe

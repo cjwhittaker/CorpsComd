@@ -1,6 +1,6 @@
 ﻿Public Class orbatmanager
     Public n As cunit, orbatside As String
-    Dim no As TreeNode, mgt As String = "", parentnode As New TreeNode, currcomd As Integer
+    Dim no As TreeNode, mgt As String = "", parentnode As New TreeNode, currcomd As Integer, col As Collection
     Dim neworbat As Collection
     Dim file As System.IO.StreamWriter
     Private Sub selectnode(ByVal sender As Object, ByVal e As System.Windows.Forms.TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
@@ -9,7 +9,7 @@
         selectunit(orbat(e.Node.Text))
         currcomd = orbat(e.Node.Text).comd
         mgt = ""
-        If Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Left Then
+        If Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Left And currcomd > 0 Then
             'insert new units
             mgt = "insert"
             purpose.Text = "Inserting a new Command"
@@ -19,12 +19,12 @@
             n.parent = e.Node.Text
             selectunit(n)
             parentnode = comdtree.SelectedNode
-        ElseIf Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Right Then
+        ElseIf Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Right And currcomd > 0 Then
             'insert sub units
             mgt = "insert-subunits"
             go_generate_subunits(orbat(e.Node.Text))
             populate_command_structure(comdtree, orbatside, "Orbat")
-        ElseIf Control.ModifierKeys = Keys.Alt And e.Button = Windows.Forms.MouseButtons.Left And e.Node.text <> comdtree.TopNode.text Then
+        ElseIf Control.ModifierKeys = Keys.Alt And e.Button = Windows.Forms.MouseButtons.Left And e.Node.Text <> comdtree.TopNode.Text Then
             'Clone Unit
             mgt = "clone"
             purpose.Text = "Cloning a Command"
@@ -183,7 +183,9 @@
         comd.Enabled = True
         quality.SelectedItem = Trim(Str(u.quality))
         strength.Text = u.initial
-        If u.parent = "root" Then
+        If mgt = "insert" Then
+            comd.SelectedIndex = 6 - orbat(n.parent).comd + 1
+        ElseIf u.parent = "root" Then
             comd.Enabled = False
             strength.Enabled = False
         ElseIf mgt = "clone" Then

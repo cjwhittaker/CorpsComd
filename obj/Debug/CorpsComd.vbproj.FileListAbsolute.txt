@@ -19,7 +19,6 @@ C:\Users\Colin Whittaker\Documents\Visual Studio 2008\Projects\CorpsComd\CorpsCo
 C:\Users\Colin Whittaker\Documents\Visual Studio 2008\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.mov_rates.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Debug\CorpsComd.exe
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Debug\CorpsComd.exe.config
-C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.vbprojResolveAssemblyReference.cache
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.assault.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.mov_rates.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.unit_selection.resources
@@ -39,3 +38,4 @@ C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Deb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.morale_test.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.SplashScreen1.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.event_manager.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.vbprojResolveAssemblyReference.cache

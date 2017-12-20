@@ -30,8 +30,8 @@ Partial Class generate_subunits
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Label3 = New System.Windows.Forms.Label()
-        Me.sub_a = New System.Windows.Forms.CheckBox()
-        Me.sub_1 = New System.Windows.Forms.CheckBox()
+        Me.sub_a = New System.Windows.Forms.Label()
+        Me.sub_1 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'orbattitle
@@ -113,27 +113,25 @@ Partial Class generate_subunits
         '
         'sub_a
         '
-        Me.sub_a.Appearance = System.Windows.Forms.Appearance.Button
+        Me.sub_a.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.sub_a.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.sub_a.Location = New System.Drawing.Point(295, 219)
+        Me.sub_a.Location = New System.Drawing.Point(418, 219)
         Me.sub_a.Name = "sub_a"
-        Me.sub_a.Size = New System.Drawing.Size(90, 38)
-        Me.sub_a.TabIndex = 26
+        Me.sub_a.Size = New System.Drawing.Size(91, 38)
+        Me.sub_a.TabIndex = 28
         Me.sub_a.Text = """A"""
         Me.sub_a.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.sub_a.UseVisualStyleBackColor = True
         '
         'sub_1
         '
-        Me.sub_1.Appearance = System.Windows.Forms.Appearance.Button
+        Me.sub_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.sub_1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.sub_1.Location = New System.Drawing.Point(418, 219)
+        Me.sub_1.Location = New System.Drawing.Point(295, 219)
         Me.sub_1.Name = "sub_1"
-        Me.sub_1.Size = New System.Drawing.Size(90, 38)
-        Me.sub_1.TabIndex = 27
+        Me.sub_1.Size = New System.Drawing.Size(91, 38)
+        Me.sub_1.TabIndex = 29
         Me.sub_1.Text = """1"""
         Me.sub_1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.sub_1.UseVisualStyleBackColor = True
         '
         'generate_subunits
         '
@@ -164,6 +162,6 @@ Partial Class generate_subunits
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents Button1 As System.Windows.Forms.Button
     Friend WithEvents Label3 As System.Windows.Forms.Label
-    Friend WithEvents sub_a As System.Windows.Forms.CheckBox
-    Friend WithEvents sub_1 As System.Windows.Forms.CheckBox
+    Friend WithEvents sub_a As Label
+    Friend WithEvents sub_1 As Label
 End Class

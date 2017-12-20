@@ -4,7 +4,7 @@
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         Dim n As New cunit, i As Integer = 0, l As String = "", passengers As Boolean = False, t As String = ""
         Dim same_desig As Boolean = False, ch As Integer = 65, pas As String = "*", subunits As Integer = 0, desig As String = ""
-        If Not sub_1.Checked And Not sub_a.Checked Then Exit Sub
+        If Not sub_1.BackColor = golden And Not sub_a.BackColor = golden Then Exit Sub
         For Each s As csubunit In TOE
             If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
                 If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
@@ -13,7 +13,7 @@
         Next
         For Each s As csubunit In TOE
             If s.title = unittype.SelectedItem Then
-                If subunits > 9 Or sub_a.Checked Then
+                If subunits > 9 Or sub_a.BackColor = golden Then
                     ch = 65
                 Else
                     ch = 49
@@ -104,19 +104,17 @@
 
     Private Sub generate_subunits_Load(sender As Object, e As EventArgs) Handles Me.Load
         If unittype.Items.Count = 0 Then Me.Close()
-        If unittype.Items.Count = 1 Then unittype.SelectedIndex = 0
+        unittype.SelectedIndex = 0
         quality.SelectedItem = Trim(Str(orbat(Trim(orbattitle.Text)).quality))
-        If sub_1.Checked Then sub_identifers(sub_1, Nothing)
-        If sub_a.Checked Then sub_identifers(sub_a, Nothing)
+        sub_1.BackColor = defa
+        sub_a.BackColor = defa
     End Sub
 
-    Private Sub sub_identifers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles sub_a.CheckedChanged, sub_1.CheckedChanged
-        If sender.name = "sub_a" And sender.checked Then
-            sub_1.Checked = False
+    Private Sub sub_identifers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles sub_1.Click, sub_a.Click
+        If (sender.name = "sub_a" And sender.backcolor = defa) Or (sender.name = "sub_1" And sender.backcolor = golden) Then
             sub_1.BackColor = defa
             sub_a.BackColor = golden
-        ElseIf sender.name = "sub_1" And sender.checked Then
-            sub_a.Checked = False
+        ElseIf (sender.name = "sub_1" And sender.backcolor = defa) Or (sender.name = "sub_a" And sender.backcolor = golden) Then
             sub_a.BackColor = defa
             sub_1.BackColor = golden
         Else

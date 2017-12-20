@@ -71,7 +71,8 @@ Partial Class orbatmanager
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(669, 605)
+        Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button1.Location = New System.Drawing.Point(545, 569)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(203, 45)
         Me.Button1.TabIndex = 23
@@ -81,7 +82,7 @@ Partial Class orbatmanager
         'loadvehicles
         '
         Me.loadvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.loadvehicles.Location = New System.Drawing.Point(545, 492)
+        Me.loadvehicles.Location = New System.Drawing.Point(545, 521)
         Me.loadvehicles.Name = "loadvehicles"
         Me.loadvehicles.Size = New System.Drawing.Size(203, 42)
         Me.loadvehicles.TabIndex = 18
@@ -239,15 +240,14 @@ Partial Class orbatmanager
         '
         'purpose
         '
-        Me.purpose.AutoSize = True
         Me.purpose.BackColor = System.Drawing.Color.Transparent
         Me.purpose.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.purpose.Location = New System.Drawing.Point(145, 20)
+        Me.purpose.Location = New System.Drawing.Point(38, 20)
         Me.purpose.Name = "purpose"
-        Me.purpose.Size = New System.Drawing.Size(84, 24)
+        Me.purpose.Size = New System.Drawing.Size(300, 29)
         Me.purpose.TabIndex = 19
         Me.purpose.Text = "Function"
-        Me.purpose.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.purpose.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'orbatmanager
         '

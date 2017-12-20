@@ -855,6 +855,19 @@
             End If
         Next
     End Sub
+    Public Sub reorderorbat(unit As String)
+        orbat.Add(col(unit), unit)
+        col.Remove(unit)
+        'If col(uni).loaded <> "" Then orbat.Add(col(col(no.Text).loaded), col(no.Text).loaded)
+        For Each u As cunit In col
+            If u.parent = unit Then reorderorbat(u.title)
+        Next
+        'If no.Nodes.Count <> 0 Then
+        '    For Each n As TreeNode In no.Nodes
+        '        reorderorbat(n)
+        '    Next
+        'End If
+    End Sub
 
 
     Public Sub test_for_events(ByVal s As String, ByVal t As Date)

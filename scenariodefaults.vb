@@ -93,7 +93,6 @@
             If newscenario <> scenario Then scenario = newscenario
             savedata(scenario)
             scenario_name.Text = Mid(Replace(scenario, sys_dir, ""), 2)
-
         End If
 
     End Sub
@@ -276,7 +275,10 @@
             player2_init.Enabled = False
             lock_2.Enabled = False
         End If
-
+        If Not lock_1.Enabled And Not lock_2.Enabled Then
+            savedata(scenario)
+            enable_data_entry(False)
+        End If
     End Sub
 
     Private Sub DateTimePicker1_ValueChanged(sender As Object, e As EventArgs) Handles DateTimePicker1.ValueChanged

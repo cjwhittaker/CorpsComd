@@ -243,6 +243,7 @@
             target.fired = gt
             target.tacticalpts = target.tacticalpts - 1
         End If
+
         If firephase = "CAP" Then
             init_msg = "Air-to-Air combat Result "
             For i As Integer = 1 To 3
@@ -315,16 +316,16 @@
         End With
         If firer.result < 0 Then firer.result = 1
         If target.result < 0 Then target.result = 1
-        If InStr(firer.msg, "disperse") > 0 And InStr(resultform.Tag, "Disperse nph") > 0 Then
+        If InStr(firer.msg, "disperse") > 0 And InStr(result_option, "Disperse nph") > 0 Then
             target.casualties = target.casualties + firer.result - 1
             target.mode = disp
         End If
-        If InStr(target.msg, "disperse") > 0 And InStr(resultform.Tag, "Disperse ph") > 0 Then
+        If InStr(target.msg, "disperse") > 0 And InStr(result_option, "Disperse ph") > 0 Then
             firer.casualties = firer.casualties + target.result - 1
             firer.mode = disp
         End If
-        If InStr(firer.msg, "disperse") > 0 And InStr(resultform.Tag, "Disperse nph") = 0 Then target.casualties = target.casualties + firer.result
-        If InStr(target.msg, "disperse") > 0 And InStr(resultform.Tag, "Disperse ph") = 0 Then firer.casualties = firer.casualties + target.result
+        If InStr(firer.msg, "disperse") > 0 And InStr(result_option, "Disperse nph") = 0 Then target.casualties = target.casualties + firer.result
+        If InStr(target.msg, "disperse") > 0 And InStr(result_option, "Disperse ph") = 0 Then firer.casualties = firer.casualties + target.result
 
         If firephase = "Air Defence" Or firephase = "CAP" Or (firephase = "Fire and Movement" And target.hels) Then
             If target.hit And target.disrupted Then

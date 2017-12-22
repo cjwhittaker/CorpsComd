@@ -628,34 +628,34 @@
                 generateresult = " disrupted, and suffered  " + Str(target.casualties) + " casualties, and holds its current position"
             End If
         ElseIf target.mode = travel And Not target.recon And Not target.airborne Then
-                If c = 0 Then
-                    c = -1
-                ElseIf c = -1 Then
-                    c = 1
-                Else
-                    c = c + 1
-                End If
-            ElseIf c = 0 Then
-                generateresult = " with no effect"
-                'ElseIf target.airborne And c < 0 Then
-                '    generateresult = " with an aircraft aborted"
-                '    target.aborts = target.aborts + c
-                'ElseIf target.airborne Then
-                '    generateresult = " with " + Str(c) + " aircraft shot down"
-                '    target.casualties = target.casualties + c
-            ElseIf (target.mode = disp And c < 0) Then
-                generateresult = " with no effect"
-                target.hits = target.hits + 1
-            ElseIf target.mode = disp Then
-                generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties")
-                If c >= 2 Then target.disordered = True
-                target.casualties = target.casualties + c
-                target.hits = target.hits + c
-            ElseIf target.mode <> disp And c < 0 Then
-                generateresult = " with no casualties but it must disperse or accept 1 casualty"
-                target.hits = target.hits + 1
+            If c = 0 Then
+                c = -1
+            ElseIf c = -1 Then
+                c = 1
             Else
-                generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties") + " it may now disperse"
+                c = c + 1
+            End If
+        ElseIf c = 0 Then
+            generateresult = " with no effect"
+            'ElseIf target.airborne And c < 0 Then
+            '    generateresult = " with an aircraft aborted"
+            '    target.aborts = target.aborts + c
+            'ElseIf target.airborne Then
+            '    generateresult = " with " + Str(c) + " aircraft shot down"
+            '    target.casualties = target.casualties + c
+        ElseIf (target.mode = disp And c < 0) Then
+            generateresult = " with no effect"
+            target.hits = target.hits + 1
+        ElseIf target.mode = disp Then
+            generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties")
+            If c >= 2 Then target.disordered = True
+            target.casualties = target.casualties + c
+            target.hits = target.hits + c
+        ElseIf target.mode <> disp And c < 0 Then
+            generateresult = " with no casualties but it must disperse or accept 1 casualty"
+            target.hits = target.hits + 1
+        Else
+            generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties") + " it may now disperse"
             target.hits = target.hits + c
         End If
     End Function
@@ -877,6 +877,8 @@
                             .Text = "Game Events - GT" + Trim(Str(gt)) + " at " + Format(t, "HH:mm") + "hrs"
                             .result.Text = e.text
                             .yb.Visible = False
+                            .nb.Visible = False
+                            .ok_button.Visible = True
                             .ShowDialog()
                             .nb.Visible = False
                         End With

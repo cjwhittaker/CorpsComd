@@ -48,6 +48,7 @@
             End If
             button_press = sender.text
         End If
+        result_option = Me.Tag
     End Sub
 
     Private Sub resultform_Closed(sender As Object, e As EventArgs) Handles Me.Closed
@@ -56,5 +57,6 @@
         yb.BackColor = defa
         nb.BackColor = defa
     End Sub
+
 End Class
 

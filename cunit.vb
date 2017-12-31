@@ -42,7 +42,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pewsupported As Boolean
     Private pplains As Boolean
     Private pinsmoke As Boolean
-    Private psort As String
+    Private parrives As String
     Private pspotted As Boolean
     Private peffective As Boolean
     Private peffect As Integer
@@ -530,12 +530,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             popp_ca = Value
         End Set
     End Property
-    Property sort() As String
+    Property arrives() As String
         Get
-            Return psort
+            Return parrives
         End Get
         Set(ByVal Value As String)
-            psort = Value
+            parrives = Value
         End Set
     End Property
 
@@ -552,9 +552,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function role()
         If equipment Is "" Or equipment Is Nothing Then
-            role = "XX"
+            role = "|XX|"
         Else
-            role = CorpsComd.equipment(Me.equipment).role
+            role = "|" + Trim(CorpsComd.equipment(Me.equipment).role) + "|"
         End If
     End Function
 
@@ -578,19 +578,32 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function loiter()
         loiter = False
-        If InStr("|A10|SU25|Harrier-GR8|", equipment) > 0 Then loiter = True
+        If Aircraft() And InStr(CorpsComd.equipment(equipment).special, "L") Then loiter = True
     End Function
     Public Function atgw()
         atgw = False
-        If InStr(role, "ATGW") > 0 Or (role() = "AH" And pairborne) Then atgw = True
+        If InStr(role, "ATGW") > 0 Or (InStr(role, "AH") > 0 And airborne) Then atgw = True
     End Function
     Public Function airdefence()
         airdefence = False
-        If InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then airdefence = True
+        If mode = travel Then
+            airdefence = False
+        ElseIf InStr(role, "Inf") > 0 And Not dismounted() Then
+            airdefence = False
+        ElseIf InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then
+            airdefence = True
+        Else
+        End If
     End Function
 
     Public Function radar()
-        If (CorpsComd.equipment(Me.equipment).role = "PDSAM" Or CorpsComd.equipment(Me.equipment).role = "ADSAM") And InStr(UCase(CorpsComd.equipment(Me.equipment).special), "E") > 0 Then radar = True Else radar = False
+        If mode = travel Then
+            radar = False
+        ElseIf InStr("|PDSAM|ADSAM|", role) > 0 And InStr(UCase(CorpsComd.equipment(Me.equipment).special), "E") > 0 Then
+            radar = True
+        Else
+            radar = False
+        End If
     End Function
 
     Public Function Airsuperiority()
@@ -601,19 +614,19 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
 
     Public Function Airground()
-        If ptask = "CAS" Or ptask = "Strike" Or ptask = "SEAD" Then Airground = True Else Airground = False
+        If task = "CAS" Or task = "Strike" Or task = "SEAD" Then Airground = True Else Airground = False
     End Function
     Public Function Aircraft()
         Aircraft = False
-        If InStr("|AC|AH|OH|TB|AD|GA|AWACS|EW|", "|" + Trim(role) + "|") > 0 Then Aircraft = True
+        If InStr("|AC|AH|OH|TB|AD|GA|AWACS|EW|", role) > 0 Then Aircraft = True
     End Function
     Public Function hels()
         hels = False
-        If InStr("|AH|OH|UH|TH|", "|" + Trim(role) + "|") > 0 And airborne Then hels = True
+        If InStr("|AH|OH|UH|TH|", role) > 0 And airborne Then hels = True
     End Function
     Public Function heli()
         heli = False
-        If InStr("|AH|OH|UH|TH|", "|" + Trim(role) + "|") > 0 Then heli = True
+        If InStr("|AH|OH|UH|TH|", role) > 0 Then heli = True
     End Function
     Public Function Inf()
         Inf = False
@@ -638,10 +651,10 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function hq()
         If Me.comd > 0 Then hq = True : Exit Function
-        If role() = "HQ" Then hq = True Else hq = False
+        If InStr(role(), "HQ") > 0 Then hq = True Else hq = False
     End Function
     Public Function nondetect()
-        If airdefence() Or Airsuperiority() Or task = "SEAD" Then nondetect = True Else nondetect = False
+        If airdefence() Or Airsuperiority() Or sead() Then nondetect = True Else nondetect = False
     End Function
     Public Function text_status()
         text_status = ""
@@ -656,9 +669,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf moved Then
             text_status = "- Moving"
         ElseIf hit Then
-            text_status = "- Under Fire " + IIf(pcover > 0, "in cover +" + Trim(Str(pcover)), "")
+            text_status = "- Under Fire " + IIf(Cover > 0, "in cover +" + Trim(Str(Cover)), "")
         Else
-            text_status = "- Static " + IIf(pcover > 0, "in cover +" + Trim(Str(pcover)), "")
+            text_status = "- Static " + IIf(Cover > 0, "in cover +" + Trim(Str(Cover)), "")
         End If
     End Function
     Public Sub set_fire_effect(target As cunit, r As Integer, stage As Integer)
@@ -693,9 +706,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
         If Not context = "AS" And r > max_range Then effect = 0 : Exit Sub
 
-        If context = "SEAD" Then
+        If context = "SEAD" And target.eligibleCB And target.airdefence Then
             effect = CorpsComd.equipment(equipment).standoff
             If r > max_range / 2 Then target.modifier = 1
+        ElseIf context = "SEAD" And Not target.eligibleCB And target.airdefence Then
+            effect = CorpsComd.equipment(equipment).ordnance
+
         ElseIf context = "GA" Then
             If stage = 0 Then
                 effect = CorpsComd.equipment(equipment).ordnance
@@ -705,7 +721,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf context = "AS" Then
             If stage = 0 Then
                 effect = CorpsComd.equipment(equipment).air_to_air_effect
-                If role() = "TB" And Not target.hels Then effect = Int(effect / 3)
+                If role() = "|TB|" And Not target.hels Then effect = Int(effect / 3)
             ElseIf stage = 1 Then
                 effect = CorpsComd.equipment(equipment).aam
                 CorpsComd.equipment(target.equipment).defence = CorpsComd.equipment(target.equipment).miss_def
@@ -714,13 +730,13 @@ Imports System.Runtime.Serialization.Formatters.Binary
             Else
                 effect = CorpsComd.equipment(equipment).cannon
                 CorpsComd.equipment(target.equipment).defence = CorpsComd.equipment(target.equipment).gun_def
-                If role() = "TB" And Not target.hels Then effect = Int(effect / 3)
+                If role() = "|TB|" And Not target.hels Then effect = Int(effect / 3)
             End If
         ElseIf context = "AD" Then
-            If r / CorpsComd.equipment(equipment).max > 0.667 Or (r / CorpsComd.equipment(equipment).max > 0.5 And role() = "AAA") Then
+            If r / CorpsComd.equipment(equipment).max > 0.667 Or (r / CorpsComd.equipment(equipment).max > 0.5 And role() = "|AAA|") Then
                 effect = CorpsComd.equipment(equipment).full
                 If InStr(radar, "M") > 0 And Not eligibleCB Then effect = -1
-            ElseIf r / CorpsComd.equipment(equipment).max > 0.333 Or role = "AAA" Then
+            ElseIf r / CorpsComd.equipment(equipment).max > 0.333 Or role() = "|AAA|" Then
                 effect = CorpsComd.equipment(equipment).twothird
                 If InStr(radar, "E") > 0 And Not eligibleCB Then effect = -1
             Else
@@ -825,7 +841,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function recon()
         recon = False
-        If role() = "RECON" Then recon = True
+        If role() = "|RECON|" Then recon = True
     End Function
     Public Function size()
         size = CorpsComd.equipment(equipment).size
@@ -887,6 +903,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
+        'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then
                 validunit = True
@@ -941,17 +958,17 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf phase = "Transport" Then
             If parent = hq And loaded = "" And Not disrupted Then validunit = True
         ElseIf phase = "Air Tasking" Then
-            If parent = hq And Not airborne And sorties > 0 And Aircraft() Then validunit = True
+            If parent = hq And Not airborne And sorties = 0 And Aircraft() Then validunit = True
         ElseIf phase = "Observing" Then
             If parent = hq And Not disrupted Then validunit = True
         ElseIf phase = "Observer" Then
             If Not disrupted And Not disordered And Not demoralised And Not lostcomms And (ground_unit() Or hels()) And tacticalpts >= 2 Then
-                If orbat(parent).ooc Or orbat(orbat(parent)).ooc Then
+                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                     validunit = False
                 Else
-                    If parent = hq Or (primary = hq And hels()) Then
+                    If parent = hq Or (task = "Obse" And hels()) Then
                         statusimpact = 0
-                    ElseIf orbat(parent).parent = hq Then
+                    ElseIf brigade_comd(Me) = brigade_comd(orbat(hq)) Then
                         statusimpact = 1
                     Else
                         statusimpact = 2
@@ -1020,7 +1037,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 status = dead
             ElseIf assault Then
                 status = assaulting
-            ElseIf comd = 0 And tacticalpts = 0 Then
+            ElseIf comd = 0 And tacticalpts = 0 And phase = 17 Then
                 status = no_action_pts
             ElseIf airborne Then
                 status = take_off
@@ -1114,7 +1131,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Sub update_after_firing(phasing As String, weapon As String, finished As Boolean)
         Dim i As Integer = 0
-        If fires Then
+        If fires And weapon <> "Minefield" Then
             If Aircraft() And finished Then
                 i = 1
             ElseIf finished And phasing = nation And movement.scoot Then

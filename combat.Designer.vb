@@ -57,20 +57,20 @@ Partial Class combat
         Me.froadmove = New System.Windows.Forms.Label()
         Me.Label13 = New System.Windows.Forms.Label()
         Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.return_fire = New System.Windows.Forms.Panel()
         Me.t2 = New System.Windows.Forms.Label()
-        Me.taltitude = New System.Windows.Forms.Label()
-        Me.altitude = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.t3 = New System.Windows.Forms.Label()
+        Me.t1 = New System.Windows.Forms.Label()
+        Me.taltitude = New System.Windows.Forms.Label()
+        Me.altitude = New System.Windows.Forms.Label()
         Me.tinsmoke = New System.Windows.Forms.Label()
         Me.targetelevation = New System.Windows.Forms.Label()
-        Me.t1 = New System.Windows.Forms.Label()
         Me.return_fire2 = New System.Windows.Forms.Label()
         Me.targetaspect = New System.Windows.Forms.Label()
         Me.targetprimary = New System.Windows.Forms.Label()
         Me.tplains = New System.Windows.Forms.Label()
         Me.troadmove = New System.Windows.Forms.Label()
-        Me.return_fire = New System.Windows.Forms.Panel()
         Me.Panel1.SuspendLayout()
         Me.Panel2.SuspendLayout()
         Me.return_fire.SuspendLayout()
@@ -93,7 +93,7 @@ Partial Class combat
         Me.Label3.AutoSize = True
         Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(85, 66)
+        Me.Label3.Location = New System.Drawing.Point(76, 66)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(69, 20)
         Me.Label3.TabIndex = 59
@@ -104,9 +104,9 @@ Partial Class combat
         '
         Me.firercover.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.firercover.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.firercover.Location = New System.Drawing.Point(67, 271)
+        Me.firercover.Location = New System.Drawing.Point(43, 271)
         Me.firercover.Name = "firercover"
-        Me.firercover.Size = New System.Drawing.Size(101, 34)
+        Me.firercover.Size = New System.Drawing.Size(132, 34)
         Me.firercover.TabIndex = 50
         Me.firercover.Tag = "1"
         Me.firercover.Text = "None"
@@ -221,9 +221,9 @@ Partial Class combat
         '
         Me.targetcover.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.targetcover.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.targetcover.Location = New System.Drawing.Point(458, 271)
+        Me.targetcover.Location = New System.Drawing.Point(447, 271)
         Me.targetcover.Name = "targetcover"
-        Me.targetcover.Size = New System.Drawing.Size(101, 34)
+        Me.targetcover.Size = New System.Drawing.Size(132, 34)
         Me.targetcover.TabIndex = 50
         Me.targetcover.Tag = "2"
         Me.targetcover.Text = "None"
@@ -362,9 +362,9 @@ Partial Class combat
         '
         Me.finsmoke.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.finsmoke.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.finsmoke.Location = New System.Drawing.Point(67, 410)
+        Me.finsmoke.Location = New System.Drawing.Point(43, 410)
         Me.finsmoke.Name = "finsmoke"
-        Me.finsmoke.Size = New System.Drawing.Size(101, 34)
+        Me.finsmoke.Size = New System.Drawing.Size(132, 34)
         Me.finsmoke.TabIndex = 75
         Me.finsmoke.Tag = "1"
         Me.finsmoke.Text = "No Smoke"
@@ -374,9 +374,9 @@ Partial Class combat
         '
         Me.firerelevation.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.firerelevation.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.firerelevation.Location = New System.Drawing.Point(67, 207)
+        Me.firerelevation.Location = New System.Drawing.Point(43, 207)
         Me.firerelevation.Name = "firerelevation"
-        Me.firerelevation.Size = New System.Drawing.Size(101, 34)
+        Me.firerelevation.Size = New System.Drawing.Size(132, 34)
         Me.firerelevation.TabIndex = 74
         Me.firerelevation.Tag = "1"
         Me.firerelevation.Text = "Same Level"
@@ -386,9 +386,9 @@ Partial Class combat
         '
         Me.fireraspect.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.fireraspect.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.fireraspect.Location = New System.Drawing.Point(67, 161)
+        Me.fireraspect.Location = New System.Drawing.Point(43, 161)
         Me.fireraspect.Name = "fireraspect"
-        Me.fireraspect.Size = New System.Drawing.Size(101, 34)
+        Me.fireraspect.Size = New System.Drawing.Size(132, 34)
         Me.fireraspect.TabIndex = 73
         Me.fireraspect.Tag = "1"
         Me.fireraspect.Text = "Front"
@@ -398,9 +398,9 @@ Partial Class combat
         '
         Me.firerprimary.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.firerprimary.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.firerprimary.Location = New System.Drawing.Point(67, 92)
+        Me.firerprimary.Location = New System.Drawing.Point(43, 92)
         Me.firerprimary.Name = "firerprimary"
-        Me.firerprimary.Size = New System.Drawing.Size(101, 34)
+        Me.firerprimary.Size = New System.Drawing.Size(132, 34)
         Me.firerprimary.TabIndex = 72
         Me.firerprimary.Tag = ""
         Me.firerprimary.Text = "Primary"
@@ -443,9 +443,9 @@ Partial Class combat
         '
         Me.fplains.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.fplains.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.fplains.Location = New System.Drawing.Point(67, 363)
+        Me.fplains.Location = New System.Drawing.Point(43, 363)
         Me.fplains.Name = "fplains"
-        Me.fplains.Size = New System.Drawing.Size(101, 34)
+        Me.fplains.Size = New System.Drawing.Size(132, 34)
         Me.fplains.TabIndex = 50
         Me.fplains.Tag = "1"
         Me.fplains.Text = "Clear Terrain"
@@ -455,9 +455,9 @@ Partial Class combat
         '
         Me.froadmove.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.froadmove.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.froadmove.Location = New System.Drawing.Point(67, 315)
+        Me.froadmove.Location = New System.Drawing.Point(43, 315)
         Me.froadmove.Name = "froadmove"
-        Me.froadmove.Size = New System.Drawing.Size(101, 34)
+        Me.froadmove.Size = New System.Drawing.Size(132, 34)
         Me.froadmove.TabIndex = 50
         Me.froadmove.Tag = "1"
         Me.froadmove.Text = "X Country"
@@ -499,6 +499,17 @@ Partial Class combat
         Me.Panel2.Size = New System.Drawing.Size(639, 605)
         Me.Panel2.TabIndex = 70
         '
+        'return_fire
+        '
+        Me.return_fire.Controls.Add(Me.t2)
+        Me.return_fire.Controls.Add(Me.Label1)
+        Me.return_fire.Controls.Add(Me.t3)
+        Me.return_fire.Controls.Add(Me.t1)
+        Me.return_fire.Location = New System.Drawing.Point(428, 523)
+        Me.return_fire.Name = "return_fire"
+        Me.return_fire.Size = New System.Drawing.Size(169, 75)
+        Me.return_fire.TabIndex = 79
+        '
         't2
         '
         Me.t2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
@@ -510,32 +521,6 @@ Partial Class combat
         Me.t2.Tag = ""
         Me.t2.Text = "5"
         Me.t2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'taltitude
-        '
-        Me.taltitude.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.taltitude.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.taltitude.Location = New System.Drawing.Point(458, 474)
-        Me.taltitude.Name = "taltitude"
-        Me.taltitude.Size = New System.Drawing.Size(101, 34)
-        Me.taltitude.TabIndex = 77
-        Me.taltitude.Tag = ""
-        Me.taltitude.Text = "Low"
-        Me.taltitude.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.taltitude.Visible = False
-        '
-        'altitude
-        '
-        Me.altitude.AutoSize = True
-        Me.altitude.BackColor = System.Drawing.Color.Transparent
-        Me.altitude.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.altitude.Location = New System.Drawing.Point(454, 454)
-        Me.altitude.Name = "altitude"
-        Me.altitude.Size = New System.Drawing.Size(124, 20)
-        Me.altitude.TabIndex = 78
-        Me.altitude.Text = "Target's Altitude"
-        Me.altitude.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.altitude.Visible = False
         '
         'Label1
         '
@@ -561,30 +546,6 @@ Partial Class combat
         Me.t3.Text = "5"
         Me.t3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'tinsmoke
-        '
-        Me.tinsmoke.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.tinsmoke.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.tinsmoke.Location = New System.Drawing.Point(458, 410)
-        Me.tinsmoke.Name = "tinsmoke"
-        Me.tinsmoke.Size = New System.Drawing.Size(101, 34)
-        Me.tinsmoke.TabIndex = 76
-        Me.tinsmoke.Tag = "2"
-        Me.tinsmoke.Text = "No Smoke"
-        Me.tinsmoke.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'targetelevation
-        '
-        Me.targetelevation.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.targetelevation.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.targetelevation.Location = New System.Drawing.Point(458, 207)
-        Me.targetelevation.Name = "targetelevation"
-        Me.targetelevation.Size = New System.Drawing.Size(101, 34)
-        Me.targetelevation.TabIndex = 74
-        Me.targetelevation.Tag = "2"
-        Me.targetelevation.Text = "Same Level"
-        Me.targetelevation.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
         't1
         '
         Me.t1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
@@ -596,6 +557,56 @@ Partial Class combat
         Me.t1.Tag = ""
         Me.t1.Text = "5"
         Me.t1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'taltitude
+        '
+        Me.taltitude.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.taltitude.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.taltitude.Location = New System.Drawing.Point(447, 474)
+        Me.taltitude.Name = "taltitude"
+        Me.taltitude.Size = New System.Drawing.Size(132, 34)
+        Me.taltitude.TabIndex = 77
+        Me.taltitude.Tag = ""
+        Me.taltitude.Text = "Low"
+        Me.taltitude.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.taltitude.Visible = False
+        '
+        'altitude
+        '
+        Me.altitude.AutoSize = True
+        Me.altitude.BackColor = System.Drawing.Color.Transparent
+        Me.altitude.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.altitude.Location = New System.Drawing.Point(454, 454)
+        Me.altitude.Name = "altitude"
+        Me.altitude.Size = New System.Drawing.Size(124, 20)
+        Me.altitude.TabIndex = 78
+        Me.altitude.Text = "Target's Altitude"
+        Me.altitude.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.altitude.Visible = False
+        '
+        'tinsmoke
+        '
+        Me.tinsmoke.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.tinsmoke.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.tinsmoke.Location = New System.Drawing.Point(447, 410)
+        Me.tinsmoke.Name = "tinsmoke"
+        Me.tinsmoke.Size = New System.Drawing.Size(132, 34)
+        Me.tinsmoke.TabIndex = 76
+        Me.tinsmoke.Tag = "2"
+        Me.tinsmoke.Text = "No Smoke"
+        Me.tinsmoke.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'targetelevation
+        '
+        Me.targetelevation.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.targetelevation.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.targetelevation.Location = New System.Drawing.Point(447, 207)
+        Me.targetelevation.Name = "targetelevation"
+        Me.targetelevation.Size = New System.Drawing.Size(132, 34)
+        Me.targetelevation.TabIndex = 74
+        Me.targetelevation.Tag = "2"
+        Me.targetelevation.Text = "Same Level"
+        Me.targetelevation.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'return_fire2
         '
@@ -612,9 +623,9 @@ Partial Class combat
         '
         Me.targetaspect.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.targetaspect.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.targetaspect.Location = New System.Drawing.Point(458, 161)
+        Me.targetaspect.Location = New System.Drawing.Point(447, 161)
         Me.targetaspect.Name = "targetaspect"
-        Me.targetaspect.Size = New System.Drawing.Size(101, 34)
+        Me.targetaspect.Size = New System.Drawing.Size(132, 34)
         Me.targetaspect.TabIndex = 74
         Me.targetaspect.Tag = "2"
         Me.targetaspect.Text = "Front"
@@ -624,9 +635,9 @@ Partial Class combat
         '
         Me.targetprimary.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.targetprimary.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.targetprimary.Location = New System.Drawing.Point(458, 92)
+        Me.targetprimary.Location = New System.Drawing.Point(447, 92)
         Me.targetprimary.Name = "targetprimary"
-        Me.targetprimary.Size = New System.Drawing.Size(101, 34)
+        Me.targetprimary.Size = New System.Drawing.Size(132, 34)
         Me.targetprimary.TabIndex = 73
         Me.targetprimary.Tag = ""
         Me.targetprimary.Text = "Primary"
@@ -636,9 +647,9 @@ Partial Class combat
         '
         Me.tplains.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.tplains.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.tplains.Location = New System.Drawing.Point(458, 363)
+        Me.tplains.Location = New System.Drawing.Point(447, 363)
         Me.tplains.Name = "tplains"
-        Me.tplains.Size = New System.Drawing.Size(101, 34)
+        Me.tplains.Size = New System.Drawing.Size(132, 34)
         Me.tplains.TabIndex = 50
         Me.tplains.Tag = "2"
         Me.tplains.Text = "Clear Terrain"
@@ -648,25 +659,13 @@ Partial Class combat
         '
         Me.troadmove.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.troadmove.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.troadmove.Location = New System.Drawing.Point(458, 315)
+        Me.troadmove.Location = New System.Drawing.Point(447, 315)
         Me.troadmove.Name = "troadmove"
-        Me.troadmove.Size = New System.Drawing.Size(101, 34)
+        Me.troadmove.Size = New System.Drawing.Size(132, 34)
         Me.troadmove.TabIndex = 50
         Me.troadmove.Tag = "2"
         Me.troadmove.Text = "X Country"
         Me.troadmove.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'return_fire
-        '
-        Me.return_fire.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.return_fire.Controls.Add(Me.t2)
-        Me.return_fire.Controls.Add(Me.Label1)
-        Me.return_fire.Controls.Add(Me.t3)
-        Me.return_fire.Controls.Add(Me.t1)
-        Me.return_fire.Location = New System.Drawing.Point(428, 523)
-        Me.return_fire.Name = "return_fire"
-        Me.return_fire.Size = New System.Drawing.Size(169, 75)
-        Me.return_fire.TabIndex = 79
         '
         'combat
         '

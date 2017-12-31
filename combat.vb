@@ -51,7 +51,7 @@
                 targetcover.Text = "+" + Trim(Str(target.Cover))
                 targetcover.BackColor = golden
             End If
-        ElseIf combatmode = "Air-Ground Attack" Or combatmode = "SEAD" Then
+        ElseIf Me.tag = "Air Ground" Or Me.tag = "SEAD" Then
             targets.Visible = True
             fireraspect.Enabled = True
             firercover.Enabled = False
@@ -90,7 +90,7 @@
         Else
         End If
         If firer.observer Then
-            observation(True)
+            observation(IIf(firer.indirect, True, False))
             tgt_range_select.SelectedIndex = tgt_range_select.Items.Count - 1
             firercover.Enabled = False
             fplains.Enabled = False
@@ -455,27 +455,35 @@
             tgt_range.ForeColor = Color.Red
             Exit Sub
         End If
-        If Me.Tag = "Air Defence" Or firer.sead Then
+        If Me.Tag = "Air Defence" Or (firer.sead And target.eligibleCB And target.airdefence) Then
             fire.Enabled = True
             target.spotted = True
-        ElseIf Not (firer.indirect Or firer.Airground) Then
+            tgt_range.ForeColor = Color.Green
+
+        ElseIf Not firer.indirect Then
             fire.Enabled = spotting(Val(tgt_range.Text), firer, target)
             target.spotted = fire.Enabled
             If target.spotted Then tgt_range.ForeColor = Color.Green Else tgt_range.ForeColor = Color.Red
         ElseIf observer.Visible And vis_range_select.Enabled Then
             Dim tmp As String = ""
             visrange.Text = vis_range_select.SelectedItem
-            If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "" Then
+            If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "Observer" Then
                 tmp = orbat(observer.Text).task
                 orbat(observer.Text).task = firer.task
             End If
-            Dim observed As Boolean = spotting(Val(visrange.Text), orbat(observer.Text), target), identified As Boolean = spotting(Val(tgt_range.Text), firer, target)
+            Dim observed As Boolean, identified As Boolean
+            identified = spotting(Val(tgt_range.Text), firer, target)
+            If observer.Text <> "Observer" Then
+                observed = spotting(Val(visrange.Text), orbat(observer.Text), target)
+            Else
+                observed = False
+            End If
             fire.Enabled = observed Or identified
             target.spotted = fire.Enabled
             If identified Then tgt_range.ForeColor = Color.Green Else tgt_range.ForeColor = Color.Red
             If observed Then visrange.ForeColor = Color.Green Else visrange.ForeColor = Color.Red
-            If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "" Then orbat(observer.Text).task = tmp
-            If firer.task = "CB" And orbat(observer.Text).arty_int > 0 And Not observed Then
+            If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "Observer" Then orbat(observer.Text).task = tmp
+            If firer.task = "CB" And Not observed Then
                 With resultform
                     .result.Text = observer.Text + " failed to locate " + target.title + "(" + target.equipment + ")"
                     .ShowDialog()

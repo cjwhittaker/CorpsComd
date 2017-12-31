@@ -310,6 +310,7 @@
         If orbat(targetNode.Text).comd < orbat(dropNode.Text).comd Then Exit Sub
         If targetNode Is Nothing Then Exit Sub
         orbat(dropNode.Text).parent = targetNode.Text
+        orbat(dropNode.Text).arrives = orbat(targetNode.Text).arrives
         l = orbat(dropNode.Text).loaded
         If orbat(dropNode.Text).loaded <> "" Then orbat(orbat(dropNode.Text).loaded).parent = targetNode.Text
 

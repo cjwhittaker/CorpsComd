@@ -121,7 +121,8 @@
         p2_orbat_manager.Enabled = setting
         lock_1.Enabled = setting
         lock_2.Enabled = setting
-        manage_events.Enabled = setting
+        p1_events.Enabled = setting
+        p2_events.Enabled = setting
         nextturn.Enabled = Not setting
     End Sub
 
@@ -157,6 +158,7 @@
         If p = "p1" Then orbatmanager.orbatside = player1.Text Else orbatmanager.orbatside = player2.Text
         populate_command_structure(orbatmanager.comdtree, orbatmanager.orbatside, "Orbat")
         With orbatmanager
+            .Text = "Orbat Manager"
             .orbattitle.Text = orbatmanager.orbatside + " - Order of Battle"
             .selectedunit.Visible = True
             .comdtree.HideSelection = False
@@ -207,7 +209,9 @@
         If orbat Is Nothing Or orbat.Count <= 2 Then Exit Sub
         Me.Visible = False
         gt = Val(gameturn.Text)
-        If Hour(TimeValue(Current_time.Text)) > dusk Or Hour(TimeValue(Current_time.Text)) < 24 - dawn Then night = True Else night = False
+        If Hour(TimeValue(Current_time.Text)) > dusk Or Hour(TimeValue(Current_time.Text)) < dawn Then night = True Else night = False
+
+        If Hour(TimeValue(Current_time.Text)) = dusk Or Hour(TimeValue(Current_time.Text)) = dawn Then twilight = True Else twilight = False
         Do
             Select Case phase
                 Case 0 : initialise_turn()
@@ -302,9 +306,13 @@
 
     End Sub
 
-    Private Sub manage_events_Click(sender As Object, e As EventArgs) Handles manage_events.Click
+    Private Sub manage_events_Click(sender As Object, e As EventArgs) Handles p1_events.Click, p2_events.Click
         If event_list Is Nothing Then event_list = New Collection
-        event_manager.ShowDialog()
+        With event_manager
+            .Tag = Strings.Left(sender.name, 2)
+            .ShowDialog()
+            .Tag = ""
+        End With
     End Sub
 
     Private Sub scenariodefaults_Load(sender As Object, e As EventArgs) Handles Me.Load

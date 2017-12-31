@@ -106,6 +106,12 @@
         'Next
         l.Items.Clear()
         l.BackColor = nostatus
+        If purpose = "Opportunity Fire" Then
+            listitem = New ListViewItem
+            listitem.Text = "Minefield"
+            l.Items.Add(listitem)
+        End If
+        If c Is Nothing Then Exit Sub
         For Each u As cunit In c
             u.statusimpact = 0
             If u.validunit(purpose, hq) Then
@@ -144,7 +150,20 @@
             End If
         Next
         For Each li As ListViewItem In l.Items
-            li.BackColor = orbat(li.Text).status
+            If orbat.Contains(li.Text) Then
+                If purpose = "Observer" Then
+                    If orbat(li.Text).statusimpact = 0 Then
+                        li.BackColor = in_ds
+                    ElseIf orbat(li.Text).statusimpact = 1 Then
+                        li.BackColor = can_observe
+                    Else
+                        li.BackColor = not_on_net
+                    End If
+                ElseIf InStr("DemoralisationMorale RecoveryFire and Movement", purpose) > 0 Then
+                    li.BackColor = orbat(li.Text).status
+                Else
+                End If
+            End If
         Next
     End Sub
     Public Sub color_item(ByVal l As ListViewItem, ByVal u As cunit)
@@ -158,6 +177,18 @@
             divisional_comd = divisional_comd(orbat(p.parent))
         End If
     End Function
+    Public Function brigade_comd(ByVal p As cunit)
+        If p.comd >= 2 Then
+            brigade_comd = p.title : Exit Function
+        Else
+            brigade_comd = brigade_comd(orbat(p.parent))
+        End If
+    End Function
+    Public Sub hq_functions(ByVal p As cunit, func As String)
+        If p.parent <> "root" Then hq_functions(orbat(p.parent), func)
+        If func = "Air units" And p.primary <> func Then p.primary = func
+        If func = "Arty units" And p.loaded <> func Then p.loaded = func
+    End Sub
 
     Public Sub ewsupport(ByVal candidates As Collection, ByVal phase As String)
         Dim ewac As Boolean = False
@@ -171,7 +202,7 @@
             End If
         Next
         For Each subject As cunit In candidates
-            If subject.role = "AC" And subject.airborne Then subject.ewsupported = ewac Else subject.ewsupported = ewac
+            If (subject.Aircraft And Not subject.hels) And subject.airborne Then subject.ewsupported = ewac Else subject.ewsupported = ewac
         Next
     End Sub
     Public Sub resolvefire(ByVal firers As Collection, ByVal firer As cunit, ByVal targets As Collection, ByVal target As cunit, ByVal firephase As String)
@@ -196,7 +227,7 @@
 
         If firer.effect > 0 And Not target.spotted And (firer.indirect Or firer.Airground) Then
             firer.effective = True
-            If firer.role = "RL" Then unobserved = False Else unobserved = True
+            If firer.role = "|RL|" Then unobserved = False Else unobserved = True
         ElseIf firer.effect > 0 Then
             firer.effective = True
             If firer.task = "AF" Then unobserved = True Else unobserved = False
@@ -348,9 +379,9 @@
         If phase = 16 And spotter.arty_int >= 1 And range > 10000 Then Exit Function
         If phase = 16 And spotter.arty_int >= 1 Then
             Dim i As Integer = 0
-            If target.role = "ARTY" Then
+            If target.role = "|ARTY|" Then
                 i = 0
-            ElseIf target.role = "MOR" Then
+            ElseIf target.role = "|MOR|" Then
                 i = 1
             Else
                 i = 2
@@ -360,37 +391,46 @@
         End If
         If target Is Nothing Or target.title = "" Then Exit Function
         If Not spotter.indirect Then
-            If spotter.Cover = 1 And target.Cover = 1 Then
-                If range <= 250 Then spotting = True
-                Exit Function
-            ElseIf spotter.Cover = 2 And target.Cover = 2 Then
-                If range <= 125 Then spotting = True
-                Exit Function
-            ElseIf spotter.Cover = 3 And target.Cover = 3 Then
-                If range = 0 Then spotting = True
-                Exit Function
-            Else
+            If spotter.Cover > 0 And target.Cover > 0 And range <= 300 Then
+                spotting = True
             End If
         End If
-        Dim obr As Integer, obs As Integer() = {0, 1, 2, 3, 4, 6, 8, 10, 12, 14}, obn As Integer
-        obr = equipment(target.equipment).bor
-        If target.debussed And target.loaded <> "" And target.Inf Then obr = equipment(orbat(target.loaded).equipment).bor
-        If spotter.task = "AF" Or spotter.task = "IN" Then obr = 12
-        If target.mode = travel Then obr = 10
-        For i As Integer = 0 To obs.Count
-            If obs(i) = obr Then obn = i : Exit For
-        Next
-        If gt - target.fired < 2 Then obn = obn + 2
-        If gt - target.moved < 2 Then obn = obn + 1
-        If target.roadmove Then obn = obn + 1
-        If target.plains Then obn = obn + 1
-        If spotter.elevated Then obn = obn + 1
-        If target.mode = disp Then obn = obn - 1
-        If obn < 0 Then obn = 0
-        If obn > 9 Then obn = 9
-        'if dusk
-        'if night
-        If range <= obs(obn) * 100 * (4 - target.Cover) Then spotting = True
+        Dim obr As Integer = 100 * equipment(target.equipment).bor, om As Integer
+        If spotter.task = "AF" Or spotter.task = "IN" Then
+            obr = 1200
+        ElseIf target.mode = travel Then
+            obr = 1000
+        ElseIf target.debussed And target.loaded <> "" And target.Inf Then
+            obr = equipment(orbat(target.loaded).equipment).bor
+            If target.mode = disp Then obr = 100
+        Else
+            If target.mode = disp Then obr = 600
+        End If
+        Dim smoked As Boolean = IIf(combat.tinsmoke.BackColor = golden Or combat.finsmoke.BackColor = golden, True, False)
+        If night Then
+            om = 1
+        ElseIf twilight Then
+            om = 3
+        Else
+            om = 4
+        End If
+
+        If (night Or smoked) And InStr(equipment(spotter.equipment).special, "t") > 0 Then om = om + 2
+        If twilight And InStr(equipment(spotter.equipment).special, "t") > 0 Then om = om + 1
+        If smoked And InStr(equipment(spotter.equipment).special, "t") = 0 Then om = om - 4
+        If night And InStr(equipment(spotter.equipment).special, "i") > 0 Then om = om + 1
+
+        If gt - target.fired < 2 Then om = om + 2
+        If gt - target.moved < 2 Then om = om + 1
+        If target.roadmove And Not target.mode = disp Then om = om + 1
+        If target.plains Then om = om + 1
+        If spotter.elevated Then om = om + 1
+        If target.mode = disp Then om = om - 1
+        If gt - spotter.moved < 2 Or (spotter.airborne And Not spotter.hels) Then om = om - 1
+        If Not target.airborne Then om = om - target.Cover
+        If om < 0 Then om = 0
+        If om > 9 Then om = 9
+        If range <= obr * om Then spotting = True
     End Function
     Function spotting_old(ByVal x As Integer, ByVal subject As cunit, ByVal airborne As Boolean)
         Dim r As Integer = 10000
@@ -465,7 +505,7 @@
         If airtoair Then
             defence = equipment(target.equipment).defence
         ElseIf airdefence Then
-            If equipment(firer.equipment).role = "AAA" Then defence = equipment(target.equipment).gun_def Else defence = equipment(target.equipment).miss_def
+            If equipment(firer.equipment).role = "|AAA|" Then defence = equipment(target.equipment).gun_def Else defence = equipment(target.equipment).miss_def
         Else
             defence = equipment(target.equipment).defence
         End If
@@ -509,8 +549,8 @@
             If firer.indirect And firer.moving Then modifiers = modifiers - 1
             If firer.bomblets Then modifiers = modifiers + 2
             If target.soft_tpt Then modifiers = modifiers + 2
-            End If
-            If firer.quality >= 8 Then dice = dice + 1
+        End If
+        If firer.quality >= 8 Then dice = dice + 1
         If firer.quality <= 3 Then dice = dice - 1
         If airdefence Or directfire Or airtoair Then
             Dim fs As Integer = firer.firers
@@ -692,7 +732,7 @@
                 .casualties = 0
                 .statusimpact = 0
             End With
-            End If
+        End If
         If msg <> "" Then
             With resultform
                 .result.Text = msg
@@ -771,12 +811,12 @@
 
     Public Function getmaxrange(ByVal u As cunit, ByVal prime As Boolean)
         getmaxrange = 1000
-        If u.airborne And u.Airground And u.task = "CAS" And InStr(u.equipment, "GA") > 0 Then
-            getmaxrange = 2000
+        If u.airborne And u.Airground And InStr(u.equipment, "GA") > 0 Then
+            getmaxrange = 5000
         ElseIf prime Then
             getmaxrange = equipment(u.equipment).max
         Else
-            getmaxrange = equipment(u.equipment + u.W2).max
+            getmaxrange = equipment(u.equipment + u.w2).max
         End If
     End Function
     'Public Sub prep_units()
@@ -811,12 +851,6 @@
     End Sub
 
     Public Sub check_observer(firer As cunit)
-        'Dim arty_comd As String = ""
-        'If phase = 271 Then
-        '    arty_comd = divisional_comd(firer)
-        'Else
-        '    arty_comd = firer.parent
-        'End If
         populate_lists(unit_selection.units, ph_units, "Observer", IIf(firer.primary <> "", firer.primary, firer.parent))
         With unit_selection
             .Tag = "Observer"
@@ -862,7 +896,7 @@
     Public Sub test_for_events(ByVal s As String, ByVal t As Date)
         For Each e As cevents In event_list
             If Not e.tested Then
-                If Format(t, "HH:mm") >= e.time And (s = e.side Or e.side = "Both") Then
+                If Format(t, "HH:mm") >= e.time And s = e.side Then
                     If e.die = "None" Then
                         e.tested = True
                     Else
@@ -876,13 +910,21 @@
                     If e.tested Then
                         With resultform
                             .Text = "Game Events - GT" + Trim(Str(gt)) + " at " + Format(t, "HH:mm") + "hrs"
-                            .result.Text = e.text
+                            .result.Text = e.unit + " " + e.text
                             .yb.Visible = False
                             .nb.Visible = False
                             .ok_button.Visible = True
                             .ShowDialog()
                             .nb.Visible = False
                         End With
+                        For Each u As cunit In orbat
+                            If u.nation = e.side And (u.title = e.unit Or u.parent = e.unit) Then
+                                u.arrives = ""
+                                If u.comd = 0 Then
+                                    If u.not_conc Then u.mode = travel
+                                End If
+                            End If
+                        Next
                     End If
                 End If
             End If

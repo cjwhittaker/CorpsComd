@@ -6,6 +6,12 @@
                 u.fired = -1
                 u.moved = -1
             Next
+            For Each u As cunit In orbat
+                If u.comd = 0 Then
+                    If u.not_conc Then u.mode = disp Else u.mode = conc
+
+                End If
+            Next
         End If
         Randomize(3600 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
         p1_hqs = New Collection
@@ -28,6 +34,7 @@
                     .hits = 0
                     .aborts = 0
                     .casualties = 0
+                    .sorties = IIf(.Aircraft And .sorties > 0, .sorties - 1, .sorties)
                 End With
             End If
         Next
@@ -75,44 +82,24 @@
 
     Public Sub air_mission_planning()
         '5 - Reset results of subordination and reset units for tasking
-        Dim arty As Boolean = False, air As Boolean = False
-        For Each u As cunit In orbat
-            If u.comd > 0 Then
-                For Each uc As cunit In orbat
-                    If uc.comd = 0 Then
-                        If Not air And uc.Aircraft And uc.parent = u.title Then
-                            u.primary = "Air units"
-                            air = True
-                        ElseIf Not air Then
-                            u.primary = ""
-                        Else
-                        End If
-                        If Not arty And uc.indirect And uc.parent = u.title Then
-                            u.loaded = "Arty units"
-                            arty = True
-                        ElseIf Not arty Then
-                            u.loaded = ""
-                        Else
-                        End If
-                    End If
-                Next
-                air = False : arty = False
-            Else
-                If u.Aircraft Then u.reset_air_phase()
-                If u.indirect And orbat(u.parent).comd <= 3 Then u.task = "DS"
-                If u.indirect And orbat(u.parent).comd > 3 Then u.task = "GS"
-                If u.indirect Then u.primary = ""
-            End If
-        Next
-
+        Dim air As Boolean
         For i = 1 To 2
-            With movement
-                .Text = "Air Tasking Phase for " + ph + " - Game Turn" + Str(gt)
-                .current_phase.Text = movement.Text
-                .Tag = "Air Tasking"
-                .options_for("Air Tasking")
-                .ShowDialog()
-            End With
+            air = False
+            For Each u As cunit In orbat
+                If u.comd = 0 And u.nation = ph Then
+                    If u.Aircraft Then hq_functions(orbat(u.parent), "Air units") : air = True
+                    If u.Aircraft Then u.reset_air_phase()
+                End If
+            Next
+            If air Then
+                With movement
+                    .Text = "Air Tasking Phase for " + ph + " - Game Turn" + Str(gt)
+                    .current_phase.Text = movement.Text
+                    .Tag = "Air Tasking"
+                    .options_for("Air Tasking")
+                    .ShowDialog()
+                End With
+            End If
             swap_phasing_player(True)
         Next
     End Sub
@@ -128,15 +115,27 @@
     End Sub
 
     Public Sub artillery_allocation_planning()
+        Dim arty As Boolean
         For i = 1 To 2
-            With movement
-                .Text = "Arty Tasking Phase for " + ph + " - Game Turn " + Str(gt)
-                .current_phase.Text = movement.Text
-                .Tag = "Arty Tasking"
-                .options_for("Arty Tasking")
-                .ShowDialog()
-            End With
-            swap_phasing_player(True)
+            arty = False
+            For Each u As cunit In orbat
+                If u.comd = 0 And u.nation = ph Then
+                    If u.indirect Then hq_functions(orbat(u.parent), "Arty units") : arty = True
+                    If u.indirect And orbat(u.parent).comd <= 3 Then u.task = "DS"
+                    If u.indirect And orbat(u.parent).comd > 3 Then u.task = "GS"
+                    If u.indirect Then u.primary = ""
+                End If
+            Next
+            If arty Then
+                With movement
+                    .Text = "Arty Tasking Phase for " + ph + " - Game Turn " + Str(gt)
+                    .current_phase.Text = movement.Text
+                    .Tag = "Arty Tasking"
+                    .options_for("Arty Tasking")
+                    .ShowDialog()
+                End With
+                swap_phasing_player(True)
+            End If
         Next
 
     End Sub
@@ -177,9 +176,10 @@
     End Sub
 
     Public Sub ground_to_air(purpose As String)
+        purpose = " against " + purpose
         For i As Integer = 1 To 2
             unit_selection.Tag = "Air Defence"
-            unit_selection.title.Text = unit_selection.Tag + " against " + purpose
+            unit_selection.title.Text = unit_selection.Tag + purpose
             populate_lists(unit_selection.units, enemy, "Air Defence", "")
             If unit_selection.units.Items.Count <> 0 Then
                 combat.targets.Items.Clear()
@@ -206,9 +206,10 @@
         For i As Integer = 1 To 2
             unit_selection.Tag = "SEAD"
             populate_lists(unit_selection.units, ph_units, "SEAD", "")
-            If unit_selection.units.Items.Count = 0 Then Exit Sub
-            populate_lists(combat.targets, enemy, "SEAD Targets", "")
-            If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+            If unit_selection.units.Items.Count > 0 Then
+                populate_lists(combat.targets, enemy, "SEAD Targets", "")
+                If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+            End If
             swap_phasing_player(True)
         Next
     End Sub

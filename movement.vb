@@ -240,7 +240,7 @@
                     Case 0
                         'If mover.has_fired And Not mover.has_moved_fired Then Exit Select
                         mover.moved = gt
-                        mover.tacticalpts = mover.tacticalpts - 2
+                        mover.tacticalpts = mover.tacticalpts - tac_points
                         If opp_fire.BackColor = golden Then opportunityfire.ShowDialog()
                     Case 1, 2
                         'If mover.has_moved And Not mover.has_moved_fired Then Exit Select
@@ -358,7 +358,7 @@
                             (tactical = 2 And InStr(mover.equipment, "GA") = 0) Or
                             (tactical = 3 And InStr(mover.equipment, "SO") = 0) Or
                             (tactical = 4 And InStr(mover.equipment, "SEAD") = 0) Or
-                            (tactical = 5 And Not mover.heli And Not mover.role = "AH") Or
+                            (tactical = 5 And Not mover.heli And Not mover.role = "|AH|") Or
                             (tactical = 6 And Not mover.heli) Then Exit Select
                         dice = d10()
                         If (dice <= mover.quality Or dice = 1) And dice <> 10 Then
@@ -403,13 +403,10 @@
                             tac_opt_txt = "DS"
                         End If
                         populate_lists(unit_selection.units, orbat, "Arty Support", divisional_comd(mover))
-                        If unit_selection.units.Items.Count > 0 Then
-                            With unit_selection
-                                .Tag = "Arty Support"
-                                .ShowDialog()
-                            End With
-                            l.SubItems(2).Text = UCase(mover.task)
-                        End If
+                        With unit_selection
+                            .Tag = "Arty Support"
+                            .ShowDialog()
+                        End With
                 End Select
                 If tactical_option <> 16 Then l.BackColor = mover.status
                 If Not mover Is Nothing Or mover.title <> "" Then
@@ -625,15 +622,15 @@
             End If
         Else
             If sender.backcolor = defa Or (sender.name = "o0" And sender.text = "Half Move (2)" And sender.backcolor = golden) Then
-                If sender.name = "o0" And sender.text = "Half Move (2)" And sender.backcolor = golden Then sender.text = "Full Move (4)"
+                If sender.name = "o0" And sender.text = "Half Move (2)" And sender.backcolor = golden Then sender.text = "Full Move (4)" : t = t + 2
                 sender.backcolor = golden
                 tac_opt_txt = sender.text
                 tac_points = t
-                    For Each c As Control In tactical_actions.Controls
-                        If Strings.Left(c.Name, 1) = "o" And c.BackColor = golden And sender.name <> c.Name Then c.BackColor = defa
-                    Next
-                Else
-                    sender.backcolor = defa
+                For Each c As Control In tactical_actions.Controls
+                    If Strings.Left(c.Name, 1) = "o" And c.BackColor = golden And sender.name <> c.Name Then c.BackColor = defa
+                Next
+            Else
+                sender.backcolor = defa
                 If sender.name = "o0" And sender.text = "Full Move (4)" Then sender.text = "Half Move (2)"
                 tac_points = 0
                 tac_opt_txt = ""

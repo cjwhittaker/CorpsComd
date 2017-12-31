@@ -1,4 +1,5 @@
 ﻿Module Tests
+
     Sub testfiring()
         Dim firer As cunit = orbat("A/45 Fd"), target As cunit = orbat("D/35 GMRR"), range As Integer = 12000
         firer.firers = 5

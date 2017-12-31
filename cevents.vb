@@ -1,5 +1,6 @@
 ﻿Public Class cevents
     Private pside As String
+    Private punit As String
     Private ptext As String
     Private pdie As String
     Private pscore As Integer
@@ -14,6 +15,15 @@
             pside = Value
         End Set
     End Property
+    Property unit() As String
+        Get
+            Return punit
+        End Get
+        Set(ByVal Value As String)
+            punit = Value
+        End Set
+    End Property
+
     Property die() As String
         Get
             Return pdie

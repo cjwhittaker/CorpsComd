@@ -113,6 +113,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Game_sequence.vb" />
+    <Compile Include="mine_attack.designer.vb">
+      <DependentUpon>mine_attack.vb</DependentUpon>
+    </Compile>
+    <Compile Include="mine_attack.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="mov_rates.Designer.vb">
       <DependentUpon>mov_rates.vb</DependentUpon>
     </Compile>
@@ -199,6 +205,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="event_manager.resx">
       <DependentUpon>event_manager.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="mine_attack.resx">
+      <DependentUpon>mine_attack.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="mov_rates.resx">
       <DependentUpon>mov_rates.vb</DependentUpon>

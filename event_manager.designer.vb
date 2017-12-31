@@ -57,7 +57,7 @@ Partial Class event_manager
         Me.Label1.AutoSize = True
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(220, 406)
+        Me.Label1.Location = New System.Drawing.Point(138, 407)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(98, 23)
         Me.Label1.TabIndex = 5
@@ -70,7 +70,7 @@ Partial Class event_manager
         Me.event_time.BackColor = System.Drawing.Color.White
         Me.event_time.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.event_time.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.event_time.Location = New System.Drawing.Point(348, 406)
+        Me.event_time.Location = New System.Drawing.Point(253, 407)
         Me.event_time.MaximumSize = New System.Drawing.Size(125, 30)
         Me.event_time.MinimumSize = New System.Drawing.Size(125, 30)
         Me.event_time.Name = "event_time"
@@ -82,10 +82,10 @@ Partial Class event_manager
         'event_time_inc
         '
         Me.event_time_inc.BackColor = System.Drawing.SystemColors.Control
-        Me.event_time_inc.Location = New System.Drawing.Point(479, 399)
+        Me.event_time_inc.Location = New System.Drawing.Point(384, 400)
         Me.event_time_inc.Maximum = 23
         Me.event_time_inc.Name = "event_time_inc"
-        Me.event_time_inc.Size = New System.Drawing.Size(193, 45)
+        Me.event_time_inc.Size = New System.Drawing.Size(288, 45)
         Me.event_time_inc.TabIndex = 3
         Me.event_time_inc.TickStyle = System.Windows.Forms.TickStyle.Both
         '
@@ -94,7 +94,7 @@ Partial Class event_manager
         Me.Label3.AutoSize = True
         Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(236, 358)
+        Me.Label3.Location = New System.Drawing.Point(151, 273)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(85, 23)
         Me.Label3.TabIndex = 10
@@ -105,9 +105,9 @@ Partial Class event_manager
         '
         Me.side_options.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.side_options.FormattingEnabled = True
-        Me.side_options.Location = New System.Drawing.Point(348, 359)
+        Me.side_options.Location = New System.Drawing.Point(253, 273)
         Me.side_options.Name = "side_options"
-        Me.side_options.Size = New System.Drawing.Size(125, 31)
+        Me.side_options.Size = New System.Drawing.Size(324, 31)
         Me.side_options.TabIndex = 11
         '
         'Label2
@@ -115,7 +115,7 @@ Partial Class event_manager
         Me.Label2.AutoSize = True
         Me.Label2.BackColor = System.Drawing.Color.Transparent
         Me.Label2.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(45, 279)
+        Me.Label2.Location = New System.Drawing.Point(181, 320)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(55, 23)
         Me.Label2.TabIndex = 12
@@ -125,18 +125,18 @@ Partial Class event_manager
         'detail
         '
         Me.detail.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.detail.Location = New System.Drawing.Point(119, 279)
+        Me.detail.Location = New System.Drawing.Point(253, 320)
         Me.detail.Multiline = True
         Me.detail.Name = "detail"
         Me.detail.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.detail.Size = New System.Drawing.Size(553, 74)
+        Me.detail.Size = New System.Drawing.Size(406, 74)
         Me.detail.TabIndex = 13
         '
         'Label4
         '
         Me.Label4.BackColor = System.Drawing.Color.Transparent
         Me.Label4.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(3, 458)
+        Me.Label4.Location = New System.Drawing.Point(-92, 459)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(339, 28)
         Me.Label4.TabIndex = 14
@@ -148,7 +148,7 @@ Partial Class event_manager
         Me.dice_type.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.dice_type.FormattingEnabled = True
         Me.dice_type.Items.AddRange(New Object() {"None", "D6", "D10"})
-        Me.dice_type.Location = New System.Drawing.Point(348, 455)
+        Me.dice_type.Location = New System.Drawing.Point(253, 456)
         Me.dice_type.Name = "dice_type"
         Me.dice_type.Size = New System.Drawing.Size(125, 31)
         Me.dice_type.TabIndex = 15
@@ -157,7 +157,7 @@ Partial Class event_manager
         '
         Me.Label5.BackColor = System.Drawing.Color.Transparent
         Me.Label5.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(48, 550)
+        Me.Label5.Location = New System.Drawing.Point(-47, 551)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(294, 28)
         Me.Label5.TabIndex = 16
@@ -169,7 +169,7 @@ Partial Class event_manager
         Me.dec_dice.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.dec_dice.FormattingEnabled = True
         Me.dec_dice.Items.AddRange(New Object() {"Yes", "No"})
-        Me.dec_dice.Location = New System.Drawing.Point(348, 550)
+        Me.dec_dice.Location = New System.Drawing.Point(253, 551)
         Me.dec_dice.Name = "dec_dice"
         Me.dec_dice.Size = New System.Drawing.Size(125, 31)
         Me.dec_dice.TabIndex = 17
@@ -178,7 +178,7 @@ Partial Class event_manager
         '
         Me.Label6.BackColor = System.Drawing.Color.Transparent
         Me.Label6.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(3, 495)
+        Me.Label6.Location = New System.Drawing.Point(-92, 496)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(339, 40)
         Me.Label6.TabIndex = 14
@@ -188,7 +188,7 @@ Partial Class event_manager
         'dice_score
         '
         Me.dice_score.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dice_score.Location = New System.Drawing.Point(348, 503)
+        Me.dice_score.Location = New System.Drawing.Point(253, 504)
         Me.dice_score.Multiline = True
         Me.dice_score.Name = "dice_score"
         Me.dice_score.Size = New System.Drawing.Size(125, 32)
@@ -262,8 +262,8 @@ Partial Class event_manager
         '
         'ColumnHeader1
         '
-        Me.ColumnHeader1.Text = "Side"
-        Me.ColumnHeader1.Width = 92
+        Me.ColumnHeader1.Text = "Unit"
+        Me.ColumnHeader1.Width = 90
         '
         'ColumnHeader2
         '

@@ -15,11 +15,11 @@
     Public smokefiredthisturn As Boolean
     Public qtypinned As Integer, qtyrepulsed As Integer, qtydestroyed As Integer
     Public topserial As Integer, oppfire As Boolean, result_option As String
-    Public disorderedstatus As Color = Color.Green, lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.YellowGreen, no_action_pts As Color = Color.LightGray
+    Public disorderedstatus As Color = Color.Green, lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray
     Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, demoralisedstatus As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
-    Public assaulting As Color = Color.LightSalmon
+    Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen
     Public opportunityfire As New unit_selection
-    Public night As Boolean, dawn As Integer, dusk As Integer
+    Public night As Boolean, dawn As Integer, dusk As Integer, twilight As Boolean
     Public sys_dir As String, g_dir As String, d_dir As String
     Public golden As Color = Color.Goldenrod, defa As Color = SystemColors.Control
     Public travel As String = "travel", conc As String = "conc", disp As String = "disp"

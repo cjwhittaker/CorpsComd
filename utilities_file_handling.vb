@@ -78,7 +78,7 @@
             Next
             file.WriteLine(x)
 
-            If i = 1 And u.loaded <> "" Then
+            If i = 1 And u.loaded <> "" And u.comd = 0 Then
                 u = orbat(u.loaded)
             Else
                 Exit For
@@ -137,32 +137,6 @@
                 "is not valid and will be skipped.")
             End Try
         End While
-    End Sub
-    Public Sub save_equipment()
-        If IsNothing(orbat) Then Exit Sub
-        file = My.Computer.FileSystem.OpenTextFileWriter(d_dir + "equipment.dat", False)
-        Dim myType As Type = GetType(cequipment)
-        Dim x As String = "", y As String = "", n As String = ""
-        Dim properties As System.Reflection.PropertyInfo() = myType.GetProperties()
-        For Each p As System.Reflection.PropertyInfo In properties
-            y = y + p.Name + ","
-        Next
-        file.WriteLine(y)
-        For Each e As cequipment In equipment
-            x = ""
-            For Each p As System.Reflection.PropertyInfo In properties
-                If x <> "" Then x = x + ","
-                If p.PropertyType.Name = "Single" Or p.PropertyType.Name = "Boolean" Or p.PropertyType.Name = "Int32" Then
-                    x = x + Str(p.GetValue(e, Nothing))
-                ElseIf p.PropertyType.Name = "DateTime" Then
-                    x = x + Format(p.GetValue(e, Nothing), "dd MMM yyyy HH:mm")
-                Else
-                    x = x + p.GetValue(e, Nothing)
-                End If
-            Next
-            file.WriteLine(x)
-        Next
-        file.Close()
     End Sub
 
     Public Sub load_subunits()
@@ -249,32 +223,79 @@
         file.WriteLine("smoke fired=, " + Str(smokefiredthisturn))
         file.Close()
         save_orbat()
-        If Not event_list Is Nothing Then
-            scenariofile = Strings.Left(scenariofile, InStrRev(scenariofile, ".") - 1) + ".ent"
-            file = My.Computer.FileSystem.OpenTextFileWriter(scenariofile, False)
-            For Each e As cevents In event_list
-                e.save_to_file(file)
-            Next
-            file.Close()
-        End If
-
+        save_events()
     End Sub
     Public Sub load_events()
         If Not My.Computer.FileSystem.FileExists(Replace(scenario, ".sce", ".ent")) Then Exit Sub
         event_list = New Collection
-        Using MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(Replace(scenario, ".sce", ".ent"))
-            MyReader.TextFieldType = FileIO.FieldType.Delimited
-            MyReader.SetDelimiters(",")
-            While Not MyReader.EndOfData
-                Dim e = New cevents
-                Try
-                    e.load_from_file(MyReader.ReadFields)
-                    event_list.Add(e)
-                Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
-                    MsgBox("Line " & ex.Message &
-                    "is not valid and will be skipped.")
-                End Try
-            End While
-        End Using
+        Dim pnames As New Collection, evt As cevents
+        Dim myType As Type = GetType(cevents), pname As String = "", pval As String = "", i As Integer
+        Dim p As System.Reflection.PropertyInfo
+        Dim MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(Replace(scenario, ".sce", ".ent"))
+        'Using MyReader
+        MyReader.TextFieldType = FileIO.FieldType.Delimited
+        MyReader.SetDelimiters(",")
+        Dim currentRow As String()
+        currentRow = MyReader.ReadFields()
+        For Each cfield As String In currentRow
+            pnames.Add(cfield)
+        Next
+        While Not MyReader.EndOfData
+            evt = New cevents
+            Try
+                currentRow = MyReader.ReadFields()
+                i = 1
+                For Each cfield As String In currentRow
+                    p = myType.GetProperty(pnames(i))
+                    'data changes
+                    If cfield = "" Then
+
+                    ElseIf p.PropertyType.Name = "Int32" Then
+                        p.SetValue(evt, CInt(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                    ElseIf p.PropertyType.Name = "DateTime" Then
+                        p.SetValue(evt, CDate(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                    ElseIf p.PropertyType.Name = "Single" Then
+                        p.SetValue(evt, CSng(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                    ElseIf p.PropertyType.Name = "Boolean" Then
+                        p.SetValue(evt, CBool(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                    Else
+                        p.SetValue(evt, cfield, Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                    End If
+                    i = i + 1
+                    If i > pnames.Count Then Exit For
+                Next
+                event_list.Add(evt)
+            Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
+                MsgBox("Line " & ex.Message &
+                "is not valid and will be skipped.")
+            End Try
+        End While
+
+    End Sub
+    Public Sub save_events()
+        If IsNothing(event_list) Then Exit Sub
+        file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".ent"), False)
+        Dim myType As Type = GetType(cevents)
+        Dim x As String = "", y As String = "", n As String = ""
+        Dim properties As System.Reflection.PropertyInfo() = myType.GetProperties()
+        For Each p As System.Reflection.PropertyInfo In properties
+            y = y + p.Name + ","
+        Next
+        file.WriteLine(y)
+        For Each e As cevents In event_list
+            x = ""
+            For Each p As System.Reflection.PropertyInfo In properties
+                If x <> "" Then x = x + ","
+                If p.PropertyType.Name = "Single" Or p.PropertyType.Name = "Boolean" Or p.PropertyType.Name = "Int32" Then
+                    x = x + Str(p.GetValue(e, Nothing))
+                ElseIf p.PropertyType.Name = "DateTime" Then
+                    x = x + Format(p.GetValue(e, Nothing), "dd MMM yyyy HH:mm")
+                Else
+                    x = x + p.GetValue(e, Nothing)
+                End If
+            Next
+            file.WriteLine(x)
+        Next
+        file.Close()
     End Sub
 End Module

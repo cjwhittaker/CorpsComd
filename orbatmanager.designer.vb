@@ -267,7 +267,7 @@ Partial Class orbatmanager
         Me.Name = "orbatmanager"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Order of Battle Manager"
+        Me.Text = "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
         Me.selectedunit.ResumeLayout(False)
         Me.selectedunit.PerformLayout()
         Me.ResumeLayout(False)

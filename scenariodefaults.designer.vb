@@ -49,7 +49,7 @@ Partial Class scenariodefaults
         Me.p2_orbat_manager = New System.Windows.Forms.Button()
         Me.lock_1 = New System.Windows.Forms.Button()
         Me.lock_2 = New System.Windows.Forms.Button()
-        Me.manage_events = New System.Windows.Forms.Button()
+        Me.p1_events = New System.Windows.Forms.Button()
         Me.DateTimePicker1 = New System.Windows.Forms.DateTimePicker()
         Me.Label9 = New System.Windows.Forms.Label()
         Me.sunrise = New System.Windows.Forms.Label()
@@ -57,6 +57,7 @@ Partial Class scenariodefaults
         Me.sunset = New System.Windows.Forms.Label()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.scenario_name = New System.Windows.Forms.TextBox()
+        Me.p2_events = New System.Windows.Forms.Button()
         CType(Me.start_time_inc, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -343,16 +344,16 @@ Partial Class scenariodefaults
         Me.lock_2.Text = "Lock P2 Orbat"
         Me.lock_2.UseVisualStyleBackColor = True
         '
-        'manage_events
+        'p1_events
         '
-        Me.manage_events.Enabled = False
-        Me.manage_events.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.manage_events.Location = New System.Drawing.Point(254, 459)
-        Me.manage_events.Name = "manage_events"
-        Me.manage_events.Size = New System.Drawing.Size(291, 40)
-        Me.manage_events.TabIndex = 27
-        Me.manage_events.Text = "Manage Game Events"
-        Me.manage_events.UseVisualStyleBackColor = True
+        Me.p1_events.Enabled = False
+        Me.p1_events.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.p1_events.Location = New System.Drawing.Point(254, 459)
+        Me.p1_events.Name = "p1_events"
+        Me.p1_events.Size = New System.Drawing.Size(132, 40)
+        Me.p1_events.TabIndex = 27
+        Me.p1_events.Text = "P1 Events"
+        Me.p1_events.UseVisualStyleBackColor = True
         '
         'DateTimePicker1
         '
@@ -445,6 +446,17 @@ Partial Class scenariodefaults
         Me.scenario_name.Size = New System.Drawing.Size(187, 35)
         Me.scenario_name.TabIndex = 14
         '
+        'p2_events
+        '
+        Me.p2_events.Enabled = False
+        Me.p2_events.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.p2_events.Location = New System.Drawing.Point(413, 459)
+        Me.p2_events.Name = "p2_events"
+        Me.p2_events.Size = New System.Drawing.Size(132, 40)
+        Me.p2_events.TabIndex = 34
+        Me.p2_events.Text = "P2 Events"
+        Me.p2_events.UseVisualStyleBackColor = True
+        '
         'scenariodefaults
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -452,13 +464,14 @@ Partial Class scenariodefaults
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(684, 661)
+        Me.Controls.Add(Me.p2_events)
         Me.Controls.Add(Me.sunset)
         Me.Controls.Add(Me.Label12)
         Me.Controls.Add(Me.sunrise)
         Me.Controls.Add(Me.Label10)
         Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.DateTimePicker1)
-        Me.Controls.Add(Me.manage_events)
+        Me.Controls.Add(Me.p1_events)
         Me.Controls.Add(Me.lock_2)
         Me.Controls.Add(Me.lock_1)
         Me.Controls.Add(Me.p2_orbat_manager)
@@ -524,7 +537,7 @@ Partial Class scenariodefaults
     Friend WithEvents p2_orbat_manager As System.Windows.Forms.Button
     Friend WithEvents lock_1 As Button
     Friend WithEvents lock_2 As Button
-    Friend WithEvents manage_events As Button
+    Friend WithEvents p1_events As Button
     Friend WithEvents DateTimePicker1 As DateTimePicker
     Friend WithEvents Label9 As Label
     Friend WithEvents sunrise As Label
@@ -532,4 +545,5 @@ Partial Class scenariodefaults
     Friend WithEvents sunset As Label
     Friend WithEvents Label10 As Label
     Friend WithEvents scenario_name As TextBox
+    Friend WithEvents p2_events As Button
 End Class

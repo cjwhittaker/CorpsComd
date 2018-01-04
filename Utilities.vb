@@ -236,8 +236,6 @@
             firer.msg = " spotted their target but no effect firing"
         End If
 
-        If oppfire Then firer.tacticalpts = firer.tacticalpts - 1
-
         If target.fires And target.effect = 0 And firer.spotted Then
             target.msg = "spotted the firer but no effect firing"
             target.effective = False
@@ -268,12 +266,7 @@
 
         Dim init_msg As String = ""
         firer.fired = gt
-
-        If target.fires Then
-            'target.firers = target.strength
-            target.fired = gt
-            target.tacticalpts = target.tacticalpts - 1
-        End If
+        If target.fires Then target.fired = gt
 
         If firephase = "CAP" Then
             init_msg = "Air-to-Air combat Result "
@@ -363,7 +356,7 @@
                 target.airborne = False
                 target.sorties = -equipment(target.equipment).sortie
             End If
-        ElseIf firephase = "Air-Ground Attack" Then
+        ElseIf firephase = "Air Ground" Then
             If target.hit And target.disrupted Then check_demoralisation(targets, target.parent, target.quality)
         ElseIf firephase = "Opportunity Fire" Then
             If target.hit And (target.disrupted Or target.strength <= 0) Then check_demoralisation(targets, target.parent, target.quality)

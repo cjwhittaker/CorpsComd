@@ -559,7 +559,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
 
     Public Function observer()
-        If indirect() Or (task = "CAS" Or task = "Strike") Then observer = True Else observer = False
+        If indirect() Then observer = True Else observer = False
+        'If indirect() Or (task = "CAS" Or task = "Strike") Then observer = True Else observer = False
+
     End Function
     Public Function root()
         If parent = "root" Then root = True Else root = False
@@ -713,7 +715,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             effect = CorpsComd.equipment(equipment).ordnance
 
         ElseIf context = "GA" Then
-            If stage = 0 Then
+            If tacticalpts >= 2 Then
                 effect = CorpsComd.equipment(equipment).ordnance
             Else
                 effect = CorpsComd.equipment(equipment).cannon
@@ -1064,6 +1066,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         casualties = 0
         aborts = 0
         airborne = False
+        tacticalpts = 0
         task = ""
         primary = ""
     End Sub
@@ -1132,7 +1135,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub update_after_firing(phasing As String, weapon As String, finished As Boolean)
         Dim i As Integer = 0
         If fires And weapon <> "Minefield" Then
-            If Aircraft() And finished Then
+            If (airdefence() And phase <> 17) Or (Aircraft() And finished) Then
                 i = 1
             ElseIf finished And phasing = nation And movement.scoot Then
                 i = 4

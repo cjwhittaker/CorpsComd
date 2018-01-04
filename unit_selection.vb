@@ -1,12 +1,12 @@
 ﻿Public Class unit_selection
     Dim i As Integer = -1, subject As cunit
 
-    Private Sub units_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ListViewItemSelectionChangedEventArgs) Handles units.ItemSelectionChanged
+    Private Sub units_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles units.Click
         If units.SelectedItems.Count = 0 Then Exit Sub
-        i = e.ItemIndex
+        i = units.FocusedItem.Index
         If units.Items(i).Text <> "Minefield" Then
             subject = New cunit
-            subject = orbat(e.Item.Text)
+            subject = orbat(units.FocusedItem.Text)
         End If
         If Me.Tag = "Radar On" Or Me.Tag = "Command" Then
             If units.Items(i).Focused And units.Items(i).BackColor <> golden Then
@@ -35,14 +35,13 @@
     End Sub
 
     Private Sub execute() Handles takeaction.Click
-        If units.Visible And units.Items.Count = 1 Then
+        If units.Visible And units.Items.Count = 0 Then Me.Hide() : Exit Sub
+        If units.Visible And units.Items.Count = 1 And units.Items(0).Text <> "Minefield" Then
             subject = New cunit
             subject = orbat(units.Items(0).Text)
-        ElseIf units.Visible And units.Items.Count = 0 Then
-            Me.Hide()
-        ElseIf units.Visible And (subject Is Nothing Or subject.title = "") And Not (Me.Tag = "Deploy Aircraft" Or Me.Tag = "Abort Aircraft" Or units.Items(i).Text = "Minefield") Then
+        End If
+        If units.Visible And (subject Is Nothing Or subject.title = "") And Not (Me.Tag = "Deploy Aircraft" Or Me.Tag = "Abort Aircraft" Or units.Items(0).Text = "Minefield") Then
             Exit Sub
-        Else
         End If
         Dim tmp As String = ""
         If Me.Tag = "Deploy Aircraft" Then
@@ -148,7 +147,7 @@
                     .title.Text = combat.combatmode
                     .ShowDialog()
                 End With
-                If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
+                If orbat(units.Items(i).Text).fires And orbat(units.Items(i).Text).tacticalpts <= 0 Then units.Items(i).Remove()
             End If
         ElseIf Me.Tag = "Radar On" Then
             For j As Integer = units.Items.Count - 1 To 0 Step -1

@@ -88,7 +88,7 @@
             For Each u As cunit In orbat
                 If u.comd = 0 And u.nation = ph Then
                     If u.Aircraft Then hq_functions(orbat(u.parent), "Air units") : air = True
-                    If u.Aircraft Then u.reset_air_phase()
+                    u.reset_air_phase()
                 End If
             Next
             If air Then
@@ -173,11 +173,17 @@
             End If
             swap_phasing_player(True)
         Next
+        For Each u As cunit In orbat
+            If Not cap_battle And u.Aircraft And Not u.hels And u.airborne And Not u.fires Then
+                u.tacticalpts = u.tacticalpts - 1
+            End If
+        Next
     End Sub
 
     Public Sub ground_to_air(purpose As String)
         purpose = " against " + purpose
         For i As Integer = 1 To 2
+            oppfire = False
             unit_selection.Tag = "Air Defence"
             unit_selection.title.Text = unit_selection.Tag + purpose
             populate_lists(unit_selection.units, enemy, "Air Defence", "")

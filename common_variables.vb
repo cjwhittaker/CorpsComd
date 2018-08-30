@@ -1,6 +1,6 @@
 ﻿Module common_variables
     Public orbat As Collection, u As cunit, phase As Integer, playerphase As Integer, gamedate As Date
-    Public equipment As Collection, event_list As Collection
+    Public eq_list As Collection, event_list As Collection
     Public TOE As Collection, subunit As csubunit
     Public unittypes As Collection, unittype As cunittype
     Public scenario As String, gt As Integer, dice As Integer
@@ -9,7 +9,7 @@
     Public p1_hqs As Collection, p2_HQs As Collection
     Public p1_units As Collection, p2_Units As Collection
     Public p1_orbat As Collection, p2_orbat As Collection
-    Public p1_tree As TreeView, p2_tree As TreeView
+    Public p1_tree As Collection, p2_tree As Collection
     Public p1_cap As Integer, p2_cap As Integer, p1_sead As Integer, p2_sead As Integer
     Public ph_units As Collection, enemy As Collection
     Public smokefiredthisturn As Boolean
@@ -18,7 +18,7 @@
     Public disorderedstatus As Color = Color.Green, lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray
     Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, demoralisedstatus As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
     Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen
-    Public opportunityfire As New unit_selection
+    Public opportunityfire As New unit_selection, airground As New unit_selection, groundair As New unit_selection
     Public night As Boolean, dawn As Integer, dusk As Integer, twilight As Boolean
     Public sys_dir As String, g_dir As String, d_dir As String
     Public golden As Color = Color.Goldenrod, defa As Color = SystemColors.Control

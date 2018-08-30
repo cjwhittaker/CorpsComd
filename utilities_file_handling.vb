@@ -41,6 +41,7 @@
                 Next
                 If orbat.Contains(u.title) Then orbat.Remove(u.title)
                 orbat.Add(u, Key:=u.title)
+
             Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
                 MsgBox("Line " & ex.Message &
                 "is not valid and will be skipped.")
@@ -50,21 +51,20 @@
     End Sub
     Public Sub save_orbat()
         If IsNothing(orbat) Then Exit Sub
-        populate_command_structure(p1_tree, scenariodefaults.player1.Text, "Orbat")
-        populate_command_structure(p2_tree, scenariodefaults.player2.Text, "Orbat")
+        order_command_structure(scenariodefaults.player1.Text)
+        order_command_structure(scenariodefaults.player2.Text)
         file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".orb"), False)
         Dim y As String = "", n As String = ""
         For Each p As System.Reflection.PropertyInfo In properties
             y = y + p.Name + ","
         Next
         file.WriteLine(y)
-        save_command_structure(p1_tree.Nodes(0))
-        save_command_structure(p2_tree.Nodes(0))
+        save_command_structure(p1_tree)
+        save_command_structure(p2_tree)
         file.Close()
     End Sub
-    Private Sub save_command_structure(no As TreeNode)
-        u = orbat(no.Text)
-        For i As Integer = 1 To 2
+    Public Sub save_command_structure(comdtree As Collection)
+        For Each u As cunit In comdtree
             x = ""
             For Each p As System.Reflection.PropertyInfo In properties
                 If x <> "" Then x = x + ","
@@ -77,18 +77,41 @@
                 End If
             Next
             file.WriteLine(x)
-
-            If i = 1 And u.loaded <> "" And u.comd = 0 Then
-                u = orbat(u.loaded)
-            Else
-                Exit For
-            End If
-        Next
-        For Each n As TreeNode In no.Nodes
-            save_command_structure(n)
         Next
     End Sub
 
+    Public Sub order_command_structure(side As String)
+
+        Dim Topunit As String, u As New cunit, x As Integer = 0
+        If side = scenariodefaults.player1.Text Then
+            p1_tree = New Collection
+            p1_tree.Clear()
+        Else
+            p2_tree = New Collection
+            p2_tree.Clear()
+        End If
+        For Each u In orbat
+            x = x + 1
+            If u.nation = side And u.parent = "root" Then Exit For
+        Next
+        Topunit = u.title
+        create_structure(Topunit)
+
+    End Sub
+
+    Public Sub create_structure(ByVal currentcomd As String)
+        If orbat(currentcomd).nation = scenariodefaults.player1.Text Then
+            p1_tree.Add(orbat(currentcomd), orbat(currentcomd).title)
+        Else
+            p2_tree.Add(orbat(currentcomd), orbat(currentcomd).title)
+        End If
+
+        For x As Integer = 1 To orbat.Count
+            If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
+                create_structure(orbat(x).title)
+            End If
+        Next
+    End Sub
 
 
     Public Sub load_equipment()
@@ -96,7 +119,7 @@
         Dim pnames As New Collection, equip As cequipment
         Dim myType As Type = GetType(cequipment), pname As String = "", pval As String = "", i As Integer
         Dim p As System.Reflection.PropertyInfo
-        equipment = New Collection
+        'eq_list = New Collection
         Dim MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(d_dir + "equipment.dat")
         'Using MyReader
         MyReader.TextFieldType = FileIO.FieldType.Delimited
@@ -130,19 +153,20 @@
                     i = i + 1
                     If i > pnames.Count Then Exit For
                 Next
-                If equipment.Contains(equip.title) Then equipment.Remove(equip.title)
-                equipment.Add(equip, equip.title)
+                'If eq_list.Contains(equip.title) Then eq_list.Remove(equip.title)
+                eq_list.Add(equip, equip.title)
             Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
                 MsgBox("Line " & ex.Message &
                 "is not valid and will be skipped.")
             End Try
         End While
+
     End Sub
 
     Public Sub load_subunits()
         If Not My.Computer.FileSystem.FileExists(d_dir + "\" + "subunits.dat") Then Exit Sub
         TOE = New Collection
-        unittypes = New Collection
+        'unittypes = New Collection
         Dim pnames As New Collection, subunit As csubunit
         Dim myType As Type = GetType(csubunit), pname As String = "", pval As String = "", i As Integer
         Dim p As System.Reflection.PropertyInfo

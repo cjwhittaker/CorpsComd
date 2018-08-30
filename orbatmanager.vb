@@ -64,8 +64,15 @@
         Else
         End If
     End Sub
-
-
+    Private Sub comdtree_DoubleClick(sender As Object, e As EventArgs) Handles comdtree.DoubleClick
+        select_all(comdtree.TopNode)
+    End Sub
+    Private Sub select_all(no As TreeNode)
+        For Each n As TreeNode In no.Nodes
+            select_all(n)
+            n.BackColor = golden
+        Next
+    End Sub
     Private Sub group_edit()
         no = check_next_to_edit(comdtree.TopNode)
         If Not no Is Nothing Then
@@ -79,7 +86,6 @@
             comdtree.Enabled = True
             selectedunit.Enabled = False
             purpose.Text = ""
-
         End If
     End Sub
 
@@ -363,6 +369,38 @@
 
     End Sub
 
+    Private Sub change_mode_click(sender As Object, e As EventArgs) Handles dispmode.Click, concmode.Click, travelmode.Click, dismountvehicles.Click, embusvehicles.Click, debusvehicles.Click
+        change_mode(comdtree.Nodes(0), sender.name)
+        populate_command_structure(comdtree, orbatside, "Orbat")
+
+    End Sub
+
+    Private Sub change_mode(n As TreeNode, mode As String)
+        For Each no As TreeNode In n.Nodes
+            change_mode(no, mode)
+            If no.BackColor = golden And orbat(no.Text).comd = 0 Then
+                If InStr(mode, disp) > 0 Then
+                    orbat(no.Text).mode = disp
+                ElseIf InStr(mode, travel) > 0 Then
+                    orbat(no.Text).mode = travel
+                ElseIf InStr(mode, conc) > 0 And Not orbat(no.Text).not_conc Then
+                    orbat(no.Text).mode = conc
+                ElseIf InStr(mode, "embus") > 0 Then
+                    loadvehicles("Embus", no)
+                ElseIf InStr(mode, "debus") > 0 Then
+                    loadvehicles("Debus", no)
+                ElseIf InStr(mode, "dismount") > 0 Then
+                    loadvehicles("Dismount", no)
+
+                Else
+                End If
+            End If
+            no.BackColor = orbat(no.Text).status("Orbat")
+        Next
+    End Sub
+
+
+
     Private Sub printunit(ByVal currentcomd As String, ByVal indentlevel As Integer)
         Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
         file.WriteLine(Space(indentlevel * 5) + n) 'Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
@@ -374,7 +412,7 @@
         Next
     End Sub
 
-    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles printorbat.Click
         printorbattofile()
     End Sub
 
@@ -390,38 +428,48 @@
         End With
     End Sub
 
-    Private Sub loadvehicles_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loadvehicles.Click
-        Dim tpt As String = ""
-        If InStr(sender.text, "Embus") > 0 Then
-            loadvehicles.Text = "Dismount all Passengers"
-            For Each u As cunit In orbat
-                If u.nation = orbatside Then
-                    If Not u.troopcarrier And u.loaded = "" And u.debussed Then
-                        tpt = Replace(u.title, "#", "")
-                        If orbat.Contains(tpt) Then
-                            u.loaded = tpt
-                            u.debussed = False
-                            orbat(tpt).loaded = u.title
-                            orbat(tpt).debussed = False
-                        End If
-                    End If
+    Private Sub loadvehicles(action As String, no As TreeNode)
+        Dim tpt As String = "", title As String = no.Text
+        If action = "Embus" Then
+            If orbat(title).inf And orbat(title).loaded = "" And orbat(title).debussed Then
+                tpt = Replace(orbat(title).title, "#", "")
+                If orbat.Contains(tpt) Then
+                    orbat(title).loaded = tpt
+                    orbat(title).debussed = False
+                    orbat(tpt).loaded = orbat(title).title
+                    orbat(tpt).debussed = False
                 End If
-            Next
-        Else
-            loadvehicles.Text = "Embus all Passengers"
-            For Each u As cunit In orbat
-                If u.nation = orbatside Then
-                    If u.troopcarrier And Not u.loaded = "" Then
-                        orbat(u.loaded).loaded = ""
-                        orbat(u.loaded).debussed = True
-                        u.loaded = ""
-                        u.debussed = True
-                    End If
+            ElseIf orbat(title).inf And orbat(title).loaded <> "" And orbat(title).debussed Then
+                tpt = Replace(orbat(title).title, "#", "")
+                orbat(title).debussed = False
+                orbat(tpt).debussed = False
+            Else
+            End If
+        ElseIf action = "Dismount" Then
+            If orbat(title).inf And orbat(title).loaded <> "" Then
+                orbat(orbat(title).loaded).loaded = ""
+                orbat(orbat(title).loaded).debussed = True
+                orbat(title).loaded = ""
+                orbat(title).debussed = True
+            End If
+        ElseIf action = "Debus" Then
+            If orbat(title).inf And orbat(title).loaded <> "" Then
+                orbat(orbat(title).loaded).debussed = True
+                orbat(title).debussed = True
+                no.Text = orbat(title).loaded
+            ElseIf orbat(title).inf And orbat(title).loaded = "" And orbat(title).debussed Then
+                tpt = Replace(orbat(title).title, "#", "")
+                If orbat.Contains(tpt) Then
+                    orbat(title).loaded = tpt
+                    orbat(title).debussed = True
+                    orbat(tpt).loaded = orbat(title).title
+                    orbat(tpt).debussed = True
                 End If
-            Next
+            Else
 
+            End If
+        Else
         End If
-        populate_command_structure(comdtree, orbatside, "Orbat")
     End Sub
 
     Public Function renamed(ByVal title As String)
@@ -444,5 +492,6 @@
         Loop
 
     End Function
+
 
 End Class

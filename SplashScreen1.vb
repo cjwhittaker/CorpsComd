@@ -30,6 +30,8 @@
 
         'Copyright info
         Copyright.Text = My.Application.Info.Copyright + vbNewLine + My.Application.Info.CompanyName
+
+
     End Sub
 
 End Class

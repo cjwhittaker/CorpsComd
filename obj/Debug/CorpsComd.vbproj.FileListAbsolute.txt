@@ -38,4 +38,5 @@ C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Deb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.morale_test.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.SplashScreen1.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.event_manager.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.mine_attack.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.vbprojResolveAssemblyReference.cache

@@ -1,16 +1,23 @@
 ﻿Module Utilities_air_ops
 
 
-    Public Function cap_deployed(cap1 As Collection, cap2 As Collection)
-        cap_deployed = False
-        Dim c1 As Integer = 0, c2 As Integer = 0
-        For Each ac As cunit In cap1
-            If ac.airborne And ac.task = "CAP" Then c1 = c1 + 1
+    Public Function cap_deployed(cap_a As Collection, cap_b As Collection, purpose As String)
+        cap_deployed = ""
+        Dim x As Integer = 0, y As Integer = 0
+        For Each ac As cunit In cap_a
+            If ac.airborne And ac.task = "CAP" Then x = x + 1
         Next
-        For Each ac As cunit In cap2
-            If ac.airborne And ac.task = "CAP" Then c2 = c2 + 1
+        For Each ac As cunit In cap_b
+            If ac.airborne And ac.task = "CAP" Then y = y + 1
         Next
-        If c1 > 0 And c2 = 0 Then cap_deployed = True
+
+        If x = 0 And y = 0 Then cap_deployed = "None" : Exit Function
+        If x > 0 And y > 0 And purpose = "AS" Then cap_deployed = "AS battle" : Exit Function
+        If x = y And x > 0 And y > 0 Then cap_deployed = "None" : Exit Function
+        If x > 0 And (y = 0 Or x > y) And purpose = "Intercept" Then cap_deployed = "ph intercept" : Exit Function
+        If (y > x Or x = 0) And y > 0 And purpose = "Intercept" Then cap_deployed = "nph intercept" : Exit Function
+        If x > 0 And y = 0 And purpose = "Ground Air" Then cap_deployed = "nph ground air" : Exit Function
+        If x = 0 And y > 0 And purpose = "Ground Air" Then cap_deployed = "ph ground air" : Exit Function
     End Function
     Public Function arty_fire_mission(mission As String, side As Collection)
         arty_fire_mission = False

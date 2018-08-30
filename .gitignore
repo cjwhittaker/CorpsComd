@@ -11,3 +11,5 @@ bin/Debug/CorpsComd.exe
 *.Cache
 *.exe
 *.exe
+bin/
+obj/

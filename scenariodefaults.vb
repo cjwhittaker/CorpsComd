@@ -17,14 +17,12 @@
 
     Private Sub loadscenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles loadscenario.Click
         'Dim y As String
+        Dim currdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments + "\Wargames Automated Play Assistants"
+        OpenFileDialog1.InitialDirectory = currdir
         OpenFileDialog1.Filter = "Scenario files (*.sce)|*.sce|All files (*.*)|*.*"
-        Dim currdir As String = ""
-        'currdir = "C:\Users\Colin Whittaker\Documents\Wargame Rules\POW"
         If OpenFileDialog1.ShowDialog = DialogResult.OK Then scenario = OpenFileDialog1.FileName Else Exit Sub
-        'y = Strings.Left(y, (Len(y) - 4))
         currdir = Replace(OpenFileDialog1.FileName, "\" + OpenFileDialog1.SafeFileName, "")
         My.Computer.FileSystem.CurrentDirectory = currdir
-        OpenFileDialog1.InitialDirectory = currdir
         Using MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(scenario)
             MyReader.TextFieldType = FileIO.FieldType.Delimited
             MyReader.SetDelimiters(",")
@@ -74,7 +72,7 @@
                 End Try
             End While
         End Using
-        scenario_name.Text = Mid(Replace(scenario, sys_dir, ""), 2)
+        scenario_name.Text = Replace(Mid(Replace(scenario, sys_dir, ""), 2), ".sce", "")
         load_orbat()
         load_events()
         enable_data_entry(True)
@@ -343,7 +341,7 @@
 
 
     Private Sub scenariodefaults_Load(sender As Object, e As EventArgs) Handles Me.Load
-        sys_dir = My.Computer.FileSystem.SpecialDirectories.MyDocuments + "\Corps Commander"
+        sys_dir = My.Computer.FileSystem.SpecialDirectories.MyDocuments + "\Wargames Automated Play Assistants\Corps Commander"
         g_dir = sys_dir + "\Graphics\"
         d_dir = sys_dir + "\Data\"
         'g_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Graphics\"

@@ -20,7 +20,6 @@
         undercommand.Focus()
         update_title(commander.title)
         populate_lists(undercommand, ph_units, Me.Tag, commander.title)
-        If Me.Tag = "Fire and Movement" Then commander.comdpts = 0
         k = -1
         reset_unit_options()
     End Sub
@@ -54,6 +53,7 @@
             undercommand.SelectedItems.Clear()
             Exit Sub
         End If
+        If Me.Tag = "Fire and Movement" Then commander.comdpts = 0
 
         k = undercommand.FocusedItem.Index
         subject = orbat(undercommand.FocusedItem.Text)

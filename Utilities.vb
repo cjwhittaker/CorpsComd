@@ -80,7 +80,7 @@
                         li.BackColor = not_on_net
                     End If
                 ElseIf InStr("DemoralisationMorale RecoveryFire and MovementArty Tasking", purpose) > 0 Then
-                    li.BackColor = orbat(li.Text).status
+                    li.BackColor = orbat(li.Text).status("")
                 Else
                 End If
             End If

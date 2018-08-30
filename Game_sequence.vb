@@ -1,6 +1,6 @@
 ﻿Module Game_sequence
     Public Sub initialise_turn()
-        If gt = 1 Then
+        If gt = 1 And phase = 0 Then
             scenariodefaults.enable_data_entry(False)
             For Each u As cunit In orbat
                 u.fired = -1
@@ -29,7 +29,7 @@
                 p2_orbat.Add(u, u.title)
                 If u.comd > 0 Then p2_HQs.Add(u, u.title) Else p2_Units.Add(u, u.title)
             End If
-            If u.comd = 0 Then
+            If u.comd = 0 And phase = 0 Then
                 With u
                     .hits = 0
                     .aborts = 0
@@ -38,6 +38,8 @@
                 End With
             End If
         Next
+        If phase <> 0 Then swap_phasing_player(False)
+
     End Sub
 
     Public Sub determineinitiative()
@@ -61,7 +63,9 @@
             .nb.Text = "Second"
             .nb.Visible = True
             .ShowDialog()
-            .ok_button.Visible = False
+            .yb.Visible = False
+            .nb.Visible = False
+            .ok_button.Visible = True
         End With
         oppfire = False
     End Sub
@@ -82,13 +86,30 @@
 
     Public Sub air_mission_planning()
         '5 - Reset results of subordination and reset units for tasking
+        'For Each u As cunit In orbat
+        '    If u.comd = 0 Then
+        '        If u.Aircraft And Not u.heli Then
+        '            u.airborne = True
+        '            If InStr(u.equipment, "AS") > 0 Then
+        '                u.task = "CAP"
+        '            ElseIf InStr(u.equipment, "SEAD") > 0 Then
+        '                u.task = "SEAD"
+        '            Else
+        '                u.task = "CAS"
+        '            End If
+        '        End If
+        '        If u.radar Then u.eligibleCB = True
+        '        u.reset_air_phase()
+        '    End If
+        'Next
+        'Exit Sub
         Dim air As Boolean
         For i = 1 To 2
             air = False
             For Each u As cunit In orbat
                 If u.comd = 0 And u.nation = ph Then
                     If u.Aircraft Then hq_functions(orbat(u.parent), "Air units") : air = True
-                    If u.Aircraft Then u.reset_air_phase()
+                    u.reset_air_phase()
                 End If
             Next
             If air Then
@@ -119,11 +140,14 @@
         For i = 1 To 2
             arty = False
             For Each u As cunit In orbat
-                If u.comd = 0 And u.nation = ph Then
-                    If u.indirect Then hq_functions(orbat(u.parent), "Arty units") : arty = True
-                    If u.indirect And orbat(u.parent).comd <= 3 Then u.task = "DS"
-                    If u.indirect And orbat(u.parent).comd > 3 Then u.task = "GS"
-                    If u.indirect Then u.primary = ""
+                If u.comd = 0 And u.nation = ph And u.indirect Then
+                    hq_functions(orbat(u.parent), "Arty units")
+                    If u.primary Is Nothing Then u.primary = ""
+                    If u.primary <> "" And orbat.Contains(u.primary) Then hq_functions(orbat(u.primary), "Arty units")
+                    arty = True
+                    If u.task = "" Then u.task = "DS"
+                    'If orbat(u.parent).comd > 3 Then u.task = "GS"
+                    'If u.indirect Then u.primary = ""
                 End If
             Next
             If arty Then
@@ -149,7 +173,7 @@
             For Each ac As cunit In orbat
                 If ac.airborne Then
                     dice = d10()
-                    dice = 1
+                    'dice = 1
                     If dice > ac.quality Or dice = 10 Then ac.task = "Abort"
                 End If
             Next
@@ -159,68 +183,95 @@
         End If
     End Sub
 
-    Public Sub air_to_air(cap_battle As Boolean)
+    Public Sub air_superiority()
         For Each cap As cunit In orbat
             If cap.task = "CAP" Then cap.fires = False : cap.hits = 0
         Next
         'CAP vs CAP
-        For i As Integer = 1 To 2
-            unit_selection.Tag = "CAP Missions"
-            populate_lists(unit_selection.units, ph_units, "CAP Missions", "")
-            If unit_selection.units.Items.Count > 0 And combat.targets.Items.Count > 0 Then
-                populate_lists(combat.targets, enemy, IIf(cap_battle, "CAP Targets", "Air Targets"), "")
-                unit_selection.ShowDialog()
+        If cap_deployed(ph_units, enemy, "AS") = "AS battle" Then
+            For i As Integer = 1 To 2
+                unit_selection.Tag = "CAP Missions"
+                populate_lists(unit_selection.units, ph_units, "CAP Missions", "")
+                If unit_selection.units.Items.Count > 0 Then
+                    populate_lists(combat.targets, enemy, "CAP Targets", "")
+                    If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+                End If
+                swap_phasing_player(True)
+            Next
+        End If
+    End Sub
+    Public Sub intercept()
+        Dim cap_result As String = cap_deployed(ph_units, enemy, "Intercept")
+        If cap_result <> "None" Then
+            If cap_result = "nph intercept" Then swap_phasing_player(True)
+            populate_lists(unit_selection.units, ph_units, "Intercept", "")
+            If unit_selection.units.Items.Count > 0 Then
+                populate_lists(combat.targets, enemy, "Air to Air", "")
+                If combat.targets.Items.Count > 0 Then
+                    With unit_selection
+                        .Tag = "Intercept"
+                        .ShowDialog()
+                    End With
+                End If
             End If
-            swap_phasing_player(True)
+            If cap_result = "nph intercept" Then swap_phasing_player(True)
+        End If
+
+        For Each u As cunit In orbat
+            If u.Aircraft And Not u.hels And u.airborne And Not u.fires Then
+                u.tacticalpts = u.tacticalpts - 1
+            End If
         Next
+
     End Sub
 
-    Public Sub ground_to_air(purpose As String)
-        purpose = " against " + purpose
-        For i As Integer = 1 To 2
-            unit_selection.Tag = "Air Defence"
-            unit_selection.title.Text = unit_selection.Tag + purpose
-            populate_lists(unit_selection.units, enemy, "Air Defence", "")
-            If unit_selection.units.Items.Count <> 0 Then
-                combat.targets.Items.Clear()
-                If phase = 10 Then
-                    populate_lists(combat.targets, ph_units, "SEAD Defence Targets", "")
-                ElseIf cap_deployed(ph_units, enemy) And phase = 8 Then
-                    populate_lists(combat.targets, ph_units, "CAP Targets", "")
-                Else
-                    populate_lists(combat.targets, ph_units, "Air Targets", "")
-                End If
-                If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
-            End If
-            swap_phasing_player(True)
-        Next
-        'keep air defenders tactical action pts
-        For Each u As cunit In orbat
-            If u.comd = 0 Then
-                If u.airdefence Then u.comdpts = u.tacticalpts Else u.comdpts = 0
-            End If
-        Next
+
+    Public Sub ground_to_air()
+        Dim cap_result As String = cap_deployed(ph_units, enemy, "Ground Air")
+        If cap_result <> "None" Then
+            If cap_result = "nph ground air" Then swap_phasing_player(True)
+            populate_lists(airground.units, enemy, "CAP AD Targets", "")
+            airground.Tag = "CAP AD Targets"
+            populate_lists(groundair.units, ph_units, "Air Defence", "")
+            If groundair.units.Items.Count > 0 Then airground.ShowDialog()
+            If cap_result = "nph ground air" Then swap_phasing_player(True)
+            airground.Tag = "airground"
+        End If
+
     End Sub
 
     Public Sub conduct_sead()
+        airground.Tag = "SEAD"
         For i As Integer = 1 To 2
-            unit_selection.Tag = "SEAD"
-            populate_lists(unit_selection.units, ph_units, "SEAD", "")
-            If unit_selection.units.Items.Count > 0 Then
+            populate_lists(airground.units, ph_units, "SEAD", "")
+            If airground.units.Items.Count > 0 Then
                 populate_lists(combat.targets, enemy, "SEAD Targets", "")
-                If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+                populate_lists(groundair.units, enemy, "Air Defence", "")
+                With airground
+                    .Tag = "SEAD"
+                    .ShowDialog()
+                End With
             End If
+
+            'populate_lists(unit_selection.units, ph_units, "SEAD", "")
+            'If unit_selection.units.Items.Count > 0 Then
+            '    populate_lists(combat.targets, enemy, "SEAD Targets", "")
+            '    If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+            'End If
             swap_phasing_player(True)
         Next
     End Sub
 
     Public Sub conduct_air_to_ground()
         For i As Integer = 1 To 2
-            unit_selection.Tag = "Air Ground"
-            populate_lists(unit_selection.units, ph_units, "Air Ground", "")
-            If unit_selection.units.Items.Count > 0 Then
+            populate_lists(airground.units, ph_units, "Air Ground", "")
+            If airground.units.Items.Count > 0 Then
                 populate_lists(combat.targets, enemy, "Ground Targets", "")
-                If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+                populate_lists(groundair.units, enemy, "Air Defence", "")
+                With airground
+                    .Tag = "Air Ground"
+                    .ShowDialog()
+                End With
             End If
             swap_phasing_player(True)
         Next
@@ -306,27 +357,25 @@
     End Sub
 
     Public Sub end_sorties()
-        Dim endsortie As String = ""
-        For Each subject As cunit In ph_units
-            If subject.airborne Then
-                subject.lands(False)
-                'If subject.disrupted Then subject.sorties = 0 Else subject.sorties = subject.sorties - 1
-                'If subject.sorties = 0 Then
-                '    subject.airborne = False
-                '    subject.sorties = -equipment(subject.equipment).sortie
-                endsortie = endsortie + subject.title + ", "
-                'End If
-            ElseIf subject.sorties <= 0 Then
-                subject.sorties = subject.sorties + 1
-            Else
+        For i As Integer = 1 To 2
+            Dim endsortie As String = ""
+            For Each subject As cunit In ph_units
+                If subject.airborne Then
+                    subject.lands(False)
+                    endsortie = endsortie + subject.title + ", "
+                ElseIf subject.sorties <= 0 Then
+                    subject.sorties = subject.sorties + 1
+                Else
+                End If
+            Next
+            If endsortie <> "" Then
+                With resultform
+                    .result.Text = "Sorties end for" + vbNewLine + endsortie
+                    .ShowDialog()
+                End With
             End If
+            swap_phasing_player(True)
         Next
-        If endsortie <> "" Then
-            With resultform
-                .result.Text = "Sorties end for" + vbNewLine + endsortie
-                .ShowDialog()
-            End With
-        End If
     End Sub
 
     Public Sub morale_recovery()
@@ -336,15 +385,18 @@
             unit_selection.Tag = "Demoralisation Recovery"
             populate_lists(unit_selection.units, ph_hqs, "Demoralisation", "")
             If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
+            For Each u As cunit In ph_units
+                If u.comd = 0 Then u.effective = False
+            Next
             With movement
-                .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
-                .current_phase.Text = movement.Text
-                .options_for("Morale Recovery")
-                .Tag = "Morale Recovery"
-                .ShowDialog()
-            End With
-            swap_phasing_player(True)
-        Next
+                    .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
+                    .current_phase.Text = movement.Text
+                    .options_for("Morale Recovery")
+                    .Tag = "Morale Recovery"
+                    .ShowDialog()
+                End With
+                swap_phasing_player(True)
+            Next
     End Sub
 
 End Module

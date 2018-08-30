@@ -1,22 +1,39 @@
 ﻿Public Class unit_selection
-    Dim i As Integer = -1, subject As cunit
+    Public i As Integer = -1, subject As cunit
 
-    Private Sub units_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ListViewItemSelectionChangedEventArgs) Handles units.ItemSelectionChanged
+    Private Sub units_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles units.Click
         If units.SelectedItems.Count = 0 Then Exit Sub
-        i = e.ItemIndex
-        If units.Items(i).Text <> "Minefield" Then
-            subject = New cunit
-            subject = orbat(e.Item.Text)
-        End If
-        If Me.Tag = "Radar On" Or Me.Tag = "Command" Then
+        i = units.FocusedItem.Index
+        If Me.Tag = "Radar On" Or Me.Tag = "Call for Fire" Then
             If units.Items(i).Focused And units.Items(i).BackColor <> golden Then
                 If Not subject.disrupted Then units.Items(i).BackColor = golden
             ElseIf units.Items(i).Focused And units.Items(i).BackColor = golden Then
-                units.Items(i).BackColor = subject.status
+                units.Items(i).BackColor = nostatus
+                If Me.Tag = "Call for Fire" Then
+                    If orbat(units.FocusedItem.Text).arty_spt = 0 Then
+                        units.FocusedItem.BackColor = in_ds
+                    ElseIf orbat(units.FocusedItem.Text).arty_spt = 1 Then
+                        units.FocusedItem.BackColor = can_observe
+                    Else
+                        units.FocusedItem.BackColor = not_on_net
+                    End If
+
+                End If
+            Else
             End If
-            units.SelectedItems.Clear()
             'takeaction.Focus()
+        ElseIf Not (Me.Tag = "Deploy Aircraft" Or Me.Tag = "Abort Aircraft") Then
+            If units.Items(i).BackColor = golden Then
+                units.Items(i).BackColor = nostatus
+            Else
+                For Each l As ListViewItem In units.Items
+                    l.BackColor = nostatus
+                Next
+                units.Items(i).BackColor = golden
+            End If
+        Else
         End If
+        units.SelectedItems.Clear()
     End Sub
 
     Private Sub selectnode(ByVal sender As Object, ByVal e As System.Windows.Forms.TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
@@ -35,31 +52,46 @@
     End Sub
 
     Private Sub execute() Handles takeaction.Click
-        If units.Visible And units.Items.Count = 1 Then
-            subject = New cunit
-            subject = orbat(units.Items(0).Text)
-        ElseIf units.Visible And units.Items.Count = 0 Then
-            Me.Hide()
-        ElseIf units.Visible And (subject Is Nothing Or subject.title = "") And Not (Me.Tag = "Deploy Aircraft" Or Me.Tag = "Abort Aircraft" Or units.Items(i).Text = "Minefield") Then
+        If Me.Tag = "Command" Then
+            mark_ooc(comdtree.Nodes)
             Exit Sub
-        Else
         End If
-        Dim tmp As String = ""
+        If units.Items.Count = 0 Then Me.Close() : Exit Sub
         If Me.Tag = "Deploy Aircraft" Then
             Me.Close()
         ElseIf Me.Tag = "Abort Aircraft" Then
-            For Each l As ListViewItem In units.Items
-                orbat(l.Text).lands(True)
+            For Each ac As ListViewItem In units.Items
+                orbat(ac.Text).lands(True)
             Next
             Me.Hide()
-        ElseIf Me.Tag = "Transport" Then
+        Else
+        End If
+        Dim none_selected As Boolean = True
+        For Each l As ListViewItem In units.Items
+            If l.BackColor = golden And l.Text <> "Minefield" Then
+                subject = New cunit
+                subject = orbat(l.Text)
+                i = l.Index
+                none_selected = False
+                Exit For
+            ElseIf Me.Tag = "Opportunity Fire" And l.BackColor = golden And l.Text = "Minefield" Then
+                With mine_attack
+                    .tester = movement.mover
+                    .subject.Text = movement.mover.title
+                    .ShowDialog()
+                End With
+                Me.Close()
+            Else
+            End If
+        Next
+        If none_selected Then Exit Sub
+        Dim tmp As String = ""
+        If Me.Tag = "Transport" Then
             movement.carrier = subject
             Me.Hide()
         ElseIf Me.Tag = "Observee" Then
             movement.mover.primary = subject.title
             Me.Hide()
-        ElseIf Me.Tag = "Command" Then
-            mark_ooc(comdtree.Nodes)
         ElseIf Me.Tag = "Demoralisation Recovery" Then
             Dim d As Integer = d10()
             If d >= subject.quality + 1 Then
@@ -76,26 +108,18 @@
             resultform.ShowDialog()
             If units.Items.Count = 0 Then Me.Hide()
         ElseIf Me.Tag = "Opportunity Fire" Then
-            If units.Items(i).Text = "Minefield" Then
-                With mine_attack
-                    .tester = movement.mover
-                    .subject.Text = movement.mover.title
-                    .ShowDialog()
-
-                End With
-            Else
-                With combat
-                    .Tag = Me.Tag
-                    .firer = New cunit
-                    .firer = subject
-                    .targets.Visible = False
-                    .selectedtarget.Text = movement.mover.title
-                    .combatmode = subject.nation + " " + Me.Tag
-                    .ShowDialog()
-                    .targets.Visible = True
-                End With
-                If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
-            End If
+            With combat
+                .Tag = Me.Tag
+                .firer = New cunit
+                .firer = subject
+                .firermode.Text = subject.mode
+                .targets.Visible = False
+                .selectedtarget.Text = movement.mover.title
+                .combatmode = subject.nation + " " + Me.Tag
+                .ShowDialog()
+                .targets.Visible = True
+            End With
+            If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
             'Me.Hide()
         ElseIf Me.Tag = "CA Defenders" Then
             With assault
@@ -116,18 +140,18 @@
                 End With
                 If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
             End If
-        ElseIf Me.Tag = "CAP Missions" Then
+        ElseIf Me.Tag = "CAP Missions" Or Me.Tag = "Intercept" Then
             If combat.targets.Items.Count = 0 Then Exit Sub
             If subject.pass_quality_test(0) Then
                 With combat
-                    .Tag = "CAP"
+                    .Tag = IIf(Me.Tag = "Intercept", "Intercept", "CAP")
                     .firer = New cunit
                     .firer = subject
-                    .combatmode = "Simultaneous Air-to-Air Combat"
-                    .title.Text = combat.combatmode + " Combat"
+                    .combatmode = IIf(Me.Tag = "Intercept", "CAP Intercept Combat", "Simultaneous CAP Combat")
+                    .title.Text = combat.combatmode
                     .ShowDialog()
                 End With
-                If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
+                If orbat(units.Items(i).Text).fires Or Not orbat(units.Items(i).Text).airborne Then units.Items(i).Remove()
                 If combat.targets.Items.Count = 0 Then Me.Hide()
             Else
                 With resultform
@@ -137,8 +161,26 @@
                 orbat(units.Items(i).Text).lands(True)
                 units.Items(i).Remove()
             End If
+        ElseIf Me.Tag = "CAP AD Targets" Then
+            If groundair.units.Items.Count > 0 Then
+                With groundair
+                    .Tag = "Air Defence against CAP Missions"
+                    .ShowDialog()
+                    .Tag = "groundair"
+                End With
+                For Each ac As ListViewItem In groundair.units.Items
+                    ac.BackColor = nostatus
+                Next
+            End If
+            units.Items(i).Remove()
         ElseIf Me.Tag = "Air Ground" Then
-            If subject.strength > 0 And Not subject.disrupted Then
+            If groundair.units.Items.Count > 0 Then
+                groundair.ShowDialog()
+            End If
+            subject = orbat(units.Items(i).Text)
+            If subject.strength - subject.aborts <= 0 Then
+                subject.lands(False)
+            Else
                 oppfire = False
                 With combat
                     .Tag = "Air Ground"
@@ -148,48 +190,52 @@
                     .title.Text = combat.combatmode
                     .ShowDialog()
                 End With
-                If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
+                For Each ac As ListViewItem In groundair.units.Items
+                    ac.BackColor = nostatus
+                Next
+                If orbat(units.Items(i).Text).fires And orbat(units.Items(i).Text).tacticalpts <= 0 Then units.Items(i).Remove()
             End If
+
         ElseIf Me.Tag = "Radar On" Then
             For j As Integer = units.Items.Count - 1 To 0 Step -1
                 If units.Items(j).BackColor = golden Then
                     orbat(units.Items(j).SubItems(0).Text).eligibleCB = True
                     units.Items(j).Remove()
                 End If
-                If units.Items.Count = 0 Then Me.Hide()
+                If units.Items.Count = 0 Then Me.Close()
             Next
         ElseIf Me.Tag = "Arty Support" Then
             If subject Is Nothing Then Exit Sub
-            For Each l As ListViewItem In movement.undercommand.Items
-                If l.BackColor = golden Then
-                    With orbat(l.Text)
+            For Each ar As ListViewItem In movement.undercommand.Items
+                If ar.BackColor = golden Then
+                    With orbat(ar.Text)
                         .task = movement.tac_opt_txt
                         .primary = subject.title
                     End With
-                    l.SubItems(2).Text = UCase(movement.tac_opt_txt)
-                    l.BackColor = in_ds
+                    ar.SubItems(2).Text = UCase(movement.tac_opt_txt)
+                    ar.BackColor = in_ds
                 End If
             Next
             Me.Hide()
 
-        ElseIf Me.Tag = "Air Defence" Then
-            If combat.targets.Items.Count > 0 Then
-                With combat
-                    .Tag = "Air Defence"
-                    .firer = New cunit
-                    .firer = subject
-                    .selectedfirer.Text = subject.title
-                    .targets.Visible = True
-                    .combatmode = .Tag
-                    .title.Text = subject.nation + " " + title.Text
-                    .ShowDialog()
-                End With
-            End If
-            If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
-        ElseIf Me.Tag = "Observer" Then
+        ElseIf InStr(Me.Tag, "Air Defence") > 0 Then
+            If units.Items(i).BackColor = no_action_pts Then Exit Sub
+            With combat
+                .Tag = "Air Defence"
+                .firer = New cunit
+                .firer = subject
+                .selectedfirer.Text = subject.title
+                .targets.Visible = True
+                .combatmode = Me.Tag
+                .title.Text = subject.nation + " " + title.Text
+                .ShowDialog()
+            End With
+            If orbat(units.Items(i).Text).fires Then units.Items(i).BackColor = no_action_pts
+            If orbat(units.Items(i).Text).missiles = 0 And orbat(units.Items(i).Text).missile_armed() Then units.Items(i).Remove()
 
+        ElseIf Me.Tag = "Observer" Then
             Dim dice As Integer = d10()
-            If dice = 10 Or (subject.statusimpact = 2 And dice > subject.quality - 1) Or (subject.statusimpact = 1 And dice > subject.quality) Then
+            If dice = 10 Or (subject.arty_spt = 2 And dice > subject.quality - 1) Or (subject.arty_spt = 1 And dice > subject.quality) Then
                 subject.tacticalpts = subject.tacticalpts - 2
                 With resultform
                     .result.Text = "The observer failed to communicate fire order to firing battery"
@@ -199,10 +245,31 @@
                 units.Items(i).Remove()
             Else
                 movement.observing = True
-                combat.observer.Text = units.Items(i).Text
+                movement.mover.loaded = units.Items(i).Text
+                'combat.observer.Text = units.Items(i).Text
                 Me.Hide()
             End If
-
+        ElseIf Me.Tag = "Call for Fire" Then
+            For j As Integer = 0 To 2
+                For Each ar As ListViewItem In units.Items
+                    If ar.BackColor = golden And orbat(ar.Text).arty_spt = j Then
+                        subject = orbat(ar.Text)
+                        Dim dice As Integer = d10()
+                        If dice = 10 Or (subject.arty_spt = 2 And dice > subject.quality - 1) Or (subject.arty_spt = 1 And dice > subject.quality) Then
+                            With resultform
+                                .result.Text = "The observer failed to communicate fire order to firing battery"
+                                .ShowDialog()
+                            End With
+                            movement.mover.lostcomms = True
+                            Me.Hide()
+                        Else
+                            subject.loaded = movement.mover.title
+                            movement.load_combat(subject)
+                            If subject.tacticalpts <= 0 Then units.Items(i).Remove()
+                        End If
+                    End If
+                Next
+            Next
         Else
 
         End If
@@ -258,7 +325,23 @@
                 .units.Columns(1).Text = "Strength"
                 .units.Columns(2).Text = "Equipment"
             End With
-        ElseIf Me.Tag = "Air Ground" Then
+        ElseIf Me.Tag = "Intercept" Then
+            With Me
+                .Text = "CAP Intercept Combat Phase for " + side
+                .title.Text = "Select Unit to conduct CAP Intercept Combat"
+                .takeaction.Text = "Select Unit"
+                .units.Columns(1).Text = "Strength"
+                .units.Columns(2).Text = "Equipment"
+            End With
+        ElseIf Me.Tag = "CAP AD Targets" Then
+            With Me
+                .Text = "Ground Air Defence against CAP Combat Phase for " + side
+                .title.Text = "Select CAP Unit to be engaged by air defence"
+                .takeaction.Text = "Select Unit"
+                .units.Columns(1).Text = "Strength"
+                .units.Columns(2).Text = "Equipment"
+            End With
+        ElseIf Me.tag = "Air Ground" Then
             With Me
                 .Text = "Air-Ground Attack Combat Phase for " + side
                 .title.Text = "Select Unit to conduct Air-Ground Attack"
@@ -314,13 +397,31 @@
                 .units.Columns(0).Width = 252
                 .units.Columns(1).Width = 96
             End With
-        ElseIf Me.Tag = "Air Defence" Then
+        ElseIf Me.Tag = "Call for Fire" Then
+            With Me
+                .Text = "Calling for Fire Support " + side
+                .title.Text = "Available Indirect Fire Support for " + movement.mover.title
+                .takeaction.Text = "Request"
+                .units.Columns(0).Width = 252
+                .units.Columns(1).Width = 96
+            End With
+        ElseIf Me.Name = "groundair" Then
             With Me
                 .Text = "Air Defence Combat Phase for " + side
+                .title.Text = "Select the air defence unit to fire at " + airground.subject.title
                 .takeaction.Text = "Select Unit"
                 .units.Columns(1).Text = "Strength"
                 .units.Columns(2).Text = "Equipment"
             End With
+            'ElseIf Me.Tag = "Air Defence" Then
+            '    With Me
+            '        .Text = "Air Defence Combat Phase for " + side
+            '        .title.Text = "Select the air defence unit to fire"
+            '        .takeaction.Text = "Select Unit"
+            '        .units.Columns(1).Text = "Strength"
+            '        .units.Columns(2).Text = "Equipment"
+            '    End With
+
         ElseIf Me.Tag = "CA Defenders" Then
             populate_lists(units, enemy, "CA Defenders", "")
             With Me

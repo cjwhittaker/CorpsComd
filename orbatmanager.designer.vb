@@ -25,8 +25,8 @@ Partial Class orbatmanager
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(orbatmanager))
         Me.comdtree = New System.Windows.Forms.TreeView()
         Me.orbattitle = New System.Windows.Forms.Label()
-        Me.Button1 = New System.Windows.Forms.Button()
-        Me.loadvehicles = New System.Windows.Forms.Button()
+        Me.printorbat = New System.Windows.Forms.Button()
+        Me.debusvehicles = New System.Windows.Forms.Button()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
@@ -41,6 +41,11 @@ Partial Class orbatmanager
         Me.reject = New System.Windows.Forms.Button()
         Me.selectedunit = New System.Windows.Forms.GroupBox()
         Me.purpose = New System.Windows.Forms.Label()
+        Me.dispmode = New System.Windows.Forms.Button()
+        Me.concmode = New System.Windows.Forms.Button()
+        Me.travelmode = New System.Windows.Forms.Button()
+        Me.embusvehicles = New System.Windows.Forms.Button()
+        Me.dismountvehicles = New System.Windows.Forms.Button()
         Me.selectedunit.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -50,10 +55,11 @@ Partial Class orbatmanager
         Me.comdtree.BackColor = System.Drawing.Color.White
         Me.comdtree.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.comdtree.HideSelection = False
-        Me.comdtree.Location = New System.Drawing.Point(44, 104)
+        Me.comdtree.Location = New System.Drawing.Point(45, 85)
         Me.comdtree.Name = "comdtree"
+        Me.comdtree.ShowNodeToolTips = True
         Me.comdtree.ShowPlusMinus = False
-        Me.comdtree.Size = New System.Drawing.Size(347, 524)
+        Me.comdtree.Size = New System.Drawing.Size(369, 553)
         Me.comdtree.TabIndex = 14
         '
         'orbattitle
@@ -69,25 +75,25 @@ Partial Class orbatmanager
         Me.orbattitle.Text = "Label1"
         Me.orbattitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'Button1
+        'printorbat
         '
-        Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button1.Location = New System.Drawing.Point(545, 569)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(203, 45)
-        Me.Button1.TabIndex = 23
-        Me.Button1.Text = "Print Orbat to File"
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.printorbat.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.printorbat.Location = New System.Drawing.Point(489, 590)
+        Me.printorbat.Name = "printorbat"
+        Me.printorbat.Size = New System.Drawing.Size(309, 45)
+        Me.printorbat.TabIndex = 23
+        Me.printorbat.Text = "Print Orbat to File"
+        Me.printorbat.UseVisualStyleBackColor = True
         '
-        'loadvehicles
+        'debusvehicles
         '
-        Me.loadvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.loadvehicles.Location = New System.Drawing.Point(545, 521)
-        Me.loadvehicles.Name = "loadvehicles"
-        Me.loadvehicles.Size = New System.Drawing.Size(203, 42)
-        Me.loadvehicles.TabIndex = 18
-        Me.loadvehicles.Text = "Dismount All Passengers"
-        Me.loadvehicles.UseVisualStyleBackColor = True
+        Me.debusvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.debusvehicles.Location = New System.Drawing.Point(594, 542)
+        Me.debusvehicles.Name = "debusvehicles"
+        Me.debusvehicles.Size = New System.Drawing.Size(99, 42)
+        Me.debusvehicles.TabIndex = 18
+        Me.debusvehicles.Text = "Debus"
+        Me.debusvehicles.UseVisualStyleBackColor = True
         '
         'Label3
         '
@@ -232,7 +238,7 @@ Partial Class orbatmanager
         Me.selectedunit.Enabled = False
         Me.selectedunit.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.selectedunit.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.selectedunit.Location = New System.Drawing.Point(458, 104)
+        Me.selectedunit.Location = New System.Drawing.Point(462, 85)
         Me.selectedunit.Name = "selectedunit"
         Me.selectedunit.Size = New System.Drawing.Size(372, 382)
         Me.selectedunit.TabIndex = 15
@@ -249,6 +255,56 @@ Partial Class orbatmanager
         Me.purpose.Text = "Function"
         Me.purpose.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'dispmode
+        '
+        Me.dispmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dispmode.Location = New System.Drawing.Point(489, 494)
+        Me.dispmode.Name = "dispmode"
+        Me.dispmode.Size = New System.Drawing.Size(99, 42)
+        Me.dispmode.TabIndex = 24
+        Me.dispmode.Text = "Disp"
+        Me.dispmode.UseVisualStyleBackColor = True
+        '
+        'concmode
+        '
+        Me.concmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.concmode.Location = New System.Drawing.Point(594, 494)
+        Me.concmode.Name = "concmode"
+        Me.concmode.Size = New System.Drawing.Size(99, 42)
+        Me.concmode.TabIndex = 25
+        Me.concmode.Text = "Conc"
+        Me.concmode.UseVisualStyleBackColor = True
+        '
+        'travelmode
+        '
+        Me.travelmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.travelmode.Location = New System.Drawing.Point(699, 494)
+        Me.travelmode.Name = "travelmode"
+        Me.travelmode.Size = New System.Drawing.Size(99, 42)
+        Me.travelmode.TabIndex = 26
+        Me.travelmode.Text = "Travel"
+        Me.travelmode.UseVisualStyleBackColor = True
+        '
+        'embusvehicles
+        '
+        Me.embusvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.embusvehicles.Location = New System.Drawing.Point(699, 542)
+        Me.embusvehicles.Name = "embusvehicles"
+        Me.embusvehicles.Size = New System.Drawing.Size(99, 42)
+        Me.embusvehicles.TabIndex = 27
+        Me.embusvehicles.Text = "Embus"
+        Me.embusvehicles.UseVisualStyleBackColor = True
+        '
+        'dismountvehicles
+        '
+        Me.dismountvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dismountvehicles.Location = New System.Drawing.Point(489, 542)
+        Me.dismountvehicles.Name = "dismountvehicles"
+        Me.dismountvehicles.Size = New System.Drawing.Size(99, 42)
+        Me.dismountvehicles.TabIndex = 28
+        Me.dismountvehicles.Text = "Dismount"
+        Me.dismountvehicles.UseVisualStyleBackColor = True
+        '
         'orbatmanager
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -256,8 +312,13 @@ Partial Class orbatmanager
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(884, 662)
-        Me.Controls.Add(Me.Button1)
-        Me.Controls.Add(Me.loadvehicles)
+        Me.Controls.Add(Me.dismountvehicles)
+        Me.Controls.Add(Me.embusvehicles)
+        Me.Controls.Add(Me.travelmode)
+        Me.Controls.Add(Me.concmode)
+        Me.Controls.Add(Me.dispmode)
+        Me.Controls.Add(Me.printorbat)
+        Me.Controls.Add(Me.debusvehicles)
         Me.Controls.Add(Me.orbattitle)
         Me.Controls.Add(Me.comdtree)
         Me.Controls.Add(Me.selectedunit)
@@ -267,7 +328,7 @@ Partial Class orbatmanager
         Me.Name = "orbatmanager"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+        Me.Text = "Orbat Manager"
         Me.selectedunit.ResumeLayout(False)
         Me.selectedunit.PerformLayout()
         Me.ResumeLayout(False)
@@ -275,8 +336,8 @@ Partial Class orbatmanager
     End Sub
     Friend WithEvents comdtree As System.Windows.Forms.TreeView
     Friend WithEvents orbattitle As System.Windows.Forms.Label
-    Friend WithEvents Button1 As System.Windows.Forms.Button
-    Friend WithEvents loadvehicles As System.Windows.Forms.Button
+    Friend WithEvents printorbat As System.Windows.Forms.Button
+    Friend WithEvents debusvehicles As System.Windows.Forms.Button
     Friend WithEvents Label3 As Label
     Friend WithEvents Label1 As Label
     Friend WithEvents Label4 As Label
@@ -291,4 +352,9 @@ Partial Class orbatmanager
     Friend WithEvents reject As Button
     Friend WithEvents selectedunit As GroupBox
     Friend WithEvents purpose As Label
+    Friend WithEvents dispmode As Button
+    Friend WithEvents concmode As Button
+    Friend WithEvents travelmode As Button
+    Friend WithEvents embusvehicles As Button
+    Friend WithEvents dismountvehicles As Button
 End Class

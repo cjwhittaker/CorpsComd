@@ -8,7 +8,11 @@
         For Each s As csubunit In TOE
             If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
                 If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
-                If equipment(s.equipment).troopcarrier Then passengers = True Else passengers = False
+                passengers = False
+                Try
+                    If eq_list(s.equipment).troopcarrier Then passengers = True
+                Catch ex As Exception
+                End Try
             End If
         Next
         For Each s As csubunit In TOE
@@ -103,11 +107,14 @@
     End Sub
 
     Private Sub generate_subunits_Load(sender As Object, e As EventArgs) Handles Me.Load
-        If unittype.Items.Count = 0 Then Me.Close()
-        unittype.SelectedIndex = 0
-        quality.SelectedItem = Trim(Str(orbat(Trim(orbattitle.Text)).quality))
-        sub_1.BackColor = defa
-        sub_a.BackColor = defa
+        If unittype.Items.Count > 0 Then
+            unittype.SelectedIndex = 0
+            quality.SelectedItem = Trim(Str(orbat(Trim(orbattitle.Text)).quality))
+            sub_1.BackColor = defa
+            sub_a.BackColor = defa
+        Else
+            Me.Close()
+        End If
     End Sub
 
     Private Sub sub_identifers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles sub_1.Click, sub_a.Click

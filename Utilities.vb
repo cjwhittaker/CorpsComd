@@ -20,85 +20,7 @@
     Function d20()
         d20 = Int(20 * Rnd + 1)
     End Function
-    Function generatecomdpts(ByVal quality As String, ByVal x As Integer)
-        Dim i As Integer, k As Integer, j As Integer, l As Integer, low As Integer
-        If quality = "A" Or quality = "B" Then
-            generatecomdpts = d6() + d6()
-        ElseIf quality = "C" Then
-            i = d6()
-            j = d6()
-            k = d6()
-            If i <= k And j <= k Then
-                low = i + j
-            ElseIf i <= j And k <= j Then
-                low = i + k
-            Else
-                low = k + j
-            End If
-            generatecomdpts = low
-        Else
-            i = d6()
-            j = d6()
-            k = d6()
-            l = d6()
-            If i <= k And j <= k And i <= l And j <= l Then
-                low = i + j
-            ElseIf i <= j And k <= j And i <= l And k <= l Then
-                low = i + k
-            ElseIf i <= j And l <= j And i <= k And l <= k Then
-                low = i + l
-            ElseIf j <= i And k <= i And j <= l And k <= l Then
-                low = j + k
-            ElseIf j <= i And l <= i And j <= k And l <= k Then
-                low = j + l
-            Else
-                low = k + l
-            End If
-            generatecomdpts = low
-        End If
-        generatecomdpts = Int((generatecomdpts * x / 12) + 0.5)
-    End Function
 
-    Public Sub Moralerecovery()
-        Dim recoverfrompinned As String = "The following units are no longer pinned" + vbNewLine + vbNewLine
-        Dim unitsrecoveredpinned As Boolean = False
-        Dim recoverfromrepulsed As String = "The following units have recovered from being repulsed" + vbNewLine + vbNewLine
-        Dim unitsrecoveredrepulsed As Boolean = False
-        Dim remainrepulsed As String = "The following units remain repulsed" + Chr(13) + "and must retire a full move to cover or out of sight" + vbNewLine + vbNewLine
-        Dim unitsremainrepulsed As Boolean = False
-        For Each subject As cunit In ph_units
-            If Not (subject.disrupted Or subject.demoralised) Then
-                'Phase 1c - recover from pinned
-                'Phase 1d - recover from repulsed
-                'Phase1e - recover firers
-                If subject.firers > 0 Then
-                    Dim suppressed As Integer = subject.firers
-                    For i As Integer = 1 To suppressed
-                        If d6() >= 5 Then subject.firers = subject.firers - 1
-                    Next
-                End If
-                If subject.hit Then subject.hit = False
-            End If
-        Next
-        If unitsrecoveredpinned Then
-            With resultform
-                .result.Text = "Pinned Recovery" + vbNewLine + recoverfrompinned
-                .ShowDialog()
-            End With
-        End If
-        If unitsrecoveredrepulsed Then
-            With resultform
-                .result.Text = "Repulsed Recovery" + vbNewLine + recoverfromrepulsed
-                .ShowDialog()
-            End With
-        End If
-        If unitsremainrepulsed Then
-            With resultform
-                .result.Text = "Remain Repulsed" + vbNewLine + remainrepulsed
-                .ShowDialog()
-            End With
-        End If
-    End Sub
     Public Sub populate_lists(ByVal l As ListView, ByVal c As Collection, ByVal purpose As String, ByVal hq As String)
         Dim listitem As ListViewItem, j As Integer = 0, loaded As String = "*", info As String = ""
         'For Each i As ListViewItem In l.Items
@@ -113,14 +35,12 @@
         End If
         If c Is Nothing Then Exit Sub
         For Each u As cunit In c
-            u.statusimpact = 0
+            u.arty_spt = 0
             If u.validunit(purpose, hq) Then
                 listitem = New ListViewItem
                 listitem.Text = u.title
                 If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryFire and MovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
                     'listitem.SubItems.Add(u.comdpts)
-                ElseIf purpose = "Artillery Support" Then
-
                 ElseIf l.Name = "undercommand" Then
                     If u.loaded <> "" Then loaded = "*" Else loaded = ""
                     If InStr("Arty Tasking", purpose) > 0 Then
@@ -133,7 +53,7 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(u.equipment + loaded)
                     'l.BackColor = u.status
-                ElseIf InStr("CA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD Targets", purpose) > 0 Then
+                ElseIf InStr("Artillery SupportCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
                     listitem.SubItems.Add(IIf(u.Aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
@@ -151,25 +71,22 @@
         Next
         For Each li As ListViewItem In l.Items
             If orbat.Contains(li.Text) Then
-                If purpose = "Observer" Then
-                    If orbat(li.Text).statusimpact = 0 Then
+                If purpose = "Observer" Or purpose = "Artillery Support" Then
+                    If orbat(li.Text).arty_spt = 0 Then
                         li.BackColor = in_ds
-                    ElseIf orbat(li.Text).statusimpact = 1 Then
+                    ElseIf orbat(li.Text).arty_spt = 1 Then
                         li.BackColor = can_observe
                     Else
                         li.BackColor = not_on_net
                     End If
-                ElseIf InStr("DemoralisationMorale RecoveryFire and Movement", purpose) > 0 Then
-                    li.BackColor = orbat(li.Text).status
+                ElseIf InStr("DemoralisationMorale RecoveryFire and MovementArty Tasking", purpose) > 0 Then
+                    li.BackColor = orbat(li.Text).status("")
                 Else
                 End If
             End If
         Next
     End Sub
-    Public Sub color_item(ByVal l As ListViewItem, ByVal u As cunit)
-        l.BackColor = u.status
-        If Not (l.BackColor = in_ds Or l.BackColor = nostatus Or l.BackColor = take_off) Then l.ForeColor = nostatus Else l.ForeColor = Color.Black
-    End Sub
+
     Public Function divisional_comd(ByVal p As cunit)
         If p.comd >= 4 Then
             divisional_comd = p.title : Exit Function
@@ -209,7 +126,6 @@
         Dim unobserved As Boolean = False
         Dim airtoair As Boolean = firer.airborne And target.airborne
         Dim directfire As Boolean = Not firer.indirect
-        Dim soft As Boolean = IIf(equipment(target.equipment).defence > 0, False, True)
 
         'Dim spotrange As Integer
         firer.set_fire_parameters()
@@ -235,8 +151,6 @@
             firer.effective = False
             firer.msg = " spotted their target but no effect firing"
         End If
-
-        If oppfire Then firer.tacticalpts = firer.tacticalpts - 1
 
         If target.fires And target.effect = 0 And firer.spotted Then
             target.msg = "spotted the firer but no effect firing"
@@ -268,27 +182,25 @@
 
         Dim init_msg As String = ""
         firer.fired = gt
+        If target.fires Then target.fired = gt
 
-        If target.fires Then
-            'target.firers = target.strength
-            target.fired = gt
-            target.tacticalpts = target.tacticalpts - 1
-        End If
-
-        If firephase = "CAP" Then
+        If firephase = "CAP" Or firephase = "Intercept" Then
             init_msg = "Air-to-Air combat Result "
             For i As Integer = 1 To 3
+                If firephase = "Intercept" And i = 1 And firer.tacticalpts >= 2 Then i = 2
                 firer.set_fire_effect(target, tgtrange, i)
-                target.set_fire_effect(firer, tgtrange, i)
                 If firer.effect > 0 Then firer.result = firecasualties(firer, target, tgtrange, False)
-                If target.effect > 0 Then target.result = firecasualties(target, firer, tgtrange, False)
                 If firer.result < 0 Then target.aborts = target.aborts + 1 : target.hits = target.hits + 1 : firer.result = 0
-                If target.result < 0 Then firer.aborts = firer.aborts + 1 : firer.hits = firer.hits + 1 : target.result = 0
                 If firer.result > 0 Then target.casualties = target.casualties + firer.result : target.hits = target.hits + firer.result : firer.result = 0
-                If target.result > 0 Then firer.casualties = firer.casualties + target.result : firer.hits = firer.hits + target.result : target.result = 0
+                If target.fires Then
+                    target.set_fire_effect(firer, tgtrange, i)
+                    If target.effect > 0 Then target.result = firecasualties(target, firer, tgtrange, False)
+                    If target.result < 0 Then firer.aborts = firer.aborts + 1 : firer.hits = firer.hits + 1 : target.result = 0
+                    If target.result > 0 Then firer.casualties = firer.casualties + target.result : firer.hits = firer.hits + target.result : target.result = 0
+                End If
             Next
             firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, False, airtoair, False)
-            target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
+            If target.fires Then target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
 
         ElseIf firephase = "Air Defence" Or target.heli Then
             init_msg = "Air Defence Result "
@@ -359,11 +271,8 @@
         If InStr(target.msg, "disperse") > 0 And InStr(result_option, "Disperse ph") = 0 Then firer.casualties = firer.casualties + target.result
 
         If firephase = "Air Defence" Or firephase = "CAP" Or (firephase = "Fire and Movement" And target.hels) Then
-            If target.hit And target.disrupted Then
-                target.airborne = False
-                target.sorties = -equipment(target.equipment).sortie
-            End If
-        ElseIf firephase = "Air-Ground Attack" Then
+            If target.hit And target.disrupted Then target.lands(False)
+        ElseIf firephase = "Air Ground" Then
             If target.hit And target.disrupted Then check_demoralisation(targets, target.parent, target.quality)
         ElseIf firephase = "Opportunity Fire" Then
             If target.hit And (target.disrupted Or target.strength <= 0) Then check_demoralisation(targets, target.parent, target.quality)
@@ -395,17 +304,24 @@
                 spotting = True
             End If
         End If
-        Dim obr As Integer = 100 * equipment(target.equipment).bor, om As Integer
-        If spotter.task = "AF" Or spotter.task = "IN" Then
-            obr = 1200
-        ElseIf target.mode = travel Then
-            obr = 1000
-        ElseIf target.debussed And target.loaded <> "" And target.Inf Then
-            obr = equipment(orbat(target.loaded).equipment).bor
-            If target.mode = disp Then obr = 100
-        Else
-            If target.mode = disp Then obr = 600
-        End If
+        Dim obr As Integer, om As Integer
+        Try
+            obr = 100 * eq_list(target.equipment).bor
+            If spotter.task = "AF" Or spotter.task = "IN" Then
+                obr = 1200
+            ElseIf target.mode = travel Then
+                obr = 1000
+            ElseIf target.debussed And target.loaded <> "" And target.Inf Then
+                obr = eq_list(orbat(target.loaded).equipment).bor
+                If target.mode = disp Then obr = 100
+            ElseIf target.mode = disp Then
+                obr = 600
+            Else
+            End If
+
+        Catch ex As Exception
+            obr = 800
+        End Try
         Dim smoked As Boolean = IIf(combat.tinsmoke.BackColor = golden Or combat.finsmoke.BackColor = golden, True, False)
         If night Then
             om = 1
@@ -414,11 +330,15 @@
         Else
             om = 4
         End If
+        Try
+            If (night Or smoked) And InStr(LCase(eq_list(spotter.equipment).special), "t") > 0 Then om = om + 2
+            If twilight And InStr(LCase(eq_list(spotter.equipment).special), "t") > 0 Then om = om + 1
+            If smoked And InStr(LCase(eq_list(spotter.equipment).special), "t") = 0 Then om = om - 4
+            If night And InStr(LCase(eq_list(spotter.equipment).special), "i") > 0 Then om = om + 1
 
-        If (night Or smoked) And InStr(equipment(spotter.equipment).special, "t") > 0 Then om = om + 2
-        If twilight And InStr(equipment(spotter.equipment).special, "t") > 0 Then om = om + 1
-        If smoked And InStr(equipment(spotter.equipment).special, "t") = 0 Then om = om - 4
-        If night And InStr(equipment(spotter.equipment).special, "i") > 0 Then om = om + 1
+        Catch ex As Exception
+
+        End Try
 
         If gt - target.fired < 2 Then om = om + 2
         If gt - target.moved < 2 Then om = om + 1
@@ -430,63 +350,9 @@
         If Not target.airborne Then om = om - target.Cover
         If om < 0 Then om = 0
         If om > 9 Then om = 9
-        If range <= obr * om Then spotting = True
-    End Function
-    Function spotting_old(ByVal x As Integer, ByVal subject As cunit, ByVal airborne As Boolean)
-        Dim r As Integer = 10000
-        If subject.Inf Then
-            If subject.Cover > 0 And Not subject.moved Then
-                r = 125
-            ElseIf subject.Cover > 0 And subject.moved Then
-                r = 250
-            ElseIf subject.Cover = 0 And subject.moved Then
-                r = 750
-            ElseIf subject.Cover = 0 And Not subject.moved Then
-                r = 250
-            Else
-            End If
-        Else
-            If subject.Cover > 0 And subject.moved Then
-                r = 500
-            ElseIf subject.Cover = 0 And subject.moved Then
-                r = 2500
-            ElseIf subject.Cover > 0 And Not subject.moved Then
-                r = 250
-            ElseIf subject.Cover = 0 And Not subject.moved Then
-                r = 1000
-            Else
-
-            End If
+        If range <= obr * om Then
+            spotting = True
         End If
-
-        Dim diceroll As Integer = d6(), firedetection As Integer = 0
-        If subject.fired Or movement.tac_opt = 1 Then diceroll = diceroll + 1
-        If night And Not (subject.fired Or movement.tac_opt = 1) Then diceroll = diceroll - 2
-        If subject.fired And Not subject.Inf Then firedetection = 750
-        If airborne Then diceroll = diceroll + 1
-        If x <= r + firedetection And diceroll >= 2 Then
-            spotting_old = True
-        ElseIf x <= r * 2 + firedetection And diceroll >= 5 Then
-            spotting_old = True
-        Else
-            spotting_old = False
-        End If
-    End Function
-    Function scoreforeffect(ByVal shooter As cunit, ByVal victim As cunit, ByVal x As Integer)
-        scoreforeffect = 0
-        Dim myType As Type = GetType(cequipment)
-        Dim e As New cequipment
-        e = equipment("")
-        Dim properties As System.Reflection.PropertyInfo() = myType.GetProperties()
-        For Each p As System.Reflection.PropertyInfo In properties
-            If p.Name <> "role" And LCase(Left(p.Name, 1)) = "r" Then
-                If x <= Val(Mid(p.Name, 2)) Then
-                    scoreforeffect = p.GetValue(e, Nothing)
-                    Exit For
-                End If
-            End If
-        Next
-
     End Function
 
     Function firecasualties(ByVal firer As cunit, ByVal target As cunit, ByVal rng As Integer, ByVal unobserved As Boolean)
@@ -495,20 +361,23 @@
         Dim airdefence As Boolean = firer.airdefence And target.airborne
         Dim directfire As Boolean = Not (firer.indirect Or firer.Airground)
         Dim modifiers As Integer = 0, col As Integer = 0, row As Integer = 0, dice As Integer = 0, fv As Integer = 0, fire_effect As Integer = 0, fire_strength As Integer = 0
-        Dim soft As Boolean = IIf(equipment(target.equipment).defence > 0, False, True)
         Dim airground As Boolean = firer.Airground
         Dim defence As Integer = 0
 
         If firer.effect = 0 Then firecasualties = 0 : Exit Function
         If firer.task = "SEAD" Then directfire = True
+        Try
+            If airtoair Then
+                defence = eq_list(target.equipment).defence
+            ElseIf airdefence Then
+                If eq_list(firer.equipment).role = "|AAA|" Then defence = eq_list(target.equipment).gun_def Else defence = eq_list(target.equipment).miss_def
+            Else
+                defence = eq_list(target.equipment).defence
+            End If
 
-        If airtoair Then
-            defence = equipment(target.equipment).defence
-        ElseIf airdefence Then
-            If equipment(firer.equipment).role = "|AAA|" Then defence = equipment(target.equipment).gun_def Else defence = equipment(target.equipment).miss_def
-        Else
-            defence = equipment(target.equipment).defence
-        End If
+        Catch ex As Exception
+
+        End Try
 
         If airtoair Then
             If firer.task = "CAP" And target.task <> "CAP" Then modifiers = modifiers + 2
@@ -531,8 +400,8 @@
                 If target.mode = conc And (target.flanked Or target.rear) Then modifiers = modifiers + 2
                 If target.mode = travel And Not target.recon Then modifiers = modifiers + 2
                 If target.mode <> disp And target.plains Then modifiers = modifiers + 1
-                If Not soft And target.mode = travel And (target.flanked Or target.rear) Then modifiers = modifiers + 1
-                If Not soft And target.mode = disp And (target.flanked Or target.rear) Then modifiers = modifiers + 1
+                If Not target.armour And target.mode = travel And (target.flanked Or target.rear) Then modifiers = modifiers + 1
+                If Not target.armour And target.mode = disp And (target.flanked Or target.rear) Then modifiers = modifiers + 1
                 If target.mode = disp Then modifiers = modifiers - target.Cover
             End If
             If oppfire And (movement.tactical = 0 Or movement.tactical = 2) And (target.smoke_discharger Or target.smoke_generator) Then modifiers = modifiers - 1
@@ -571,7 +440,7 @@
                 col = IIf(col > 11, 11, col)
                 fire_strength = IIf(fs > 9, 9, fs)
                 fv = direct_fire_strength(fire_strength, col) - 1
-                If fv = 0 Then firecasualties = 0 : Exit Function
+                If fv <= 0 Then firecasualties = 0 : Exit Function
                 firecasualties = firecasualties + fire_loss_table(dice, IIf(fv > 19, 19, fv))
                 fs = fs - 9
             Loop Until fs <= 0
@@ -579,8 +448,8 @@
             Do
                 dice = d10() - 1
                 fire_effect = IIf(firer.effect > 10, 10, firer.effect)
-                For row = 0 To 5
-                    If defence <= indirect_fire(row, 0) Then Exit For
+                For row = 0 To 4
+                    If row = 4 Or defence <= indirect_fire(row, 0) Then Exit For
                 Next
                 For col = 0 To 11
                     If firer.effect <= indirect_fire(row, col) Then Exit For
@@ -600,58 +469,6 @@
         End If
     End Function
 
-    Function firecasualties_old(ByVal shooter As cunit, ByVal victim As cunit, ByVal firevalue As Integer, ByVal rng As Integer, ByVal unobserved As Boolean)
-        Dim directfire As Boolean
-        Dim modifiers As Integer = 0
-        If victim.ewsupported Then modifiers = modifiers - 2
-        modifiers = modifiers - shooter.firers
-        If shooter.atgw Then modifiers = modifiers - equipment(victim.equipment).special
-        modifiers = modifiers + equipment(victim.equipment).size
-        modifiers = modifiers - victim.Cover
-        If victim.Cover > 0 And shooter.atgw Then modifiers = modifiers - 1
-        If victim.flanked Then modifiers = modifiers + 2
-        If victim.rear Or victim.disrupted Then modifiers = modifiers + 3
-        If unobserved Then modifiers = modifiers - 2
-        If equipment(victim.equipment).defence < 0 Then
-            If Not (shooter.atgw Or shooter.indirect) And rng < 1000 Then
-                firevalue = firevalue * 0.4
-            ElseIf Not (shooter.atgw Or shooter.indirect) And rng < 10000 Then
-                firevalue = firevalue * 0.15
-            Else
-            End If
-        End If
-        'If (Not shooter.indirect And Not shooter.airborne) Or _
-        '    (shooter.airborne And shooter.Airsuperiority) Or _
-        '    (shooter.airborne And (rng <= 500 Or rng > 2500)) _
-        '        Then directfire = True Else directfire = False
-        If (Not shooter.indirect) Then directfire = True Else directfire = False
-
-        Dim firestrength As Integer = 0, firevalue2 As Integer = 0
-        'If shooter.strength > 10 Then firestrength = 10 Else firestrength = shooter.strength
-        firestrength = shooter.strength
-        If directfire Then
-            firevalue2 = (firevalue - equipment(victim.equipment).defence + 5 + modifiers)
-            If firevalue2 > 12 Then firevalue2 = 12
-            firevalue2 = (firevalue2 * 1.4) + firestrength - 5
-        ElseIf equipment(victim.equipment).defence > 0 And Not directfire Then
-            firevalue2 = firevalue / 2 - equipment(victim.equipment).defence / 3 + 3 + modifiers
-            'If shooter.equipment = "AS90" Then firevalue2 = firevalue2 + 1
-            If firevalue2 > 12 Then firevalue2 = 12
-            firevalue2 = (firevalue2 * 1.17) + firestrength - 4
-        ElseIf equipment(victim.equipment).defence < 0 And Not directfire Then
-            firevalue2 = (firevalue - equipment(victim.equipment).defence - 2 + modifiers)
-            If firevalue2 > 12 Then firevalue2 = 12
-            firevalue2 = (firevalue2 * 1.17) + firestrength - 4
-        Else
-        End If
-        Dim x As Integer = d10()
-        firecasualties_old = Int(Math.Exp(firevalue2 / 13.05) + (x - 7.4) / 3.1)
-        If firecasualties_old < 0 Then firecasualties_old = 0
-        victim.casualties = firecasualties_old
-        'firecasualties_old = Int((firecasualties_old * 10 / victim.strength) - adjust)
-        firecasualties_old = Int((firecasualties_old * 100 / victim.strength))
-
-    End Function
     Function generateresult(ByVal target As cunit, ByVal c As Integer, ByVal indirect As Boolean, airtoair As Boolean, ByVal assault As Boolean)
         generateresult = ""
         If airtoair Then
@@ -703,13 +520,7 @@
 
     Public Sub applyresult(ByVal subject As cunit)
         Dim msg As String = ""
-        If subject.Aircraft Then
-            subject.strength = subject.strength - subject.casualties : subject.casualties = 0
-            If subject.strength < 0 Then subject.strength = 0
-            If subject.strength = 0 Then msg = subject.title + "(" + subject.equipment + ")" + " has been destroyed"
-            If subject.strength > 0 And subject.strength - subject.aborts <= 0 Then msg = subject.title + "(" + subject.equipment + ")" + " aborts air mission"
-            If subject.strength - subject.aborts <= 0 Or subject.strength = 0 Then subject.lands(False)
-        ElseIf (subject.strength - subject.casualties <= 0) Then
+        If (subject.strength - subject.casualties <= 0) Then
             msg = subject.title + " has been destroyed"
             With subject
                 .strength = 0
@@ -809,23 +620,7 @@
         coc = coc(title, orbat(hq.parent), comd)
     End Function
 
-    Public Function getmaxrange(ByVal u As cunit, ByVal prime As Boolean)
-        getmaxrange = 1000
-        If u.airborne And u.Airground And InStr(u.equipment, "GA") > 0 Then
-            getmaxrange = 5000
-        ElseIf prime Then
-            getmaxrange = equipment(u.equipment).max
-        Else
-            getmaxrange = equipment(u.equipment + u.w2).max
-        End If
-    End Function
-    'Public Sub prep_units()
-    '    For Each u As cunit In orbat
-    '        If u.comd > 0 Then u.role = "HQ" Else u.role = equipment(u.equipment).role
-    '        If u.role = "MOR" Or u.role = "ARTY" Then u.indirect = True Else u.indirect = False
-    '        If u.comd > 0 Then u.W2 = "HQ" Else u.W2 = equipment(u.equipment).weapon_2
-    '    Next
-    'End Sub
+
     Public Sub swap_phasing_player(exec As Boolean)
         Dim tmp As String
         If exec Then
@@ -865,33 +660,37 @@
         Next
         tree.Nodes.Clear()
         TopNode = tree.Nodes.Add(u.title, u.title)
-        CreateNodes(TopNode, u.title, purpose)
+        CreateNodes(side, TopNode, u.title, purpose)
         tree.ExpandAll()
         tree.SelectedNode = TopNode
+
         'selectunit(orbat(tree.SelectedNode.Text))
     End Sub
-    Public Sub CreateNodes(ByRef ParentNode As TreeNode, ByRef currentcomd As String, purpose As String)
-        Dim subNode As New TreeNode, commandname As String, x As Integer, keynode As String
-        For x = 1 To orbat.Count
-            If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
-                If orbat(x).validunit(purpose, currentcomd) Then
+    Public Sub CreateNodes(ByRef side As String, ByRef ParentNode As TreeNode, ByRef currentcomd As String, ByRef purpose As String)
+        Dim subNode As New TreeNode
+        For x As Integer = 1 To orbat.Count
+            If orbat(x).nation = side Then
 
-                    If ((orbat(x).ground_unit Or orbat(x).aircraft) And orbat(x).comd = 0 And purpose = "Orbat") Or orbat(x).comd > 0 Then
-                        commandname = orbat(x).Title
-                        keynode = orbat(x).title
-                        subNode = ParentNode.Nodes.Add(commandname, keynode)
-                        subNode.BackColor = IIf(orbat(commandname).ooc, no_action_pts, nostatus)
-                        subNode.Tag = keynode
+                If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
+                    If (orbat(x).comd = 0 And purpose = "Orbat") Or orbat(x).comd > 0 Then
+                        subNode = ParentNode.Nodes.Add(orbat(x).Title, orbat(x).Title)
+                        subNode.BackColor = orbat(x).status(purpose)
+                        If orbat(x).comd = 0 And purpose = "Orbat" And orbat(x).inf Then
+                            If orbat(x).debussed And orbat(x).loaded = "" Then
+                                subNode.ToolTipText = "Dismounted"
+                            ElseIf orbat(x).debussed And orbat(x).loaded <> "" Then
+                                subNode.ToolTipText = "Debussed"
+                            ElseIf Not orbat(x).debussed Then
+                                subNode.ToolTipText = "Embused"
+                            Else
+                            End If
+                        End If
                     End If
-                End If
-                If orbat(x).validunit(purpose, currentcomd) Then
-                    CreateNodes(subNode, orbat(x).title, purpose)
+                    If (purpose = "Orbat") Or (purpose = "Command" And orbat(x).comd > 1) Then CreateNodes(side, subNode, orbat(x).title, purpose)
                 End If
             End If
         Next
     End Sub
-
-
 
     Public Sub test_for_events(ByVal s As String, ByVal t As Date)
         For Each e As cevents In event_list
@@ -900,8 +699,8 @@
                     If e.die = "None" Then
                         e.tested = True
                     Else
-                        Dim d6 As Integer = d6, d10 As Integer = d10
-                        If (e.die = "D6" And d6 >= e.score) Or (e.die = "D10" And d10 >= e.score) Then
+                        Dim dice6 As Integer = d6(), dice10 As Integer = d10()
+                        If (e.die = "D6" And dice6 >= e.score) Or (e.die = "D10" And dice10 >= e.score) Then
                             e.tested = True
                         Else
                             If e.dec Then e.score = e.score - 1

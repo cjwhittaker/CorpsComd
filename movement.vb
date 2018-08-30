@@ -20,7 +20,6 @@
         undercommand.Focus()
         update_title(commander.title)
         populate_lists(undercommand, ph_units, Me.Tag, commander.title)
-        If Me.Tag = "Fire and Movement" Then commander.comdpts = 0
         k = -1
         reset_unit_options()
     End Sub
@@ -54,11 +53,12 @@
             undercommand.SelectedItems.Clear()
             Exit Sub
         End If
+        If Me.Tag = "Fire and Movement" Then commander.comdpts = 0
 
         k = undercommand.FocusedItem.Index
         subject = orbat(undercommand.FocusedItem.Text)
         If undercommand.FocusedItem.BackColor = golden Then
-            undercommand.FocusedItem.BackColor = subject.status
+            undercommand.FocusedItem.BackColor = subject.status(Me.Name)
             'selected_units = selected_units - 1
         Else
             undercommand.FocusedItem.BackColor = golden
@@ -100,7 +100,7 @@
     End Sub
 
     Public Sub options_for(ByVal purpose As String)
-        populate_command_structure(comdtree, ph, purpose)
+        populate_command_structure(comdtree, ph, "Command")
         If purpose = "Fire and Movement" Then
             tactical_actions.Focus()
             undercommand.MultiSelect = True
@@ -182,12 +182,14 @@
 
     Private Sub Execute_orders() Handles executeorders.Click
         Dim comdcost As Integer = 0, dice As Integer, tactical_option As Integer
+        tactical = -1
         For Each c As Control In tactical_actions.Controls
             If c.BackColor = golden Then
                 tactical = Val(c.Tag)
                 Exit For
             End If
         Next
+        If tactical = -1 Then reset_unit_options() : Exit Sub
         If Me.Tag = "Fire and Movement" Then
             tactical_option = tactical
             If selected_units > 1 And tactical_option = 6 Then Exit Sub
@@ -229,7 +231,6 @@
         For Each l As ListViewItem In undercommand.Items
             mover = New cunit
             mover = orbat(l.SubItems(0).Text)
-
             If l.BackColor = golden And
                 (mover.tacticalpts - tac_points >= 0 Or Me.Tag = "Air Tasking" Or Me.Tag = "Arty Tasking") Then
                 If tactical_option = 5 And ((Not mover.troopcarrier And mover.loaded <> "") Or (Not mover.Inf And mover.loaded = "")) Then Exit Sub
@@ -241,6 +242,7 @@
                         'If mover.has_fired And Not mover.has_moved_fired Then Exit Select
                         mover.moved = gt
                         mover.tacticalpts = mover.tacticalpts - tac_points
+                        If mover.indirect Then mover.eligibleCB = False
                         If opp_fire.BackColor = golden Then opportunityfire.ShowDialog()
                     Case 1, 2
                         'If mover.has_moved And Not mover.has_moved_fired Then Exit Select
@@ -262,6 +264,13 @@
                                 End If
                                 load_combat(mover)
                             End If
+                        ElseIf tac_opt_txt = "Call for Fire (2)" And Not mover.lostcomms Then
+                            populate_lists(unit_selection.units, ph_units, "Artillery Support", mover.parent)
+                            With unit_selection
+                                .Tag = "Call for Fire"
+                                .ShowDialog()
+                            End With
+                            mover.tacticalpts = mover.tacticalpts - 2
                         Else
                             load_combat(mover)
                         End If
@@ -315,37 +324,36 @@
                             Next
                         End If
                     Case 7, 8, 9
-                        If oppfire Then opportunityfire.ShowDialog()
                         Dim prev_mode As String = mover.mode
-                        If tactical_option = 7 And Not mover.not_conc Then
-                            mover.tacticalpts = mover.tacticalpts - 2
-                            If prev_mode <> mover.mode Then
-                            ElseIf mover.mode = travel Then
-                                mover.mode = conc
-                            ElseIf mover.mode = conc Then
-                                mover.mode = travel
+                        If oppfire Then opportunityfire.ShowDialog()
+                        If prev_mode = mover.mode Then
+                            If tactical_option = 7 And Not mover.not_conc Then
+                                mover.tacticalpts = mover.tacticalpts - 2
+                                If mover.mode = travel Then
+                                    mover.mode = conc
+                                ElseIf mover.mode = conc Then
+                                    mover.mode = travel
+                                Else
+                                End If
+                            ElseIf tactical_option = 8 And Not mover.not_conc Then
+                                mover.tacticalpts = mover.tacticalpts - 2
+                                If mover.mode = conc Then
+                                    mover.mode = disp
+                                ElseIf mover.mode = disp Then
+                                    mover.mode = conc
+                                Else
+                                End If
                             Else
+                                If mover.not_conc Then mover.tacticalpts = mover.tacticalpts - 2 Else mover.tacticalpts = mover.tacticalpts - 4
+                                If mover.mode = travel Then
+                                    mover.mode = disp
+                                ElseIf mover.mode = disp Then
+                                    mover.mode = travel
+                                Else
+                                End If
                             End If
-                        ElseIf tactical_option = 8 And Not mover.not_conc Then
-                            mover.tacticalpts = mover.tacticalpts - 2
-                            If prev_mode <> mover.mode Then
-                            ElseIf mover.mode = conc Then
-                                mover.mode = disp
-                            ElseIf mover.mode = disp Then
-                                mover.mode = conc
-                            Else
-                            End If
-                        Else
-                            If mover.not_conc Then mover.tacticalpts = mover.tacticalpts - 2 Else mover.tacticalpts = mover.tacticalpts - 4
-                            If prev_mode <> mover.mode Then
-                            ElseIf mover.mode = travel Then
-                                mover.mode = disp
-                            ElseIf mover.mode = disp Then
-                                mover.mode = travel
-                            Else
-                            End If
+                            l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
                         End If
-                        l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
                     Case 15
                         mover.moved = gt
                         mover.fired = gt
@@ -378,18 +386,21 @@
                             l.BackColor = Color.Pink
                         End If
                     Case 17
-                        If l.BackColor <> golden Then comdcost = 0 : Exit Select
+                        If l.BackColor <> golden Or mover.effective Then comdcost = 0 : Exit Select
                         Dim recovermsg As String = ""
                         With morale_test
                             .Tag = Me.Tag
                             .tester = mover
+                            .rallying = IIf(o5.BackColor = golden, False, True)
                             .modifier = tac_points
                             .testing(Me.executeorders, Nothing)
+                            .rallying = False
                         End With
                         With resultform
                             .result.Text = morale_test.test_result.Text
                             .ShowDialog()
                         End With
+                        mover.effective = True
                         l.Remove()
                     Case 22
                         mover.task = "CB"
@@ -408,17 +419,24 @@
                             .ShowDialog()
                         End With
                 End Select
-                If tactical_option <> 16 Then l.BackColor = mover.status
+                If tactical_option <> 16 Then l.BackColor = mover.status(Me.Name)
                 If Not mover Is Nothing Or mover.title <> "" Then
-                    l.SubItems(1).Text = mover.strength
-                    If tactical_option <= 9 And mover.tacticalpts <= 0 Then l.Remove()
+                    If tactical_option <= 9 Then
+                        l.SubItems(1).Text = mover.strength
+                        l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
+                        If mover.tacticalpts <= 0 Then l.BackColor = no_action_pts
+                    ElseIf tactical_option >= 20 Then
+                        If mover.primary <> commander.title And commander.title <> mover.parent Then l.Remove()
+                    Else
+                    End If
+                    If cover_selected Then mover.Cover = Val(cover.Text)
                 End If
-                If cover_selected Then mover.Cover = Val(cover.Text)
             End If
         Next
         If ca And spt Then conduct_assault()
         update_title(commander.title)
         reset_unit_options()
+        tactical_option = 0
         cover_selected = False
     End Sub
 
@@ -485,11 +503,12 @@
         End If
     End Sub
 
-    Private Sub load_combat(ByVal firer As cunit)
+    Public Sub load_combat(ByVal firer As cunit)
         With combat
             .Tag = Me.Tag
             .firer = New cunit
             .firer = firer
+            .firermode.Text = firer.mode
             .combatmode = firer.nation + " " + Me.Tag
             .title.Text = firer.nation + " " + Me.Tag
             .ShowDialog()
@@ -575,11 +594,11 @@
             o9.Text = ""
         ElseIf purpose = "Morale Recovery" Then
             o0.Text = "In contact with undisrupted comd HQ (-2)"
-            o1.Text = "Within 600m of undisrupted comd HQ (-2)"
-            o2.Text = "Undisrupted unit from own Bn within 6oom (-1)"
+            o1.Text = "< 600m of undisrupted comd HQ (-2)"
+            o2.Text = "Undisrupted unit from own Bn < 600m (-1)"
             o3.Text = "Under Chemical Attack (2)"
             o4.Text = "Under Nuclear Attack (3)"
-            o5.Text = ""
+            o5.Text = "Disrupted fnds <600m (0)"
             o6.Text = ""
             o7.Text = ""
             o8.Text = ""
@@ -621,8 +640,9 @@
                 tac_points = tac_points + t
             End If
         Else
-            If sender.backcolor = defa Or (sender.name = "o0" And sender.text = "Half Move (2)" And sender.backcolor = golden) Then
+            If sender.backcolor = defa Or (sender.name = "o0" And sender.text = "Half Move (2)" And sender.backcolor = golden) Or (sender.name = "o1" And sender.text = "Fire (2)" And sender.backcolor = golden) Then
                 If sender.name = "o0" And sender.text = "Half Move (2)" And sender.backcolor = golden Then sender.text = "Full Move (4)" : t = t + 2
+                If sender.name = "o1" And sender.text = "Fire (2)" And sender.backcolor = golden Then sender.text = "Call for Fire (2)"
                 sender.backcolor = golden
                 tac_opt_txt = sender.text
                 tac_points = t
@@ -632,6 +652,7 @@
             Else
                 sender.backcolor = defa
                 If sender.name = "o0" And sender.text = "Full Move (4)" Then sender.text = "Half Move (2)"
+                If sender.name = "o1" And sender.text = "Call for Fire (2)" Then sender.text = "Fire (2)"
                 tac_points = 0
                 tac_opt_txt = ""
             End If
@@ -684,8 +705,8 @@
             End With
         End If
 
-        undercommand.Items(assault.attacker.sorties).BackColor = assault.attacker.status
-        undercommand.Items(assault.supporter.sorties).BackColor = assault.supporter.status
+        undercommand.Items(assault.attacker.sorties).BackColor = assault.attacker.status(Me.Name)
+        undercommand.Items(assault.supporter.sorties).BackColor = assault.supporter.status(Me.Name)
         ca = False : spt = False
         o6.Text = "Close Assault (2)"
         For Each c As Control In tactical_actions.Controls

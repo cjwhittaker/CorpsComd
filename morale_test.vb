@@ -1,11 +1,11 @@
 ﻿Public Class morale_test
-    Public rally_ends As Boolean = False, rallied As Boolean = False, tester As cunit, immediate As Boolean, modifier As Integer = 0
+    Public rally_ends As Boolean = False, rallied As Boolean = False, tester As cunit, immediate As Boolean, modifier As Integer = 0, rallying As Boolean
     Private Sub select_modifiers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles hq_in_sight.Click, nuclear.Click, friends_in_sight.Click, chemical.Click
         If sender.backcolor = golden Then sender.backcolor = defa Else sender.backcolor = golden
     End Sub
 
     Public Sub testing(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles get_result.Click
-
+        'If immediate Then rallying = False
         Dim dice As Integer = d10(), r As String = ""
         For Each ctrl In Me.Controls
             If TypeOf ctrl Is Label And ctrl.backcolor = golden Then modifier = modifier + Val(ctrl.tag)
@@ -17,12 +17,15 @@
             r = Replace(r, "X", "<")
             test_result.Text = tester.title + " has passed its Morale Test" + r
             If Not immediate And tester.disordered Or tester.disrupted Then
-                test_result.Text = test_result.Text + " and has rallied from " + IIf(tester.disordered, "disorder", "") + IIf(tester.disordered And tester.disrupted, " and ", "") + IIf(tester.disrupted, "disruption", "")
+                test_result.Text = test_result.Text + " and has rallied from " + IIf(tester.disordered, "disorder", "") + IIf(tester.disordered And tester.disrupted, " and ", "") + IIf(tester.disrupted, "disrupted", "")
                 With tester
                     .disrupted = False
                     .disordered = False
                 End With
             End If
+        ElseIf rallying Then
+            r = Replace(r, "X", ">=")
+            test_result.Text = tester.title + " has failed its Morale Test to rally " + r + " and remains " + IIf(tester.disordered, "disordered", "") + IIf(tester.disordered And tester.disrupted, " and ", "") + IIf(tester.disrupted, "disrupted", "")
         ElseIf dice + modifier = tester.quality Then
             r = Replace(r, "X", "=")
             test_result.Text = tester.title + " has failed its Morale Test" + r

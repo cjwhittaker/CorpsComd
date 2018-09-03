@@ -47,14 +47,14 @@
         Else
         End If
         If modi < 5 Then
-            resultform.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
+            resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
         ElseIf modi = 5 Then
-            resultform.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
-            resultform.result.Text = resultform.result.Text + vbNewLine + defender.title + " " + generateresult(defender, 1, False, False, True)
+            resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
+            resultform_2.result.Text = resultform_2.result.Text + vbNewLine + defender.title + " " + generateresult(defender, 1, False, False, True)
         Else
-            resultform.result.Text = defender.title + " " + generateresult(defender, 2, False, False, True)
+            resultform_2.result.Text = defender.title + " " + generateresult(defender, 2, False, False, True)
         End If
-        With resultform
+        With resultform_2
             .Tag = "ca"
             .ok_button.Visible = True
             .yb.Visible = IIf(InStr(Me.Text, "retreat") > 0, True, False)
@@ -65,7 +65,7 @@
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If resultform.Tag = " has been destroyed" Then defender.casualties = defender.strength
+        If resultform_2.Tag = " has been destroyed" Then defender.casualties = defender.strength
         If modi <= 2 Then applyresult(attacker)
         If modi >= 8 And defender.strength > 0 Then applyresult(defender)
         Me.Hide()

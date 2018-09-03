@@ -332,7 +332,7 @@
         Dim x As Integer
         'x = eq_list("Challenger").maxrange
         x = eq_list.Count
-        With resultform
+        With resultform_2
             .result.Text = u.equipment + vbNewLine + Str(x) + vbNewLine ' + Str(eq_list("Challenger").CAE)
             .ShowDialog()
         End With

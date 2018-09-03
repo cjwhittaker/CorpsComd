@@ -184,7 +184,7 @@ Partial Class combat
         Me.firesmoke.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.firesmoke.Location = New System.Drawing.Point(27, 448)
         Me.firesmoke.Name = "firesmoke"
-        Me.firesmoke.Size = New System.Drawing.Size(165, 42)
+        Me.firesmoke.Size = New System.Drawing.Size(165, 34)
         Me.firesmoke.TabIndex = 62
         Me.firesmoke.Text = "Fire Smoke"
         Me.firesmoke.UseVisualStyleBackColor = True
@@ -193,9 +193,9 @@ Partial Class combat
         'fire
         '
         Me.fire.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.fire.Location = New System.Drawing.Point(27, 499)
+        Me.fire.Location = New System.Drawing.Point(27, 488)
         Me.fire.Name = "fire"
-        Me.fire.Size = New System.Drawing.Size(165, 42)
+        Me.fire.Size = New System.Drawing.Size(165, 34)
         Me.fire.TabIndex = 62
         Me.fire.Text = "Fire"
         Me.fire.UseVisualStyleBackColor = True
@@ -234,8 +234,8 @@ Partial Class combat
         Me.vis_range_select.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.vis_range_select.FormattingEnabled = True
         Me.vis_range_select.ItemHeight = 24
-        Me.vis_range_select.Items.AddRange(New Object() {"300", "600", "1000", "1500", "2000", "2500", "3000", "4000", "5000", "6000", "8000", "10000", "15000", "20000", "25000", "30000"})
-        Me.vis_range_select.Location = New System.Drawing.Point(118, 58)
+        Me.vis_range_select.Items.AddRange(New Object() {"  300", "  600", " 1000", " 1500", " 2000", " 2500", " 3000", " 4000", " 5000", " 6000", " 8000", "10000", "15000", "20000", "25000", "30000"})
+        Me.vis_range_select.Location = New System.Drawing.Point(127, 58)
         Me.vis_range_select.Name = "vis_range_select"
         Me.vis_range_select.Size = New System.Drawing.Size(94, 384)
         Me.vis_range_select.TabIndex = 67
@@ -247,8 +247,8 @@ Partial Class combat
         Me.tgt_range_select.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.tgt_range_select.FormattingEnabled = True
         Me.tgt_range_select.ItemHeight = 24
-        Me.tgt_range_select.Items.AddRange(New Object() {"300", "600", "1000", "1500", "2000", "2500", "3000", "4000", "5000", "6000", "8000", "10000", "15000", "20000", "25000", "30000"})
-        Me.tgt_range_select.Location = New System.Drawing.Point(18, 58)
+        Me.tgt_range_select.Items.AddRange(New Object() {"  300", "  600", " 1000", " 1500", " 2000", " 2500", " 3000", " 4000", " 5000", " 6000", " 8000", "10000", "15000", "20000", "25000", "30000"})
+        Me.tgt_range_select.Location = New System.Drawing.Point(27, 58)
         Me.tgt_range_select.Name = "tgt_range_select"
         Me.tgt_range_select.Size = New System.Drawing.Size(94, 384)
         Me.tgt_range_select.TabIndex = 68
@@ -709,9 +709,9 @@ Partial Class combat
         Me.return_fire.BackColor = System.Drawing.SystemColors.Control
         Me.return_fire.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.return_fire.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.return_fire.Location = New System.Drawing.Point(27, 550)
+        Me.return_fire.Location = New System.Drawing.Point(27, 529)
         Me.return_fire.Name = "return_fire"
-        Me.return_fire.Size = New System.Drawing.Size(165, 42)
+        Me.return_fire.Size = New System.Drawing.Size(165, 34)
         Me.return_fire.TabIndex = 85
         Me.return_fire.Tag = "Return Fire"
         Me.return_fire.Text = "Return Fire"

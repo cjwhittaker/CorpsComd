@@ -205,7 +205,7 @@
                 End If
             Next
             If msg <> "" Then
-                With resultform
+                With resultform_2
                     .result.Text = "The following units cannot move or change mode because their command HQ is out of command:" + vbNewLine + msg
                     .ShowDialog()
                 End With
@@ -396,7 +396,7 @@
                             .testing(Me.executeorders, Nothing)
                             .rallying = False
                         End With
-                        With resultform
+                        With resultform_2
                             .result.Text = morale_test.test_result.Text
                             .ShowDialog()
                         End With
@@ -694,7 +694,7 @@
         If assault.attacker.disrupted Then
             assault.attacker.assault = False
             assault.supporter.support = False
-            With resultform
+            With resultform_2
                 .result.Text = "Close Assault has Failed to close on the defender's position"
                 .ShowDialog()
             End With

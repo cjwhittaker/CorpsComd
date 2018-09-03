@@ -635,7 +635,7 @@
             target.spotted = fire.Enabled
             'If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "Observer" Then orbat(observer.Text).task = tmp
             If firer.task = "CB" And Not observed Then
-                With resultform
+                With resultform_2
                     .result.Text = "Failed to locate " + target.equipment
                     .ShowDialog()
                 End With
@@ -699,8 +699,8 @@
     Private Sub firesmoke_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firesmoke.Click
         firer.smoke = gt
         Me.Hide()
-        resultform.result.Text = "Smoke Fired"
-        resultform.ShowDialog()
+        resultform_2.result.Text = "Smoke Fired"
+        resultform_2.ShowDialog()
         smokefiredthisturn = True
     End Sub
 

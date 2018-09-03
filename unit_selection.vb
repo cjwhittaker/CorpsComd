@@ -95,17 +95,17 @@
         ElseIf Me.Tag = "Demoralisation Recovery" Then
             Dim d As Integer = d10()
             If d >= subject.quality + 1 Then
-                resultform.result.Text = subject.title + " has recovered from being demoralised"
+                resultform_2.result.Text = subject.title + " has recovered from being demoralised"
                 subject.demoralised = False
                 For Each u As cunit In ph_units
                     If u.parent = subject.title Then u.demoralised = False
                 Next
                 units.Items(i).Remove()
             Else
-                resultform.result.Text = subject.title + " has (" + Trim(Str(d)) + ") not recovered from being demoralised" + vbNewLine + "It has expended all of its Command Points and it must now retire all of its units between half and a normal move"
+                resultform_2.result.Text = subject.title + " has (" + Trim(Str(d)) + ") not recovered from being demoralised" + vbNewLine + "It has expended all of its Command Points and it must now retire all of its units between half and a normal move"
                 units.Items(i).Remove()
             End If
-            resultform.ShowDialog()
+            resultform_2.ShowDialog()
             If units.Items.Count = 0 Then Me.Hide()
         ElseIf Me.Tag = "Opportunity Fire" Then
             With combat
@@ -154,7 +154,7 @@
                 If orbat(units.Items(i).Text).fires Or Not orbat(units.Items(i).Text).airborne Then units.Items(i).Remove()
                 If combat.targets.Items.Count = 0 Then Me.Hide()
             Else
-                With resultform
+                With resultform_2
                     .result.Text = orbat(units.Items(i).Text).title + "(" + orbat(units.Items(i).Text).equipment + ")" + " failed to intercept and has aborted"
                     .ShowDialog()
                 End With
@@ -237,7 +237,7 @@
             Dim dice As Integer = d10()
             If dice = 10 Or (subject.arty_spt = 2 And dice > subject.quality - 1) Or (subject.arty_spt = 1 And dice > subject.quality) Then
                 subject.tacticalpts = subject.tacticalpts - 2
-                With resultform
+                With resultform_2
                     .result.Text = "The observer failed to communicate fire order to firing battery"
                     .ShowDialog()
                 End With
@@ -256,7 +256,7 @@
                         subject = orbat(ar.Text)
                         Dim dice As Integer = d10()
                         If dice = 10 Or (subject.arty_spt = 2 And dice > subject.quality - 1) Or (subject.arty_spt = 1 And dice > subject.quality) Then
-                            With resultform
+                            With resultform_2
                                 .result.Text = "The observer failed to communicate fire order to firing battery"
                                 .ShowDialog()
                             End With

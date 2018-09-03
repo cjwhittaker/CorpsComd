@@ -55,7 +55,7 @@
             ph = scenariodefaults.player2.Text : nph = scenariodefaults.player1.Text
         End If
         swap_phasing_player(False)
-        With resultform
+        With resultform_2
             .ok_button.Visible = False
             .result.Text = "Initiative Phase" + vbNewLine + vbNewLine + ph + " has won the initiative, do they want to move first or second?"
             .yb.Text = "First"
@@ -108,7 +108,7 @@
             air = False
             For Each u As cunit In orbat
                 If u.comd = 0 And u.nation = ph Then
-                    If u.Aircraft Then hq_functions(orbat(u.parent), "Air units") : air = True
+                    If u.aircraft Then hq_functions(orbat(u.parent), "Air units") : air = True
                     u.reset_air_phase()
                 End If
             Next
@@ -303,7 +303,7 @@
     Public Sub artillery_interdiction_markers()
         For i As Integer = 1 To 2
             If arty_fire_mission("IN", ph_units) Then
-                With resultform
+                With resultform_2
                     .result.Text = ph + " player must now place his artillery fire interdiction markers"
                     .ShowDialog()
                 End With
@@ -369,7 +369,7 @@
                 End If
             Next
             If endsortie <> "" Then
-                With resultform
+                With resultform_2
                     .result.Text = "Sorties end for" + vbNewLine + endsortie
                     .ShowDialog()
                 End With

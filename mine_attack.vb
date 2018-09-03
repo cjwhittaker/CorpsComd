@@ -58,7 +58,7 @@
             modifier = modifier - 10
         Loop Until modifier <= 0
         tester.msg = "100m of the minefield crossed " + generateresult(tester, cas, True, False, False)
-        With resultform
+        With resultform_2
             .result.Text = "Results" + vbNewLine + tester.msg
             .Tag = "firing"
             .ok_button.Visible = True

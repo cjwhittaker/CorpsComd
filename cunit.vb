@@ -6,6 +6,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pTitle As String
     Private pcomd As Integer
     Private pcomdpts As Integer
+    Private ptacticalpts As Integer
     Private pnation As String
     Private pquality As Integer
     Private pequipment As String
@@ -32,6 +33,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private prear As Boolean
     Private pdemoralised As Boolean
     Private psecondary As String
+    Private pprimary As String
     Private pairborne As Boolean
     Private phits As Integer
     Private psmoke As Integer
@@ -97,6 +99,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Get
         Set(ByVal Value As Integer)
             pcomdpts = Value
+        End Set
+    End Property
+    Property tacticalpts() As Integer
+        Get
+            Return ptacticalpts
+        End Get
+        Set(ByVal Value As Integer)
+            ptacticalpts = Value
         End Set
     End Property
     Property ooc() As Boolean
@@ -193,6 +203,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Get
         Set(ByVal Value As String)
             psecondary = Value
+        End Set
+    End Property
+    Property primary() As String
+        Get
+            Return pprimary
+        End Get
+        Set(ByVal Value As String)
+            pprimary = Value
         End Set
     End Property
     Property dismounted() As Boolean
@@ -1070,19 +1088,19 @@ Imports System.Runtime.Serialization.Formatters.Binary
         task = ""
         secondary = ""
     End Sub
-    'Public Sub reset_air_phase()
-    '    If aircraft() And loiter() Then
-    '        halfstrength = 3
-    '    ElseIf aircraft() Then
-    '        halfstrength = 2
-    '    ElseIf airdefence() Then
-    '        halfstrength = 4
-    '        reset_missiles()
-    '    Else
-    '        halfstrength = 0
-    '    End If
-    '    If disrupted Or demoralised Then halfstrength = 0
-    'End Sub
+    Public Sub reset_air_phase()
+        'If aircraft() And loiter() Then
+        '    halfstrength = 3
+        'ElseIf aircraft() Then
+        '    halfstrength = 2
+        'ElseIf airdefence() Then
+        '    halfstrength = 4
+        '    reset_missiles()
+        'Else
+        '    halfstrength = 0
+        'End If
+        'If disrupted Or demoralised Then halfstrength = 0
+    End Sub
     Public Function missile_armed()
         missile_armed = False
         Try
@@ -1092,20 +1110,20 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
         End Try
     End Function
-    'Public Sub reset_fire_phase(phasing As String)
-    '    ooc = False
-    '    If nation = phasing Then
-    '        If fired = gt Then halfstrength = 0 Else halfstrength = 4
-    '        lostcomms = False
-    '        If atgw() Then reset_missiles()
-    '    Else
-    '        fatigue = strength * 2
-    '        opp_ca = strength * 2
-    '        opp_mode = strength * 2
-    '        opp_move = strength * 2
-    '    End If
-    '    hits = 0
-    'End Sub
+    Public Sub reset_fire_phase(phasing As String)
+        '    ooc = False
+        '    If nation = phasing Then
+        '        If fired = gt Then halfstrength = 0 Else halfstrength = 4
+        '        lostcomms = False
+        '        If atgw() Then reset_missiles()
+        '    Else
+        '        fatigue = strength * 2
+        '        opp_ca = strength * 2
+        '        opp_mode = strength * 2
+        '        opp_move = strength * 2
+        '    End If
+        '    hits = 0
+    End Sub
     Public Sub reset_missiles()
         Try
             If InStr(eq_list(equipment).special, "1") > 0 Then
@@ -1123,6 +1141,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
         End Try
     End Sub
+    Public Sub update_after_firing(a, b, c)
+
+    End Sub
+    Public Function validunit()
+        validunit = True
+    End Function
     Public Sub set_fire_parameters()
         result = 0
         msg = ""

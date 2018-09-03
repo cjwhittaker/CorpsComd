@@ -1,4 +1,5 @@
 ﻿Public Class combat
+
     Public firer As cunit, target As cunit, combatmode As String, target_fires As Boolean = False, range_not_needed As Boolean
     Private weapon As String, fired_this_turn As Integer = 0
     Dim currentrange As Integer, tn As Integer

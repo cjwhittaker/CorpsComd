@@ -124,7 +124,28 @@
             swap_phasing_player(True)
         Next
     End Sub
+    Public Sub direct_fire_phase(player As String)
+        Dim firer As String = "", target As String = "", qf As Integer, qt As Integer
+        populate_lists(combat.targets, orbat, "Ground Targets", "")
+        populate_lists(combat.firers, orbat, "Direct Fire", firer)
+        With combat
+            .enable_controls()
+            .observation(False)
+            .Tag = "Direct Fire"
+            .firer = New cunit
+            .target = New cunit
+            .firer.quality = qf
+            .target.quality = qt
+            .firesmoke.Visible = False
+            .abort_firer.Visible = False
+            .abort_target.Visible = False
+            .altitude.Visible = False
+            .taltitude.Visible = False
+            .range_not_needed = False
+            .ShowDialog()
+        End With
 
+    End Sub
     Public Sub break_emcon()
         For i = 1 To 2
             unit_selection.Tag = "Radar On"

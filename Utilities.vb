@@ -54,7 +54,7 @@
                     listitem.SubItems.Add(u.equipment + loaded)
                     'l.BackColor = u.status
                 ElseIf InStr("Artillery SupportCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
-                    listitem.SubItems.Add(IIf(u.Aircraft, u.strength - u.aborts, u.strength))
+                    listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
                     listitem.SubItems.Add(u.task)
@@ -119,7 +119,7 @@
             End If
         Next
         For Each subject As cunit In candidates
-            If (subject.Aircraft And Not subject.hels) And subject.airborne Then subject.ewsupported = ewac Else subject.ewsupported = ewac
+            If (subject.aircraft And Not subject.heli) And subject.airborne Then subject.ewsupported = ewac Else subject.ewsupported = ewac
         Next
     End Sub
     Public Sub resolvefire(ByVal firers As Collection, ByVal firer As cunit, ByVal targets As Collection, ByVal target As cunit, ByVal firephase As String)
@@ -270,7 +270,7 @@
         If InStr(firer.msg, "disperse") > 0 And InStr(result_option, "Disperse nph") = 0 Then target.casualties = target.casualties + firer.result
         If InStr(target.msg, "disperse") > 0 And InStr(result_option, "Disperse ph") = 0 Then firer.casualties = firer.casualties + target.result
 
-        If firephase = "Air Defence" Or firephase = "CAP" Or (firephase = "Fire and Movement" And target.hels) Then
+        If firephase = "Air Defence" Or firephase = "CAP" Or (firephase = "Fire and Movement" And target.heli) Then
             If target.hit And target.disrupted Then target.lands(False)
         ElseIf firephase = "Air Ground" Then
             If target.hit And target.disrupted Then check_demoralisation(targets, target.parent, target.quality)
@@ -346,7 +346,7 @@
         If target.plains Then om = om + 1
         If spotter.elevated Then om = om + 1
         If target.mode = disp Then om = om - 1
-        If gt - spotter.moved < 2 Or (spotter.airborne And Not spotter.hels) Then om = om - 1
+        If gt - spotter.moved < 2 Or (spotter.airborne And Not spotter.heli) Then om = om - 1
         If Not target.airborne Then om = om - target.Cover
         If om < 0 Then om = 0
         If om > 9 Then om = 9
@@ -720,7 +720,7 @@
                             If u.nation = e.side And (u.title = e.unit Or u.parent = e.unit) Then
                                 u.arrives = ""
                                 If u.comd = 0 Then
-                                    If u.not_conc Then u.mode = travel
+                                    If Not u.conc Then u.mode = travel
                                 End If
                             End If
                         Next

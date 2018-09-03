@@ -1,0 +1,2 @@
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Debug\CorpsComd.exe.config
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.xml

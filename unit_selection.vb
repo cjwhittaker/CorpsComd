@@ -114,7 +114,7 @@
                 .firer = subject
                 .firermode.Text = subject.mode
                 .targets.Visible = False
-                .selectedtarget.Text = movement.mover.title
+                '.selectedtarget.Text = movement.mover.title
                 .combatmode = subject.nation + " " + Me.Tag
                 .ShowDialog()
                 .targets.Visible = True
@@ -135,7 +135,7 @@
                     .firer = New cunit
                     .firer = subject
                     .combatmode = subject.nation + " SEAD Combat"
-                    .title.Text = combat.combatmode
+                    '.title.Text = combat.combatmode
                     .ShowDialog()
                 End With
                 If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
@@ -148,7 +148,7 @@
                     .firer = New cunit
                     .firer = subject
                     .combatmode = IIf(Me.Tag = "Intercept", "CAP Intercept Combat", "Simultaneous CAP Combat")
-                    .title.Text = combat.combatmode
+                    ' .title.Text = combat.combatmode
                     .ShowDialog()
                 End With
                 If orbat(units.Items(i).Text).fires Or Not orbat(units.Items(i).Text).airborne Then units.Items(i).Remove()
@@ -187,7 +187,7 @@
                     .firer = New cunit
                     .firer = subject
                     .combatmode = subject.nation + " Air Ground Combat"
-                    .title.Text = combat.combatmode
+                    '.title.Text = combat.combatmode
                     .ShowDialog()
                 End With
                 For Each ac As ListViewItem In groundair.units.Items
@@ -224,10 +224,10 @@
                 .Tag = "Air Defence"
                 .firer = New cunit
                 .firer = subject
-                .selectedfirer.Text = subject.title
+                '.selectedfirer.Text = subject.title
                 .targets.Visible = True
                 .combatmode = Me.Tag
-                .title.Text = subject.nation + " " + title.Text
+                '.title.Text = subject.nation + " " + title.Text
                 .ShowDialog()
             End With
             If orbat(units.Items(i).Text).fires Then units.Items(i).BackColor = no_action_pts

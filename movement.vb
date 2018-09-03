@@ -327,7 +327,7 @@
                         Dim prev_mode As String = mover.mode
                         If oppfire Then opportunityfire.ShowDialog()
                         If prev_mode = mover.mode Then
-                            If tactical_option = 7 And Not mover.not_conc Then
+                            If tactical_option = 7 And mover.conc Then
                                 mover.tacticalpts = mover.tacticalpts - 2
                                 If mover.mode = travel Then
                                     mover.mode = conc
@@ -335,7 +335,7 @@
                                     mover.mode = travel
                                 Else
                                 End If
-                            ElseIf tactical_option = 8 And Not mover.not_conc Then
+                            ElseIf tactical_option = 8 And mover.conc Then
                                 mover.tacticalpts = mover.tacticalpts - 2
                                 If mover.mode = conc Then
                                     mover.mode = disp
@@ -344,7 +344,7 @@
                                 Else
                                 End If
                             Else
-                                If mover.not_conc Then mover.tacticalpts = mover.tacticalpts - 2 Else mover.tacticalpts = mover.tacticalpts - 4
+                                If Not mover.conc Then mover.tacticalpts = mover.tacticalpts - 2 Else mover.tacticalpts = mover.tacticalpts - 4
                                 If mover.mode = travel Then
                                     mover.mode = disp
                                 ElseIf mover.mode = disp Then
@@ -510,7 +510,7 @@
             .firer = firer
             .firermode.Text = firer.mode
             .combatmode = firer.nation + " " + Me.Tag
-            .title.Text = firer.nation + " " + Me.Tag
+            '.title.Text = firer.nation + " " + Me.Tag
             .ShowDialog()
         End With
     End Sub
@@ -685,9 +685,9 @@
             .firer = New cunit
             .firer = assault.defender
             .targets.Visible = False
-            .selectedtarget.Text = assault.attacker.title
+            '.selectedtarget.Text = assault.attacker.title
             .combatmode = "Opportunity Fire"
-            .title.Text = nph + " " + combat.combatmode + "against Close Assault"
+            '.title.Text = nph + " " + combat.combatmode + "against Close Assault"
             .ShowDialog()
             .targets.Visible = True
         End With

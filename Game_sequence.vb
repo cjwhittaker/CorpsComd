@@ -8,7 +8,7 @@
             Next
             For Each u As cunit In orbat
                 If u.comd = 0 Then
-                    If u.not_conc Then u.mode = disp Else u.mode = conc
+                    If Not u.conc Then u.mode = disp Else u.mode = conc
 
                 End If
             Next
@@ -218,7 +218,7 @@
         End If
 
         For Each u As cunit In orbat
-            If u.Aircraft And Not u.hels And u.airborne And Not u.fires Then
+            If u.aircraft And Not u.heli And u.airborne And Not u.fires Then
                 u.tacticalpts = u.tacticalpts - 1
             End If
         Next

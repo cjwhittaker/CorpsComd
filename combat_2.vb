@@ -271,6 +271,17 @@
             f1.BackColor = golden
         End If
     End Sub
+    Private Sub select_strength_firing(sender As Object, e As EventArgs) Handles s1.Click, s2.Click, s3.Click, t3.Click, t2.Click, t1.Click
+        If Not sender.enabled Then Exit Sub
+        If sender.backcolor = defa Then
+            sender.backcolor = golden
+            If Strings.Left(sender.name, 1) = "s" Then firer.firers = firer.firers + Val(sender.text) Else target.firers = target.firers + Val(sender.text)
+        Else
+            sender.backcolor = defa
+            If Strings.Left(sender.name, 1) = "s" Then firer.firers = firer.firers - Val(sender.text) Else target.firers = target.firers - Val(sender.text)
+        End If
+    End Sub
+
     Private Sub update_parameters(opt As String)
         If opt = "firers" Then
             For Each c As Control In Panel1.Controls
@@ -334,7 +345,7 @@
             firer_strength(s1, s2, s3, firer.strength)
         End If
         update_parameters(sender.name)
-        If sender.name = "targets" Then eligible_to_fire(sender)
+        eligible_to_fire(sender)
 
         'If target.airborne And target.task = "SEAD" And Not firer.airborne Then
         '    taltitude.Enabled = True
@@ -585,6 +596,7 @@
         return_fire.BackColor = defa
         'reset_target_strength()
         If firer.title Is Nothing Or target.title Is Nothing Then Exit Sub
+        If firer.firers = 0 Or target.firers = 0 Then Exit Sub
         If range_not_needed Or tgt_range_select.SelectedIndex = -1 Then Exit Sub
         If target.secondary <> "" Then
             If rge > eq_list(target.secondary).maxrange Then Exit Sub
@@ -734,7 +746,7 @@
     Private Sub fire_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles fire.Click
         If Not range_not_needed And tgt_range.Text = "Range" Then Exit Sub
         If firer.observer And visrange.Text = "Vis Range" Then Exit Sub
-        'If selectedtarget.Text = "" Then Exit Sub
+        If target.title Is Nothing Then Exit Sub
         'firer.firers = 0 : target.firers = 0
         'firer.firers = IIf(s1.BackColor = golden, Val(s1.Text), 0) + IIf(s2.BackColor = golden, Val(s2.Text), 0) + IIf(s3.BackColor = golden, Val(s3.Text), 0)
         'fired_this_turn = fired_this_turn + firer.firers

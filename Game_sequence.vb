@@ -125,7 +125,6 @@
         Next
     End Sub
     Public Sub direct_fire_phase(firer As String, target As String)
-        Dim qf As Integer, qt As Integer
         combat.targets.Items.Clear()
         combat.firers.Items.Clear()
         populate_lists(combat.targets, orbat, "Ground Targets", target)
@@ -136,8 +135,6 @@
             .Tag = "Direct Fire"
             .firer = New cunit
             .target = New cunit
-            .firer.quality = qf
-            .target.quality = qt
             .firesmoke.Visible = False
             .abort_firer.Visible = False
             .abort_target.Visible = False

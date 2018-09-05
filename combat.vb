@@ -201,6 +201,16 @@
             f1.BackColor = golden
         End If
     End Sub
+    Private Sub select_strength_firing(sender As Object, e As EventArgs) Handles s1.Click, s2.Click, s3.Click, t3.Click, t2.Click, t1.Click
+        If Not sender.enabled Then Exit Sub
+        If sender.backcolor = defa Then
+            sender.backcolor = golden
+            If Strings.Left(sender.name, 1) = "s" Then firer.firers = firer.firers + Val(sender.text) Else target.firers = target.firers + Val(sender.text)
+        Else
+            sender.backcolor = defa
+            If Strings.Left(sender.name, 1) = "s" Then firer.firers = firer.firers - Val(sender.text) Else target.firers = target.firers - Val(sender.text)
+        End If
+    End Sub
 
     Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firerprimary.Click, targetprimary.Click, targetmode.Click
         If Not sender.enabled Then Exit Sub

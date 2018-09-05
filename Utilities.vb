@@ -53,7 +53,7 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(u.equipment + loaded)
                     'l.BackColor = u.status
-                ElseIf InStr("Artillery SupportCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
+                ElseIf InStr("Artillery SupportCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsDirect FireFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
                     listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
@@ -675,14 +675,16 @@
                     If (orbat(x).comd = 0 And purpose = "Orbat") Or orbat(x).comd > 0 Then
                         subNode = ParentNode.Nodes.Add(orbat(x).Title, orbat(x).Title)
                         subNode.BackColor = orbat(x).status(purpose)
-                        If orbat(x).comd = 0 And purpose = "Orbat" And orbat(x).inf Then
-                            If orbat(x).debussed And orbat(x).loaded = "" Then
-                                subNode.ToolTipText = "Dismounted"
-                            ElseIf orbat(x).debussed And orbat(x).loaded <> "" Then
-                                subNode.ToolTipText = "Debussed"
-                            ElseIf Not orbat(x).debussed Then
-                                subNode.ToolTipText = "Embused"
-                            Else
+                        If orbat(x).comd = 0 Then
+                            If purpose = "Orbat" And orbat(x).inf Then
+                                If orbat(x).debussed And orbat(x).loaded = "" Then
+                                    subNode.ToolTipText = "Dismounted"
+                                ElseIf orbat(x).debussed And orbat(x).loaded <> "" Then
+                                    subNode.ToolTipText = "Debussed"
+                                ElseIf Not orbat(x).debussed Then
+                                    subNode.ToolTipText = "Embused"
+                                Else
+                                End If
                             End If
                         End If
                     End If

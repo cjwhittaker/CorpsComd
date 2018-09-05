@@ -137,23 +137,22 @@
         vis_range_select.Visible = enable
     End Sub
 
-    'Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firerprimary.Click, targetprimary.Click, targetmode.Click
-    '    If Not sender.enabled Then Exit Sub
-    '    'If selectedtarget.Text = "" Then Exit Sub
-    '    If sender.name = "firerprimary" Then
-    '        If firer.w2 = "" Then Exit Sub
-    '        If weapon = firer.w2 Then weapon = firer.equipment Else weapon = firer.w2
-    '        firerprimary.Text = weapon
-    '    Else
-    '        If target.w2 = "" Then Exit Sub
-    '        If weapon = target.w2 Then weapon = target.equipment Else weapon = target.w2
-    '        targetprimary.Text = weapon
-    '    End If
+    Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles f_wpn.Click, t_wpn.Click
+        If Not sender.enabled Then Exit Sub
+        'If selectedtarget.Text = "" Then Exit Sub
+        If sender.name = "f_wpn" Then
+            If firer.w2 = "" Then Exit Sub
+            If sender.text = firer.w2 Then sender.text = firer.equipment Else sender.text = firer.w2
+        Else
+            If target.w2 = "" Then Exit Sub
+            If sender.text = target.w2 Then sender.text = target.equipment Else sender.text = target.w2
+        End If
+        eligible_to_fire(sender)
 
-    'End Sub
+    End Sub
 
     Private Sub select_altitude(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles taltitude.Click
-        If target Is Nothing Then Exit Sub
+        If target.title Is Nothing Then Exit Sub
         If target.equipment = "" Then Exit Sub
         If sender.Text = "Low" Then
             sender.Text = "Medium" : sender.BackColor = golden
@@ -171,10 +170,8 @@
 
     Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firercover.Click, targetcover.Click
         Dim cover As Object
-        If sender.name = "targetcover" Then
-            If target Is Nothing Then Exit Sub
-            If target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "targetcover" And target.title Is Nothing Then Exit Sub
+        If sender.name = "firercover" And firer.title Is Nothing Then Exit Sub
         If InStr(sender.name, "firer") > 0 Then cover = firercover Else cover = targetcover
         If cover.Text = "None" Then
             cover.Text = "+1" : cover.BackColor = golden
@@ -188,25 +185,50 @@
             cover.Text = "None" : cover.BackColor = defa
         Else
         End If
+        If sender.name = "firercover" Then firer.Cover = IIf(cover.text = "None", 0, cover.text) Else target.Cover = IIf(cover.text = "None", 0, cover.text)
+
         eligible_to_fire(sender)
 
     End Sub
 
     Private Sub Flank_and_rear(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles fireraspect.Click, targetaspect.Click
-        If sender.name = "targetaspect" Then
-            If target Is Nothing And target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "targetaspect" And target.title Is Nothing Then Exit Sub
+        If sender.name = "fireraspect" And firer.title Is Nothing Then Exit Sub
         If sender.text = "Front" Then
             sender.text = "Flank"
             sender.backcolor = golden
+            If sender.name = "firerelevation" Then
+                firer.flanked = True
+                firer.rear = False
+            Else
+                target.flanked = True
+                target.rear = False
+            End If
         ElseIf sender.text = "Flank" Then
             sender.text = "Rear"
+            If sender.name = "firerelevation" Then
+                firer.flanked = False
+                firer.rear = True
+            Else
+                target.flanked = False
+                target.rear = True
+            End If
         Else
             sender.text = "Front"
             sender.backcolor = defa
+            If sender.name = "firerelevation" Then
+                firer.flanked = False
+                firer.rear = True
+            Else
+                target.flanked = False
+                target.rear = True
+            End If
+
         End If
+        eligible_to_fire(sender)
 
     End Sub
+
     Private Sub firer_strength(f1 As Object, f2 As Object, f3 As Object, strength As Integer)
         If strength <= 5 Then
             f1.Enabled = True
@@ -249,55 +271,69 @@
             f1.BackColor = golden
         End If
     End Sub
-    Private Sub update_parameters(opt As Object)
-        If opt.name = "firers" Then
-            If (firer.elevated And firerelevation.BackColor = defa) Or (Not firer.elevated And firerelevation.BackColor = golden) Then elevation(firerelevation, Nothing)
-            If (firer.roadmove And froadmove.BackColor = defa) Or (Not firer.roadmove And froadmove.BackColor = golden) Then roadmove(froadmove, Nothing)
-            If (firer.plains And fplains.BackColor = defa) Or (Not firer.plains And fplains.BackColor = golden) Then plains(fplains, Nothing)
-            If finsmoke.BackColor = defa Then in_smoke(finsmoke, Nothing)
-            firermode.Text = firer.mode
-            If firer.mode <> conc Then firermode.BackColor = golden Else firermode.BackColor = defa
-            If firer.Cover > 0 Then
-                firercover.Text = "+" + Trim(Str(firer.Cover))
-                firercover.BackColor = golden
-            Else
-                firercover.Text = "None"
-                firercover.BackColor = defa
+    Private Sub update_parameters(opt As String)
+        If opt = "firers" Then
+            For Each c As Control In Panel1.Controls
+                If c.BackColor = golden And c.Tag <> "" Then c.BackColor = defa : c.Text = c.Tag
+            Next
+            If firer.Cover > 0 Then select_cover(firercover, Nothing)
+            If firer.elevated Then elevation(firerelevation, Nothing)
+            If firer.roadmove Then roadmove(froadmove, Nothing)
+            If firer.plains Then plains(fplains, Nothing)
+            If firer.insmoke Then in_smoke(finsmoke, Nothing)
+            If gt - firer.moved <= 1 Then firer.moving = True Else firer.moving = False
+            If firer.moving Then moved(firermoving, Nothing)
+            If firer.mode <> conc Then mode(firermode, Nothing)
+            f_wpn.Text = firer.equipment
+            If firer.w2 = "" Then f_wpn.Enabled = False Else f_wpn.Enabled = True
+            If firer.troopcarrier And firer.embussed Then firerdismounted.Enabled = True Else firerdismounted.Enabled = False
+            If firer.Inf And firer.loaded = "" Then
+                With firerdismounted
+                    .Enabled = True
+                    .Text = "Mount"
+                    .BackColor = golden
+                End With
             End If
+        Else
 
+            For Each c As Control In Panel2.Controls
+                If c.BackColor = golden Then c.BackColor = defa : c.Text = c.Tag
+            Next
+            If target.Cover > 0 Then select_cover(targetcover, Nothing)
+            If target.elevated Then elevation(targetelevation, Nothing)
+            If target.roadmove Then roadmove(troadmove, Nothing)
+            If target.plains Then plains(tplains, Nothing)
+            If target.insmoke Then in_smoke(tinsmoke, Nothing)
+            If gt - target.moved <= 1 Then target.moving = True Else target.moving = False
+            If target.moving Then moved(targetmoving, Nothing)
+            If target.mode <> conc Then mode(targetmode, Nothing)
+            t_wpn.Text = target.equipment
+            If target.w2 = "" Then t_wpn.Enabled = False Else t_wpn.Enabled = True
+            If Not target.troopcarrier Then targetdismounted.Enabled = False Else targetdismounted.Enabled = True
         End If
     End Sub
 
     Private Sub Select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click
         If sender.name = "targets" Then
-            With target
-                .equipment = sender.FocusedItem.Text
-                .secondary = sender.FocusedItem.SubItems(1).Text
-                .fires = False
-                .dismounted = False
-            End With
-            With targetdismounted
-                .BackColor = defa
-                .Text = .Tag
-                .Enabled = target.Inf
-            End With
-            If Not target.conc Then target.mode = disp : targetmode.Text = disp : targetmode.BackColor = golden Else target.mode = conc
+            target = orbat(sender.FocusedItem.Text)
             firer_strength(t1, t2, t3, target.strength)
         Else
-            With firer
-                .equipment = sender.FocusedItem.Text
-                .secondary = sender.FocusedItem.SubItems(1).Text
-                .fires = False
-                .dismounted = False
-            End With
-            If Not firer.conc Then firer.mode = disp : firermode.Text = disp : firermode.BackColor = golden Else firer.mode = conc
-            With firerdismounted
-                .BackColor = defa
-                .Text = .Tag
-                .Enabled = firer.Inf
-            End With
+            'With firer
+            '    .equipment = sender.FocusedItem.Text
+            '    .secondary = sender.FocusedItem.SubItems(1).Text
+            '    .fires = False
+            '    .dismounted = False
+            'End With
+            firer = orbat(sender.FocusedItem.Text)
+            'If Not firer.conc Then firer.mode = disp : firermode.Text = disp : firermode.BackColor = golden Else firer.mode = conc
+            'With firerdismounted
+            '    .BackColor = defa
+            '    .Text = .Tag
+            '    .Enabled = firer.Inf
+            'End With
             firer_strength(s1, s2, s3, firer.strength)
         End If
+        update_parameters(sender.name)
         If sender.name = "targets" Then eligible_to_fire(sender)
 
         'If target.airborne And target.task = "SEAD" And Not firer.airborne Then
@@ -327,17 +363,16 @@
     End Sub
 
     Private Sub elevation(sender As Object, e As EventArgs) Handles firerelevation.Click, targetelevation.Click
-        If sender.name = "targetelevation" Then
-            If target Is Nothing And target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "targetelevation" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "firerelevation" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
             sender.text = "Elevated"
             sender.backcolor = golden
-            If InStr(sender.name, "firer") > 0 Then firer.elevated = True Else target.elevated = True
+            If sender.name = "firerelevation" Then firer.elevated = True Else target.elevated = True
         Else
             sender.text = "Same Level"
             sender.backcolor = defa
-            If InStr(sender.name, "firer") > 0 Then firer.elevated = False Else target.elevated = False
+            If sender.name = "firerelevation" Then firer.elevated = False Else target.elevated = False
         End If
         eligible_to_fire(sender)
 
@@ -345,22 +380,54 @@
 
     Private Sub dismounted(sender As Object, e As EventArgs) Handles firerdismounted.Click, targetdismounted.Click
         If sender.name = "targetdismounted" Then
-            If target Is Nothing Then Exit Sub
-            If target.equipment = "" Then Exit Sub
-        End If
-        If sender.backcolor = defa Then
-            sender.text = "Mounted"
-            sender.backcolor = golden
+            If target.title Is Nothing Then Exit Sub
+            If (sender.backcolor = golden And Not target.Inf) Then Exit Sub
         Else
-            sender.text = "Dismounted"
-            sender.backcolor = defa
+            If firer.title Is Nothing Then Exit Sub
+            If (sender.backcolor = golden And Not firer.Inf) Then Exit Sub
         End If
+
+        Dim tmp As String = ""
+        If sender.backcolor = defa Then
+            sender.text = "Mount"
+            sender.backcolor = golden
+            If sender.name = "firerdismounted" Then
+                tmp = firer.loaded
+                firer.loaded = ""
+                orbat(tmp).loaded = ""
+                orbat(tmp).mode = firer.mode
+                populate_lists(firers, orbat, "Direct Fire", firer.nation)
+            Else
+                tmp = target.loaded
+                target.loaded = ""
+                orbat(tmp).loaded = ""
+                orbat(tmp).mode = target.mode
+                populate_lists(targets, orbat, "Direct Fire", target.nation)
+            End If
+        Else
+            sender.text = "Dismount"
+            sender.backcolor = defa
+            If sender.name = "firerdismounted" Then
+                tmp = Replace(firer.title, "#", "")
+                firer.loaded = tmp
+                orbat(tmp).loaded = firer.title
+                orbat(tmp).mode = firer.mode
+                firers.FocusedItem.Remove()
+            Else
+                tmp = Replace(target.title, "#", "")
+                target.loaded = tmp
+                orbat(tmp).loaded = target.title
+                orbat(tmp).mode = target.mode
+                targets.FocusedItem.Remove()
+            End If
+        End If
+        eligible_to_fire(sender)
 
     End Sub
 
     Private Sub mode(sender As Object, e As EventArgs) Handles firermode.Click, targetmode.Click
-        If sender.name = "targetmode" And target.equipment Is Nothing Then Exit Sub
-        If sender.name = "firermode" And firer.equipment Is Nothing Then Exit Sub
+        If sender.name = "targetmode" And target.title Is Nothing Then Exit Sub
+        If sender.name = "firermode" And firer.title Is Nothing Then Exit Sub
 
         If sender.text = conc Then
             sender.text = disp
@@ -372,55 +439,69 @@
             sender.backcolor = defa
         Else
         End If
-        If InStr(sender.Name, "firer") > 0 And Not firer.conc And firer.mode <> disp Then firer.mode = disp : sender.Text = disp : sender.BackColor = golden
-        If InStr(sender.Name, "target") > 0 And Not target.conc And target.mode = conc Then target.mode = disp : sender.Text = disp : sender.BackColor = golden
+        If sender.name = "firermode" Then
+            firer.mode = sender.text
+            If Not firer.conc And firer.mode = conc Then
+                firer.mode = disp
+                sender.Text = disp
+                sender.BackColor = golden
+            End If
+        End If
+        If sender.name = "targetmode" Then
+            target.mode = sender.text
+            If Not target.conc And target.mode = conc Then
+                target.mode = disp
+                sender.Text = disp
+                sender.BackColor = golden
+            End If
+        End If
         eligible_to_fire(sender)
 
     End Sub
 
     Private Sub roadmove(sender As Object, e As EventArgs) Handles troadmove.Click, froadmove.Click
-        If sender.name = "troadmove" Then
-            If target Is Nothing Then Exit Sub
-            If target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "troadmove" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "froadmove" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
             sender.text = "Road Move"
             sender.backcolor = golden
+            If sender.name = "froadmove" Then firer.roadmove = True Else target.roadmove = True
         Else
             sender.text = "X Country"
             sender.backcolor = defa
+            If sender.name = "troadmove" Then firer.roadmove = True Else target.roadmove = True
         End If
         eligible_to_fire(sender)
 
     End Sub
 
     Private Sub plains(sender As Object, e As EventArgs) Handles tplains.Click, fplains.Click
-        If sender.name = "tplains" Then
-            If target Is Nothing Then Exit Sub
-            If target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "tplains" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "fplains" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
             sender.text = "Plains/Steppes"
             sender.backcolor = golden
+            If sender.name = "fplains" Then firer.plains = True Else target.plains = True
         Else
             sender.text = "Open Terrain"
             sender.backcolor = defa
+            If sender.name = "tplains" Then firer.plains = True Else target.plains = True
         End If
         eligible_to_fire(sender)
 
     End Sub
 
     Private Sub in_smoke(sender As Object, e As EventArgs) Handles finsmoke.Click, tinsmoke.Click
-        If sender.name = "tinsmoke" Then
-            If target Is Nothing Then Exit Sub
-            If target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "tinsmoke" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "finsmoke" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
             sender.text = "In Smoke"
             sender.backcolor = golden
+            If sender.name = "finsmoke" Then firer.insmoke = True Else target.insmoke = True
         Else
             sender.text = "No Smoke"
             sender.backcolor = defa
+            If sender.name = "tinsmoke" Then firer.insmoke = True Else target.insmoke = True
         End If
         eligible_to_fire(sender)
 
@@ -477,23 +558,24 @@
     End Sub
 
     Private Sub moved(sender As Object, e As EventArgs) Handles firermoving.Click, targetmoving.Click
-        If sender.name = "targetmoving" Then
-            If target Is Nothing Then Exit Sub
-            If target.equipment = "" Then Exit Sub
-        End If
+        If sender.name = "targetmoving" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "firermoving" Then If firer.title Is Nothing Then Exit Sub
+
         If sender.backcolor = defa Then
             sender.text = "Moved"
             sender.backcolor = golden
+            If sender.name = "firermoving" Then firer.moving = True Else target.moving = True
         Else
             sender.text = "Static"
             sender.backcolor = defa
+            If sender.name = "firermoving" Then firer.moving = True Else target.moving = True
         End If
         eligible_to_fire(sender)
 
     End Sub
 
     Private Sub return_fire_available()
-        If firingmode.BackColor = golden Or Me.Tag = "Indirect Fire" Then
+        If Me.Tag <> "Direct Fire" Then
             return_fire.BackColor = defa
             return_fire.Enabled = False
             Exit Sub
@@ -502,7 +584,7 @@
         Dim rf As Boolean = IIf(return_fire.BackColor = golden, True, False)
         return_fire.BackColor = defa
         'reset_target_strength()
-        If firer.equipment Is Nothing Or target.equipment Is Nothing Then Exit Sub
+        If firer.title Is Nothing Or target.title Is Nothing Then Exit Sub
         If range_not_needed Or tgt_range_select.SelectedIndex = -1 Then Exit Sub
         If target.secondary <> "" Then
             If rge > eq_list(target.secondary).maxrange Then Exit Sub
@@ -515,7 +597,7 @@
         End If
     End Sub
 
-    Private Sub firingmode_Click(sender As Object, e As EventArgs) Handles firingmode.Click
+    Private Sub firingmode_Click(sender As Object, e As EventArgs)
         If firingmode.BackColor = defa Then
             firingmode.Text = "Half Fire"
             firingmode.BackColor = golden
@@ -562,6 +644,7 @@
         eligible_to_fire(sender)
     End Sub
 
+
     Private Sub observer_Click(sender As Object, e As EventArgs)
         If sender.text = "Observer" Then
             sender.text = "Observing"
@@ -573,11 +656,11 @@
     End Sub
 
     Private Sub eligible_to_fire(sender As Object)
-        If firingmode.BackColor = defa Or Me.Tag = "Indirect Fire" Then return_fire.Enabled = False
+        If firingmode.Text = "Direct Fire" Or Me.Tag = "Indirect Fire" Then return_fire.Enabled = False
         fire.Enabled = False
         firesmoke.Enabled = False
         firesmoke.Visible = False
-        If target.equipment Is Nothing Or target.equipment = "" Then Exit Sub
+        If target.title Is Nothing Then Exit Sub
         calc_factors(sender)
         return_fire_available()
 

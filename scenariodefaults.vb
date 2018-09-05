@@ -221,20 +221,20 @@
         If phase = 0 Then phase = phase + 1
         Do
             Select Case phase
-                Case 1 : determineinitiative()
-                Case 2 : artillery_area_fire()
-                Case 3 : artillery_interdiction_markers()
-                Case 4 : cb_fire()
-                Case 5 : deploy_air_missions()
-                Case 6 : air_superiority()
-                Case 7 : ground_to_air()
-                Case 8 : intercept()
-                'Case 9 : ground_to_air("SEAD")
-                Case 10 : conduct_sead()
-                'Case 11 : ground_to_air("Ground Attack")
-                Case 12 : conduct_air_to_ground()
-                Case 13 : direct_fire_phase(ph)
-                Case 14 : direct_fire_phase(nph)
+                'Case 1 : determineinitiative()
+                'Case 2 : artillery_area_fire()
+                'Case 3 : artillery_interdiction_markers()
+                'Case 4 : cb_fire()
+                'Case 5 : deploy_air_missions()
+                'Case 6 : air_superiority()
+                'Case 7 : ground_to_air()
+                'Case 8 : intercept()
+                ''Case 9 : ground_to_air("SEAD")
+                'Case 10 : conduct_sead()
+                ''Case 11 : ground_to_air("Ground Attack")
+                'Case 12 : conduct_air_to_ground()
+                Case 13 : direct_fire_phase(ph, nph)
+                Case 14 : direct_fire_phase(nph, ph)
                 Case 15 : command_and_control()
                 Case 16 : air_mission_planning()
                 Case 17 : break_emcon()
@@ -247,12 +247,12 @@
             phase = phase + 1
             'If phase = 2 Then phase = 17
             'If phase = 18 Then phase = 20
-            savedata(scenario)
-            If phase = 3 Or phase = 6 Or phase = 14 Or phase = 17 Then
-                If MsgBox("Do you wish to quit the program", MsgBoxStyle.YesNo, "Quit Program") = MsgBoxResult.Yes Then Exit Sub
-            End If
+            'savedata(scenario)
+            'If phase = 3 Or phase = 6 Or phase = 14 Or phase = 17 Then
+            '    If MsgBox("Do you wish to quit the program", MsgBoxStyle.YesNo, "Quit Program") = MsgBoxResult.Yes Then Exit Sub
+            'End If
 
-        Loop Until phase = 20
+        Loop Until phase = 21
         'Me.Visible = True
         If smokefiredthisturn Then MsgBox("Remove all smoke fired during the last tactical action phase before this one", vbOKOnly + vbInformation, "Remove Smoke")
         smokefiredthisturn = False

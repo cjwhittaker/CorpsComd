@@ -124,9 +124,11 @@
             swap_phasing_player(True)
         Next
     End Sub
-    Public Sub direct_fire_phase(player As String)
-        Dim firer As String = "", target As String = "", qf As Integer, qt As Integer
-        populate_lists(combat.targets, orbat, "Ground Targets", "")
+    Public Sub direct_fire_phase(firer As String, target As String)
+        Dim qf As Integer, qt As Integer
+        combat.targets.Items.Clear()
+        combat.firers.Items.Clear()
+        populate_lists(combat.targets, orbat, "Ground Targets", target)
         populate_lists(combat.firers, orbat, "Direct Fire", firer)
         With combat
             .enable_controls()
@@ -161,14 +163,16 @@
         For i = 1 To 2
             arty = False
             For Each u As cunit In orbat
-                If u.comd = 0 And u.nation = ph And u.indirect Then
-                    hq_functions(orbat(u.parent), "Arty units")
-                    If u.primary Is Nothing Then u.primary = ""
-                    If u.primary <> "" And orbat.Contains(u.primary) Then hq_functions(orbat(u.primary), "Arty units")
-                    arty = True
-                    If u.task = "" Then u.task = "DS"
-                    'If orbat(u.parent).comd > 3 Then u.task = "GS"
-                    'If u.indirect Then u.primary = ""
+                If u.comd = 0 Then
+                    If u.nation = ph And u.indirect Then
+                        hq_functions(orbat(u.parent), "Arty units")
+                        If u.primary Is Nothing Then u.primary = ""
+                        If u.primary <> "" And orbat.Contains(u.primary) Then hq_functions(orbat(u.primary), "Arty units")
+                        arty = True
+                        If u.task = "" Then u.task = "DS"
+                        'If orbat(u.parent).comd > 3 Then u.task = "GS"
+                        'If u.indirect Then u.primary = ""
+                    End If
                 End If
             Next
             If arty Then

@@ -1252,7 +1252,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf phase = "Orbat" And hq = parent Then
             validunit = True
-        ElseIf phase = "Direct Fire" And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
+        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
+            validunit = True
+        ElseIf phase = "Smoke Barrage" And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) And indirect Then
             validunit = True
         ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             validunit = False

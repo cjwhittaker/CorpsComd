@@ -53,7 +53,7 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(u.equipment + loaded)
                     'l.BackColor = u.status
-                ElseIf InStr("Artillery SupportCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsDirect FireFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
+                ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsDirect FireFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
                     listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then

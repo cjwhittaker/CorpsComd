@@ -222,7 +222,7 @@
         Do
             Select Case phase
                 'Case 1 : determineinitiative()
-                'Case 2 : artillery_area_fire()
+                Case 2 : smoke_barrage_phase(ph)
                 'Case 3 : artillery_interdiction_markers()
                 'Case 4 : cb_fire()
                 'Case 5 : deploy_air_missions()
@@ -234,7 +234,6 @@
                 'Case 11 : ground_to_air("Ground Attack")
                 'Case 12 : conduct_air_to_ground()
                 Case 13 : direct_fire_phase(ph, nph)
-                'Case 14 : direct_fire_phase(nph, ph)
                 Case 15 : command_and_control()
                 Case 16 : air_mission_planning()
                 Case 17 : break_emcon()
@@ -243,7 +242,7 @@
                 Case 20 : morale_recovery()
                 Case 21 : end_sorties()
             End Select
-
+            If ph <> initiative Then swap_phasing_player(True)
             phase = phase + 1
             'If phase = 2 Then phase = 17
             'If phase = 18 Then phase = 20

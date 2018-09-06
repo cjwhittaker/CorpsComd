@@ -68,9 +68,22 @@
 
         Randomize(24 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
         'test message
-        If Me.Tag = "Direct Fire" Then return_fire.Visible = True Else return_fire.Visible = False
         return_fire.Enabled = False
         fire.Enabled = False
+        If Me.Tag = "Direct Fire" Then return_fire.Visible = True Else return_fire.Visible = False
+        If Me.Tag = "Smoke Barrage" Then
+            Panel2.Enabled = False
+            For Each c As Control In Panel1.Controls
+                If TypeOf c Is Label Then c.Enabled = False
+            Next
+            For Each c As Control In Panel2.Controls
+                c.Enabled = False
+            Next
+            firingmode.Enabled = True
+            firesmoke.Enabled = False
+            fire.Visible = False
+            return_fire.Visible = False
+        End If
         If Me.Tag = "Air Ground" Or Me.Tag = "SEAD" Then
             targets.Visible = True
             fireraspect.Enabled = True
@@ -135,7 +148,7 @@
     End Sub
 
     Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles f_wpn.Click, t_wpn.Click
-        If Not sender.enabled Then Exit Sub
+        If Tag = "Smoke Barrage" Then Exit Sub
         'If selectedtarget.Text = "" Then Exit Sub
         If sender.name = "f_wpn" Then
             If firer.w2 = "" Then Exit Sub
@@ -265,11 +278,19 @@
             Case 15
                 f1.Text = "5" : f2.Text = "5" : f3.Text = "5"
         End Select
-        If Strings.Left(f1.name, 1) = "s" Or Me.Tag = "CAP" Or Me.Tag = "Intercept" Then firer.firers = 0 : select_strength_firing(s1, Nothing)
+        If Strings.Left(f1.name, 1) = "s" Or Me.Tag = "CAP" Or Me.Tag = "Intercept" Then
+            firer.firers = 0
+            select_strength_firing(s1, Nothing)
+        End If
         If Strings.Left(f1.name, 1) = "t" Then target.firers = 0
+        If Tag = "Smoke Barrage" Then
+            f1.Enabled = False
+            f2.Enabled = False
+            f3.Enabled = False
+        End If
     End Sub
     Private Sub select_strength_firing(sender As Object, e As EventArgs) Handles s1.Click, s2.Click, s3.Click, t3.Click, t2.Click, t1.Click
-        If sender.text = "" Or Strings.Left(sender.name, 1) = "t" And Not fire.Enabled Then Exit Sub
+        If Tag = "Smoke Barrage" Or sender.text = "" Or Strings.Left(sender.name, 1) = "t" And Not fire.Enabled Then Exit Sub
         If sender.backcolor = defa Then
             sender.backcolor = golden
             If Strings.Left(sender.name, 1) = "s" Then firer.firers = firer.firers + Val(sender.text) Else target.firers = target.firers + Val(sender.text)
@@ -325,21 +346,9 @@
     Private Sub Select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click
         If sender.name = "targets" Then
             target = orbat(sender.FocusedItem.Text)
-            firer_strength(t1, t2, t3, target.firers_available)
+            If Tag <> "Smoke Barrage" Then firer_strength(t1, t2, t3, target.firers_available)
         Else
-            'With firer
-            '    .equipment = sender.FocusedItem.Text
-            '    .secondary = sender.FocusedItem.SubItems(1).Text
-            '    .fires = False
-            '    .dismounted = False
-            'End With
             firer = orbat(sender.FocusedItem.Text)
-            'If Not firer.conc Then firer.mode = disp : firermode.Text = disp : firermode.BackColor = golden Else firer.mode = conc
-            'With firerdismounted
-            '    .BackColor = defa
-            '    .Text = .Tag
-            '    .Enabled = firer.Inf
-            'End With
             firer_strength(s1, s2, s3, firer.firers_available)
         End If
         update_parameters(sender.name)
@@ -669,20 +678,26 @@
         targets.Items.Clear()
         firers.Items.Clear()
         swap_phasing_player(True)
-        populate_lists(Me.targets, enemy, "Ground Targets", nph)
-        populate_lists(Me.firers, ph_units, "Direct Fire", ph)
-        With Me
-            .observation(False)
-            .Tag = "Direct Fire"
-            .firer = New cunit
-            .target = New cunit
-            .firesmoke.Visible = False
-            .abort_firer.Visible = False
-            .abort_target.Visible = False
-            .altitude.Visible = False
-            .taltitude.Visible = False
-            .range_not_needed = False
-        End With
+        If Tag = "Direct Fire" Then
+            direct_fire_phase(ph, nph)
+        ElseIf Tag = "Smoke Barrage" Then
+            smoke_barrage_phase(ph)
+        Else
+        End If
+        'populate_lists(Me.targets, enemy, "Ground Targets", nph)
+        'populate_lists(Me.firers, ph_units, "Direct Fire", ph)
+        'With Me
+        '    .observation(False)
+        '    .Tag = "Direct Fire"
+        '    .firer = New cunit
+        '    .target = New cunit
+        '    .firesmoke.Visible = False
+        '    .abort_firer.Visible = False
+        '    .abort_target.Visible = False
+        '    .altitude.Visible = False
+        '    .taltitude.Visible = False
+        '    .range_not_needed = False
+        'End With
 
     End Sub
 
@@ -698,7 +713,24 @@
     End Sub
 
     Private Sub eligible_to_fire(sender As Object)
-        If firingmode.Text <> "Direct Fire" Then return_fire.Enabled = False
+        If Not range_not_needed And tgt_range_select.SelectedIndex = -1 Then Exit Sub
+        tgt_range.Text = tgt_range_select.SelectedItem
+        Dim rge As Integer = Val(tgt_range.Text), out_of_range As Boolean = False
+        If rge > eq_list(firer.equipment).maxrange Then out_of_range = True
+        If out_of_range Or (firer.firers = 0 And Tag <> "Smoke Barrage") Then
+            fire.Enabled = False
+            firesmoke.Enabled = False
+            target.spotted = fire.Enabled
+            return_fire.Enabled = fire.Enabled
+            tgt_range.ForeColor = Color.Red
+            Exit Sub
+        End If
+        If Tag = "Smoke Barrage" Then
+            tgt_range.ForeColor = Color.Green
+            firesmoke.Enabled = True
+            Exit Sub
+        End If
+        If Tag <> "Direct Fire" Then return_fire.Enabled = False
         fire.Enabled = False
         firesmoke.Enabled = False
         firesmoke.Visible = False
@@ -706,11 +738,6 @@
         'calc_factors(sender)
         return_fire_available()
 
-        If Me.Tag = "Indirect Fire" Then
-            firesmoke.Visible = True
-            firesmoke.Enabled = True
-        End If
-        If Not range_not_needed And tgt_range_select.SelectedIndex = -1 Then Exit Sub
         firer.spotted = False
         firer.task = ""
         target.spotted = False
@@ -720,17 +747,7 @@
             fire.Enabled = True
             Exit Sub
         End If
-        tgt_range.Text = tgt_range_select.SelectedItem
-        Dim rge As Integer = Val(tgt_range.Text), out_of_range As Boolean = False
-        If rge > eq_list(firer.equipment).maxrange Then out_of_range = True
 
-        If out_of_range Or firer.firers = 0 Then
-            fire.Enabled = False
-            target.spotted = fire.Enabled
-            return_fire.Enabled = fire.Enabled
-            tgt_range.ForeColor = Color.Red
-            Exit Sub
-        End If
         If Me.Tag = "Direct Fire" Then
             fire.Enabled = spotting(Val(tgt_range.Text), firer, target)
             target.spotted = fire.Enabled
@@ -811,10 +828,12 @@
 
     Private Sub firesmoke_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firesmoke.Click
         firer.smoke = gt
-        Me.Hide()
+        firers.Items(firers.FocusedItem.Index).Remove()
         resultform_2.result.Text = "Smoke Fired"
         resultform_2.ShowDialog()
         smokefiredthisturn = True
+        firesmoke.Enabled = False
+        reset_range()
     End Sub
 
     Private Sub combat_Closed(sender As Object, e As EventArgs) Handles Me.Closed

@@ -35,14 +35,14 @@
                     .hits = 0
                     .aborts = 0
                     .casualties = 0
-                    .sorties = IIf(.aircraft And .sorties > 0, .sorties - 1, .sorties)
+                    .sorties = IIf(u.aircraft And u.sorties > 0, u.sorties - 1, u.sorties)
                     .disrupted_gt = False
                 End With
             End If
 
         Next
         If phase <> 0 Then swap_phasing_player(False)
-
+        gameturn = " for Game Turn" + Str(gt) + " at " + Format(gamedate, "HHmm") + "hrs " + Format(gamedate, "dd MMM yyyy")
     End Sub
 
     Public Sub determineinitiative()
@@ -57,6 +57,7 @@
         Else
             ph = scenariodefaults.player2.Text : nph = scenariodefaults.player1.Text
         End If
+        initiative = ph
         swap_phasing_player(False)
         With resultform_2
             .ok_button.Visible = False
@@ -79,7 +80,7 @@
             populate_command_structure(unit_selection.comdtree, ph, "Command")
             With unit_selection
                 .Tag = "Command"
-                .Text = "Command and Control Phase " + ph + " - Game Turn " + Str(gt)
+                .Text = ph + " Command and Control Phase " + gameturn
                 .ShowDialog()
             End With
             test_for_events(ph, gamedate)
@@ -136,6 +137,7 @@
             .enable_controls()
             .observation(False)
             .Tag = "Direct Fire"
+            .firingmode.Text = combat_2.Tag
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = False
@@ -144,10 +146,43 @@
             .altitude.Visible = False
             .taltitude.Visible = False
             .range_not_needed = False
-            .ShowDialog()
         End With
+        If Not combat_2.Visible Then
+            With combat_2
+                .Text = "Direct Fire Sub Phase for " + gameturn
+                .ShowDialog()
+            End With
+        End If
 
     End Sub
+    Public Sub smoke_barrage_phase(firer As String)
+        combat_2.targets.Items.Clear()
+        combat_2.firers.Items.Clear()
+        'populate_lists(combat_2.targets, enemy, "Ground Targets", target)
+        populate_lists(combat_2.firers, ph_units, "Smoke Barrage", firer)
+        With combat_2
+            .enable_controls()
+            .observation(False)
+            .Tag = "Smoke Barrage"
+            .firingmode.Text = combat_2.Tag
+            .firer = New cunit
+            .target = New cunit
+            .firesmoke.Visible = True
+            .abort_firer.Visible = False
+            .abort_target.Visible = False
+            .altitude.Visible = False
+            .taltitude.Visible = False
+            .range_not_needed = False
+            '.ShowDialog()
+        End With
+        If Not combat_2.Visible Then
+            With combat_2
+                .Text = "Smoke Barrage Sub Phase" + gameturn
+                .ShowDialog()
+            End With
+        End If
+    End Sub
+
     Public Sub break_emcon()
         For i = 1 To 2
             unit_selection.Tag = "Radar On"

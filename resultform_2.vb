@@ -21,14 +21,23 @@
             If sender.name = "nb" Then swap_phasing_player(True)
             button_press = sender.text
             Me.Close()
-        ElseIf Me.Tag = "firing" Then
-            If InStr(result_option, sender.text) = 0 Then
+        ElseIf Me.Tag = "firing" And (sender.name = "yb" Or sender.name = "nb") Then
+            If sender.backcolor = defa Then
                 sender.backcolor = golden
                 result_option = result_option + sender.text
-            ElseIf InStr(result_option, sender.text) > 0 And sender.backcolor = golden Then
+                If sender.name = "yb" Then
+                    hvy1.Visible = combat_2.firer.hvy_loss(True)
+                Else
+                    hvy2.Visible = combat_2.target.hvy_loss(True)
+                End If
+            Else
                 sender.backcolor = defa
                 result_option = Replace(result_option, sender.text, "")
-            Else
+                If sender.name = "yb" Then
+                    hvy1.Visible = combat_2.firer.hvy_loss(False)
+                Else
+                    hvy2.Visible = combat_2.target.hvy_loss(False)
+                End If
             End If
             button_press = sender.text
         Else
@@ -42,7 +51,7 @@
             End If
             button_press = sender.text
         End If
-        result_option = Me.Tag
+        'result_option = Me.Tag
     End Sub
 
     Private Sub resultform_Closed(sender As Object, e As EventArgs) Handles Me.Closed

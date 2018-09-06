@@ -1,14 +1,7 @@
 ﻿Public Class morale_test
     Public rally_ends As Boolean = False, rallied As Boolean = False, tester As cunit, immediate As Boolean, modifier As Integer = 0, rallying As Boolean
-    Private Sub select_modifiers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles disrupted_this_turn.Click, hq_in_sight.Click, nuclear.Click, friends_in_sight.Click, chemical.Click, disrupted.Click, halfstrength.Click, en_visible.Click, hvy_loss.Click
+    Private Sub select_modifiers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles hq_in_sight.Click, nuclear.Click, friends_in_sight.Click, chemical.Click, en_visible.Click
         If sender.backcolor = golden Then sender.backcolor = defa Else sender.backcolor = golden
-        If sender.name = "disrupted" Then
-            If sender.backcolor = golden Then tester.disrupted = True Else tester.disrupted = False
-        ElseIf sender.name = "halfstrength" Then
-            If sender.backcolor = golden Then tester.halfstrength = True Else tester.halfstrength = False
-        Else
-        End If
-
     End Sub
 
     Private Sub disrupted_friends_Click(sender As Object, e As EventArgs) Handles disrupted_friends.Click
@@ -37,27 +30,37 @@
             Else
             End If
         Next
-        If tester.halfstrength And rallying Then modifier = modifier + 1
-        r = " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "X" + Trim(Str(tester.quality)) + "] "
+        If tester.disrupted Then modifier = modifier + 2
+        If tester.disrupted_gt Then modifier = modifier + 2
+        If tester.halfstrength Then modifier = modifier + 1
+        If rallying And tester.halfstrength And rallying Then modifier = modifier + 2
+        If tester.casualties > 3 Then modifier = modifier + 2
+        r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "X" + Trim(Str(tester.quality)) + "] "
         result = dice + modifier - tester.quality
         If result < 0 Then
             r = Replace(r, "X", "<")
             test_result.Text = tester.title + " has passed its Morale Test" + r
-            If rallying And disrupted.BackColor = golden Then
+            If rallying And tester.disrupted Then
                 test_result.Text = test_result.Text + " and has rallied from being disrupted"
+                tester.disrupted = False
+                tester.mode = disp
             End If
-        ElseIf result < 4 And disrupted.BackColor = golden Then
+        ElseIf result < 4 And tester.disrupted Then
             r = Replace(r, "X", ">=")
-            test_result.Text = tester.title + IIf(rallying, " has failed its Morale Test to rally and ", "") + r + " remains disrupted"
+            test_result.Text = tester.title + IIf(rallying, " has failed its Morale Test to rally and ", "") + " remains disrupted" + r
         ElseIf result >= 5 Then
             r = Replace(r, "X", "<")
-            test_result.Text = tester.title + " has failed its Morale Test and surrenders." + r
+            test_result.Text = tester.title + " has failed its Morale Test and surrenders. Remove the unit from the table. " + r
+            tester.strength = 0
         ElseIf result = 0 Then
             r = Replace(r, "X", "=")
             test_result.Text = tester.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
+            tester.mode = disp
         ElseIf result <= 4 Then
             r = Replace(r, "X", "<")
-            test_result.Text = tester.title + " has failed its Morale Test and is disrupted." + r
+            test_result.Text = tester.title + " has failed its Morale Test and is now disrupted. " + r
+            tester.disrupted = True
+            tester.disrupted_gt = True
         Else
         End If
         test_result.Visible = True
@@ -95,10 +98,6 @@
         Else
             en_visible.Text = ""
             en_visible.Enabled = False
-        End If
-        If immediate Then
-            hvy_loss.BackColor = golden
-            hvy_loss.Enabled = False
         End If
         ok_button.Visible = False
     End Sub

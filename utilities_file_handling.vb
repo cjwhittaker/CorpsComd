@@ -47,7 +47,9 @@
                 "is not valid and will be skipped.")
             End Try
         End While
-
+        For Each u As cunit In orbat
+            If u.comd = 0 Then u.role = "|" + eq_list(u.equipment).role + "|"
+        Next
     End Sub
     Public Sub save_orbat()
         If IsNothing(orbat) Then Exit Sub

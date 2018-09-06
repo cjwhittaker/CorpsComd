@@ -108,7 +108,7 @@
             resultform_2.ShowDialog()
             If units.Items.Count = 0 Then Me.Hide()
         ElseIf Me.Tag = "Opportunity Fire" Then
-            With combat
+            With combat_2
                 .Tag = Me.Tag
                 .firer = New cunit
                 .firer = subject
@@ -130,29 +130,29 @@
         ElseIf Me.Tag = "SEAD" Then
             If subject.strength > 0 And Not subject.disrupted Then
                 oppfire = False
-                With combat
+                With combat_2
                     .Tag = "SEAD"
                     .firer = New cunit
                     .firer = subject
                     .combatmode = subject.nation + " SEAD Combat"
-                    '.title.Text = combat.combatmode
+                    '.title.Text = combat_2.combatmode
                     .ShowDialog()
                 End With
                 If orbat(units.Items(i).Text).fires Then units.Items(i).Remove()
             End If
         ElseIf Me.Tag = "CAP Missions" Or Me.Tag = "Intercept" Then
-            If combat.targets.Items.Count = 0 Then Exit Sub
+            If combat_2.targets.Items.Count = 0 Then Exit Sub
             If subject.pass_quality_test(0) Then
-                With combat
+                With combat_2
                     .Tag = IIf(Me.Tag = "Intercept", "Intercept", "CAP")
                     .firer = New cunit
                     .firer = subject
                     .combatmode = IIf(Me.Tag = "Intercept", "CAP Intercept Combat", "Simultaneous CAP Combat")
-                    ' .title.Text = combat.combatmode
+                    ' .title.Text = combat_2.combatmode
                     .ShowDialog()
                 End With
                 If orbat(units.Items(i).Text).fires Or Not orbat(units.Items(i).Text).airborne Then units.Items(i).Remove()
-                If combat.targets.Items.Count = 0 Then Me.Hide()
+                If combat_2.targets.Items.Count = 0 Then Me.Hide()
             Else
                 With resultform_2
                     .result.Text = orbat(units.Items(i).Text).title + "(" + orbat(units.Items(i).Text).equipment + ")" + " failed to intercept and has aborted"
@@ -182,12 +182,12 @@
                 subject.lands(False)
             Else
                 oppfire = False
-                With combat
+                With combat_2
                     .Tag = "Air Ground"
                     .firer = New cunit
                     .firer = subject
                     .combatmode = subject.nation + " Air Ground Combat"
-                    '.title.Text = combat.combatmode
+                    '.title.Text = combat_2.combatmode
                     .ShowDialog()
                 End With
                 For Each ac As ListViewItem In groundair.units.Items
@@ -220,7 +220,7 @@
 
         ElseIf InStr(Me.Tag, "Air Defence") > 0 Then
             If units.Items(i).BackColor = no_action_pts Then Exit Sub
-            With combat
+            With combat_2
                 .Tag = "Air Defence"
                 .firer = New cunit
                 .firer = subject
@@ -246,7 +246,7 @@
             Else
                 movement.observing = True
                 movement.mover.loaded = units.Items(i).Text
-                'combat.observer.Text = units.Items(i).Text
+                'combat_2.observer.Text = units.Items(i).Text
                 Me.Hide()
             End If
         ElseIf Me.Tag = "Call for Fire" Then

@@ -1,14 +1,13 @@
 ﻿Module utilities_firing
-    Public Sub resolvefire(ByVal firer As cunit, ByVal target As cunit, ByVal firephase As String)
+    Public Sub resolvefire(ByVal firer As cunit, ByVal target As cunit)
         Dim unobserved As Boolean = False
         Dim airtoair As Boolean = False
-        firer.phase = firephase
-        If firer.phase = "Air-to-Air" Then airtoair = True
+        If combat_2.firingmode.Text = "Air-to-Air" Then airtoair = True
         'Dim spotrange As Integer
         firer.set_fire_parameters()
         target.set_fire_parameters()
 
-        Dim tgtrange As Integer = Val(combat.tgt_range.Text)
+        Dim tgtrange As Integer = Val(combat_2.tgt_range.Text)
         If target.firers > 0 Then
             target.fires = True
         Else
@@ -38,7 +37,7 @@
         End If
 
         If Not firer.effective And Not target.effective Then
-            If firephase = "Air Defence" Or target.heli Then
+            If combat_2.firingmode.Text = "Air Defence" Or target.heli Then
                 If firer.effect = -1 Then
                     resultform_2.result.Text = "Air Defence unit cannot engage - Radar off"
                 ElseIf firer.effect = -2 Then
@@ -53,7 +52,7 @@
             Else
             End If
             resultform_2.ShowDialog()
-            combat.Hide()
+            combat_2.Hide()
             Exit Sub
         End If
 
@@ -61,10 +60,10 @@
         'firer.fired = gt
         'If target.fires Then target.fired = gt
 
-        If firephase = "CAP" Or firephase = "Intercept" Then
+        If combat_2.firingmode.Text = "CAP" Or combat_2.firingmode.Text = "Intercept" Then
             init_msg = "Air-to-Air combat Result "
             For i As Integer = 1 To 3
-                If firephase = "Intercept" And i = 1 Then i = 2
+                If combat_2.firingmode.Text = "Intercept" And i = 1 Then i = 2
                 firer.set_fire_effect(target, tgtrange, i)
                 If firer.effect > 0 Then firer.result = firecasualties(firer, target, tgtrange, False)
                 If firer.result < 0 Then target.aborts = target.aborts + 1 : target.hits = target.hits + 1 : firer.result = 0
@@ -76,24 +75,24 @@
                     If target.result > 0 Then firer.casualties = firer.casualties + target.result : firer.hits = firer.hits + target.result : target.result = 0
                 End If
             Next
-            firer.msg = firer.equipment + " fired at " + target.equipment + generateresult(target, firer.result, False, airtoair, False)
-            If target.fires Then target.msg = target.equipment + " fired at " + firer.equipment + generateresult(firer, target.result, False, airtoair, False)
+            firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, False, airtoair, False)
+            If target.fires Then target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
 
-        ElseIf firephase = "Air Defence" Or target.heli Then
+        ElseIf combat_2.firingmode.Text = "Air Defence" Or target.heli Then
             init_msg = "Air Defence Result "
             firer.result = firecasualties(firer, target, tgtrange, True)
             If firer.result < 0 Then target.aborts = target.aborts + 1 : target.hits = target.hits + 1 : firer.result = 0
             If firer.result > 0 Then target.casualties = target.casualties + firer.result : target.hits = target.hits + firer.result : firer.result = 0
-            firer.msg = firer.equipment + " fired at " + target.equipment + generateresult(target, firer.result, False, True, False)
+            firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, False, True, False)
             'SEAD attack returns fire
             If target.fires And phase = 10 Then
                 target.result = firecasualties(target, firer, tgtrange, False)
-                target.msg = target.equipment + "(" + target.equipment + ")" + " fired at " + firer.equipment + generateresult(firer, target.result, False, False, False)
+                target.msg = target.title + "(" + target.title + ")" + " fired at " + firer.title + generateresult(firer, target.result, False, False, False)
             End If
-        ElseIf firephase = "SEAD" Then
+        ElseIf combat_2.firingmode.Text = "SEAD" Then
             init_msg = "SEAD Attack Result "
             firer.result = firecasualties(firer, target, tgtrange, True)
-            firer.msg = firer.equipment + " fired at " + target.equipment + generateresult(target, firer.result, firer.indirect, False, False)
+            firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, firer.indirect, False, False)
         ElseIf firer.indirect Or firer.Airground Then
             If firer.indirect And unobserved Then
                 init_msg = "Unobserved Indirect Fire "
@@ -104,48 +103,50 @@
             End If
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
             If firer.heavy_fire And firer.result <> 0 Then target.statusimpact = 1
-            firer.msg = firer.equipment + " fired at " + target.equipment + generateresult(target, firer.result, True, False, False)
+            firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, True, False, False)
         ElseIf oppfire Then
             init_msg = "Opportunity Fire "
-            If oppfire Then init_msg = firer.equipment + " conducts opportunity fire against " + target.equipment
+            If oppfire Then init_msg = firer.title + " conducts opportunity fire against " + target.title
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
-            firer.msg = target.equipment + " " + generateresult(target, firer.result, firer.indirect, airtoair, False)
+            firer.msg = target.title + " " + generateresult(target, firer.result, firer.indirect, airtoair, False)
             target.msg = ""
         Else
-            init_msg = "Simultaneous firefight "
+            init_msg = "Direct Fire "
             If firer.effective Then firer.result = firecasualties(firer, target, tgtrange, unobserved)
             If target.fires And target.effective Then target.result = firecasualties(target, firer, tgtrange, unobserved)
-            firer.msg = firer.equipment + " fired at " + target.equipment + generateresult(target, firer.result, firer.indirect, airtoair, False)
+            firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, firer.indirect, airtoair, False)
             If target.fires And target.effective Then
-                target.msg = target.equipment + " fired at " + firer.equipment + generateresult(firer, target.result, False, airtoair, False)
+                target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
             End If
         End If
         result_option = ""
+        Dim f As Boolean = firer.hvy_loss(False) And Not firer.destroyed, t As Boolean = (target.hvy_loss(False) And Not target.destroyed) Or (Not target.destroyed And firer.heavy_fire)
         With resultform_2
             .result.Text = "Results" + vbNewLine + init_msg + vbNewLine + firer.msg + vbNewLine + target.msg
             .Tag = "firing"
             .ok_button.Visible = True
-            .yb.Visible = IIf(InStr(target.msg, "disperse") > 0, True, False)
-            .yb.Text = "Disperse " + firer.equipment
-            .hvy1.Visible = True
-            .hvy1.Text = "Hvy Loss " + firer.equipment
-            .hvy1.BackColor = IIf((firer.hits = 4 And firer.mode = disp) Or firer.hits > 4, golden, defa)
-            .hvy1.Enabled = IIf(.hvy1.BackColor = golden, False, True)
-            .nb.Visible = IIf(InStr(firer.msg, "disperse") > 0, True, False)
-            .nb.Text = "Disperse " + target.equipment
-            .hvy2.Visible = True
-            .hvy2.Text = "Hvy Loss" + target.equipment
-            .hvy2.BackColor = IIf((target.hits = 4 And target.mode = disp) Or target.hits > 4, golden, defa)
-            .hvy2.Enabled = IIf(.hvy2.BackColor = golden, False, True)
+            .yb.Text = "Disperse Firer"
+            .yb.Visible = IIf(InStr(target.msg, "disperse") > 0 And Not firer.destroyed, True, False)
+            .hvy1.Text = "Hvy Loss Firer"
+            .hvy1.Visible = IIf(f, True, False)
+            .hvy1.BackColor = IIf(f, golden, defa)
+            .hvy1.Enabled = IIf(f, False, True)
+            .nb.Text = "Disperse Target"
+            .nb.Visible = IIf(InStr(firer.msg, "disperse") > 0 And Not target.destroyed, True, False)
+            .hvy2.Text = "Hvy Loss Target"
+            .hvy2.Visible = IIf(t, True, False)
+            .hvy2.BackColor = IIf(t, golden, defa)
+            .hvy2.Enabled = IIf(t, False, True)
             .ShowDialog()
             .yb.Text = "Yes"
             .nb.Text = "No"
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If (firer.hits = 4 And firer.mode = conc And InStr(result_option, "Hvy Loss " + firer.equipment) = 0) _
-            Or (firer.hits = 4 And firer.mode = disp) Or firer.hits > 4 _
-            Or (InStr(result_option, "Hvy Loss " + firer.equipment) > 0) Then
+        If InStr(result_option, "Disperse Firer") > 0 Then firer.casualties = firer.casualties - 1 : firer.hits = firer.hits - 1
+        If InStr(result_option, "Disperse Target") > 0 Then target.casualties = target.casualties - 1 : target.hits = target.hits - 1
+
+        If f Then
             With morale_test
                 .tester = firer
                 .immediate = True
@@ -153,12 +154,11 @@
                 .ShowDialog()
             End With
         End If
-        If (target.hits = 4 And target.mode = conc And InStr(result_option, "Hvy Loss " + target.equipment) = 0) _
-            Or (target.hits = 4 And target.mode = disp) Or target.hits > 4 _
-            Or (InStr(result_option, "Hvy Loss " + target.equipment) > 0) Then
+        If t Then
             With morale_test
                 .tester = target
                 .immediate = True
+                .rallying = False
                 .ShowDialog()
             End With
         End If
@@ -216,7 +216,7 @@
         Else
         End If
 
-        Dim smoked As Boolean = IIf(combat.tinsmoke.BackColor = golden Or combat.finsmoke.BackColor = golden, True, False)
+        Dim smoked As Boolean = IIf(combat_2.tinsmoke.BackColor = golden Or combat_2.finsmoke.BackColor = golden, True, False)
         If night Then
             om = 1
         ElseIf twilight Then
@@ -232,11 +232,11 @@
         End If
         If smoked And InStr(LCase(eq_list(spotter.equipment).special), "t") = 0 Then om = om - 4
         If spotter.elevated Then om = om + 1
-        If spotter.moved Then om = om - 1
+        If spotter.has_moved Then om = om - 1
         If spotter.mode = travel Then om = om - 1
         If spotter.task <> "FFE" Then
             If target.fired Then om = om + 2
-            If target.moved Then om = om + 1
+            If target.has_moved Then om = om + 1
             If target.roadmove And Not target.mode = disp Then om = om + 1
             If target.plains Then om = om + 1
         End If
@@ -257,8 +257,8 @@
         firecasualties = 0
         Dim airtoair As Boolean = firer.airborne And target.airborne
         Dim airdefence As Boolean = firer.airdefence And target.airborne
-        Dim directfire As Boolean = IIf(firer.phase = "Direct Fire", True, False)
-        Dim indirectfire As Boolean = IIf(firer.phase = "Indirect Fire", True, False)
+        Dim directfire As Boolean = IIf(combat_2.firingmode.Text = "Direct Fire", True, False)
+        Dim indirectfire As Boolean = IIf(combat_2.firingmode.Text = "Indirect Fire", True, False)
 
         Dim modifiers As Integer = 0, col As Integer = 0, row As Integer = 0, dice As Integer = 0, fv As Integer = 0, fire_effect As Integer = 0, fire_strength As Integer = 0
         Dim airground As Boolean = firer.Airground
@@ -272,7 +272,7 @@
         Else
             defence = eq_list(target.equipment).defence
         End If
-        If firer.phase = "SEAD" Then
+        If combat_2.firingmode.Text = "SEAD" Then
             directfire = True
             modifiers = modifiers - target.modifier
         End If
@@ -303,12 +303,12 @@
             If firer.heat And target.composite Then modifiers = modifiers - 2
             If firer.heat And target.spaced Then modifiers = modifiers - 1
             If firer.mode = travel Then firer.firers = 1
-            If combat.firingmode.Text = "Half Fire" And firer.stabilised Then modifiers = modifiers - 1
-            If combat.firingmode.Text = "Half Fire" And Not firer.stabilised Then modifiers = modifiers - 2
+            If combat_2.firingmode.Text = "Half Fire" And firer.stabilised Then modifiers = modifiers - 1
+            If combat_2.firingmode.Text = "Half Fire" And Not firer.stabilised Then modifiers = modifiers - 2
             If target.mode <> disp And target.plains Then modifiers = modifiers + 2
         End If
         If indirectfire Then
-            If firer.moved Then modifiers = modifiers - 1
+            If firer.has_moved Then modifiers = modifiers - 1
             If firer.bomblets Then modifiers = modifiers + 2
             If unobserved Then modifiers = modifiers - 2
             If target.mode <> disp And target.plains Then modifiers = modifiers + 1
@@ -393,7 +393,7 @@
             If Not (target.assault Or target.support) And target.strength > 0 Then
                 generateresult = " disrupted, and suffered  " + Str(target.casualties) + " casualties, and must retreat 600m"
             ElseIf Not (target.assault Or target.support) And target.strength = 0 Then
-                generateresult = " eliminated  "
+                generateresult = " destroyed  "
             Else
                 generateresult = " disrupted, and suffered  " + Str(target.casualties) + " casualties, and holds its current position"
             End If
@@ -405,21 +405,31 @@
             'ElseIf target.airborne Then
             '    generateresult = " with " + Str(c) + " aircraft shot down"
             '    target.casualties = target.casualties + c
-        ElseIf (target.mode = disp And c < 0) Then
+        ElseIf target.mode = disp And c < 0 Then
             generateresult = " with no effect"
             target.hits = 0
         ElseIf target.mode = disp Then
-            generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties")
-            If c >= 2 Then target.disordered = True
-            target.casualties = target.casualties + c
-            target.hits = target.hits + c
+            If target.strength - c <= 0 Then
+                generateresult = " which has been destroyed"
+            Else
+                generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties")
+                'If c >= 2 Then target.disrupted_gt = True
+                target.casualties = target.casualties + c
+                target.hits = target.hits + c
+            End If
         ElseIf target.mode <> disp And c < 0 Then
             generateresult = " with no casualties but which must disperse or accept 1 casualty"
             target.hits = 1
         Else
-            generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties") + " which may now disperse"
+            If target.strength - c + 1 <= 0 Then
+                generateresult = " which has been destroyed"
+            Else
+                generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties") + " which may now disperse"
+            End If
             target.hits = target.hits + c
+            target.casualties = target.casualties + c
         End If
+
     End Function
 
     Public Sub applyresult(ByVal subject As cunit)

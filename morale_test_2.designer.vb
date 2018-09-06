@@ -31,12 +31,8 @@ Partial Class morale_test
         Me.hq_in_sight = New System.Windows.Forms.Label()
         Me.test_result = New System.Windows.Forms.Label()
         Me.nuclear = New System.Windows.Forms.Label()
-        Me.disrupted = New System.Windows.Forms.Label()
-        Me.halfstrength = New System.Windows.Forms.Label()
         Me.disrupted_friends = New System.Windows.Forms.Label()
         Me.en_visible = New System.Windows.Forms.Label()
-        Me.disrupted_this_turn = New System.Windows.Forms.Label()
-        Me.hvy_loss = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'subject
@@ -57,7 +53,7 @@ Partial Class morale_test
         Me.chemical.BackColor = System.Drawing.SystemColors.ControlLight
         Me.chemical.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.chemical.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.chemical.Location = New System.Drawing.Point(95, 371)
+        Me.chemical.Location = New System.Drawing.Point(95, 216)
         Me.chemical.Name = "chemical"
         Me.chemical.Size = New System.Drawing.Size(300, 33)
         Me.chemical.TabIndex = 13
@@ -68,7 +64,7 @@ Partial Class morale_test
         'get_result
         '
         Me.get_result.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.get_result.Location = New System.Drawing.Point(139, 449)
+        Me.get_result.Location = New System.Drawing.Point(141, 321)
         Me.get_result.Name = "get_result"
         Me.get_result.Size = New System.Drawing.Size(211, 40)
         Me.get_result.TabIndex = 14
@@ -78,7 +74,7 @@ Partial Class morale_test
         'ok_button
         '
         Me.ok_button.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ok_button.Location = New System.Drawing.Point(410, 565)
+        Me.ok_button.Location = New System.Drawing.Point(410, 549)
         Me.ok_button.Name = "ok_button"
         Me.ok_button.Size = New System.Drawing.Size(51, 40)
         Me.ok_button.TabIndex = 14
@@ -117,9 +113,9 @@ Partial Class morale_test
         Me.test_result.BackColor = System.Drawing.Color.White
         Me.test_result.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.test_result.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.test_result.Location = New System.Drawing.Point(95, 495)
+        Me.test_result.Location = New System.Drawing.Point(95, 390)
         Me.test_result.Name = "test_result"
-        Me.test_result.Size = New System.Drawing.Size(300, 110)
+        Me.test_result.Size = New System.Drawing.Size(300, 149)
         Me.test_result.TabIndex = 41
         Me.test_result.Tag = ""
         Me.test_result.Text = "result"
@@ -131,39 +127,13 @@ Partial Class morale_test
         Me.nuclear.BackColor = System.Drawing.SystemColors.ControlLight
         Me.nuclear.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.nuclear.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.nuclear.Location = New System.Drawing.Point(95, 410)
+        Me.nuclear.Location = New System.Drawing.Point(95, 255)
         Me.nuclear.Name = "nuclear"
         Me.nuclear.Size = New System.Drawing.Size(300, 33)
         Me.nuclear.TabIndex = 40
         Me.nuclear.Tag = "3"
         Me.nuclear.Text = "Nuclear Attack"
         Me.nuclear.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'disrupted
-        '
-        Me.disrupted.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.disrupted.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.disrupted.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.disrupted.Location = New System.Drawing.Point(95, 293)
-        Me.disrupted.Name = "disrupted"
-        Me.disrupted.Size = New System.Drawing.Size(300, 33)
-        Me.disrupted.TabIndex = 42
-        Me.disrupted.Tag = "2"
-        Me.disrupted.Text = "Tester is Disrupted"
-        Me.disrupted.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'halfstrength
-        '
-        Me.halfstrength.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.halfstrength.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.halfstrength.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.halfstrength.Location = New System.Drawing.Point(95, 254)
-        Me.halfstrength.Name = "halfstrength"
-        Me.halfstrength.Size = New System.Drawing.Size(300, 33)
-        Me.halfstrength.TabIndex = 43
-        Me.halfstrength.Tag = "1"
-        Me.halfstrength.Text = "Tester is at Half Strength"
-        Me.halfstrength.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'disrupted_friends
         '
@@ -191,45 +161,15 @@ Partial Class morale_test
         Me.en_visible.Text = "tester dependant"
         Me.en_visible.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'disrupted_this_turn
-        '
-        Me.disrupted_this_turn.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.disrupted_this_turn.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.disrupted_this_turn.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.disrupted_this_turn.Location = New System.Drawing.Point(95, 332)
-        Me.disrupted_this_turn.Name = "disrupted_this_turn"
-        Me.disrupted_this_turn.Size = New System.Drawing.Size(300, 33)
-        Me.disrupted_this_turn.TabIndex = 45
-        Me.disrupted_this_turn.Tag = "2"
-        Me.disrupted_this_turn.Text = "Tester Disrupted this Turn"
-        Me.disrupted_this_turn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'hvy_loss
-        '
-        Me.hvy_loss.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.hvy_loss.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.hvy_loss.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.hvy_loss.Location = New System.Drawing.Point(95, 215)
-        Me.hvy_loss.Name = "hvy_loss"
-        Me.hvy_loss.Size = New System.Drawing.Size(300, 33)
-        Me.hvy_loss.TabIndex = 43
-        Me.hvy_loss.Tag = "1"
-        Me.hvy_loss.Text = "Tester took >3 losses"
-        Me.hvy_loss.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
         'morale_test
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(473, 624)
-        Me.Controls.Add(Me.disrupted_this_turn)
+        Me.ClientSize = New System.Drawing.Size(473, 601)
         Me.Controls.Add(Me.disrupted_friends)
         Me.Controls.Add(Me.en_visible)
-        Me.Controls.Add(Me.hvy_loss)
-        Me.Controls.Add(Me.halfstrength)
-        Me.Controls.Add(Me.disrupted)
         Me.Controls.Add(Me.test_result)
         Me.Controls.Add(Me.nuclear)
         Me.Controls.Add(Me.hq_in_sight)
@@ -252,10 +192,6 @@ Partial Class morale_test
     Friend WithEvents hq_in_sight As System.Windows.Forms.Label
     Friend WithEvents test_result As System.Windows.Forms.Label
     Friend WithEvents nuclear As System.Windows.Forms.Label
-    Friend WithEvents disrupted As Label
-    Friend WithEvents halfstrength As Label
     Friend WithEvents disrupted_friends As Label
     Friend WithEvents en_visible As Label
-    Friend WithEvents disrupted_this_turn As Label
-    Friend WithEvents hvy_loss As Label
 End Class

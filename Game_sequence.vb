@@ -22,6 +22,7 @@
         p2_Units = New Collection
         oppfire = False
         For Each u As cunit In orbat
+            If u.comd = 0 Then u.firers_available = u.strength
             If u.nation = scenariodefaults.player1.Text Then
                 p1_orbat.Add(u, u.title)
                 If u.comd > 0 Then p1_hqs.Add(u, u.title) Else p1_units.Add(u, u.title)
@@ -34,9 +35,11 @@
                     .hits = 0
                     .aborts = 0
                     .casualties = 0
-                    .sorties = IIf(.Aircraft And .sorties > 0, .sorties - 1, .sorties)
+                    .sorties = IIf(.aircraft And .sorties > 0, .sorties - 1, .sorties)
+                    .disrupted_gt = False
                 End With
             End If
+
         Next
         If phase <> 0 Then swap_phasing_player(False)
 
@@ -125,11 +128,11 @@
         Next
     End Sub
     Public Sub direct_fire_phase(firer As String, target As String)
-        combat.targets.Items.Clear()
-        combat.firers.Items.Clear()
-        populate_lists(combat.targets, orbat, "Ground Targets", target)
-        populate_lists(combat.firers, orbat, "Direct Fire", firer)
-        With combat
+        combat_2.targets.Items.Clear()
+        combat_2.firers.Items.Clear()
+        populate_lists(combat_2.targets, enemy, "Ground Targets", target)
+        populate_lists(combat_2.firers, ph_units, "Direct Fire", firer)
+        With combat_2
             .enable_controls()
             .observation(False)
             .Tag = "Direct Fire"
@@ -215,8 +218,8 @@
                 unit_selection.Tag = "CAP Missions"
                 populate_lists(unit_selection.units, ph_units, "CAP Missions", "")
                 If unit_selection.units.Items.Count > 0 Then
-                    populate_lists(combat.targets, enemy, "CAP Targets", "")
-                    If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+                    populate_lists(combat_2.targets, enemy, "CAP Targets", "")
+                    If combat_2.targets.Items.Count > 0 Then unit_selection.ShowDialog()
                 End If
                 swap_phasing_player(True)
             Next
@@ -228,8 +231,8 @@
             If cap_result = "nph intercept" Then swap_phasing_player(True)
             populate_lists(unit_selection.units, ph_units, "Intercept", "")
             If unit_selection.units.Items.Count > 0 Then
-                populate_lists(combat.targets, enemy, "Air to Air", "")
-                If combat.targets.Items.Count > 0 Then
+                populate_lists(combat_2.targets, enemy, "Air to Air", "")
+                If combat_2.targets.Items.Count > 0 Then
                     With unit_selection
                         .Tag = "Intercept"
                         .ShowDialog()
@@ -267,7 +270,7 @@
         For i As Integer = 1 To 2
             populate_lists(airground.units, ph_units, "SEAD", "")
             If airground.units.Items.Count > 0 Then
-                populate_lists(combat.targets, enemy, "SEAD Targets", "")
+                populate_lists(combat_2.targets, enemy, "SEAD Targets", "")
                 populate_lists(groundair.units, enemy, "Air Defence", "")
                 With airground
                     .Tag = "SEAD"
@@ -277,8 +280,8 @@
 
             'populate_lists(unit_selection.units, ph_units, "SEAD", "")
             'If unit_selection.units.Items.Count > 0 Then
-            '    populate_lists(combat.targets, enemy, "SEAD Targets", "")
-            '    If combat.targets.Items.Count > 0 Then unit_selection.ShowDialog()
+            '    populate_lists(combat_2.targets, enemy, "SEAD Targets", "")
+            '    If combat_2.targets.Items.Count > 0 Then unit_selection.ShowDialog()
             'End If
             swap_phasing_player(True)
         Next
@@ -288,7 +291,7 @@
         For i As Integer = 1 To 2
             populate_lists(airground.units, ph_units, "Air Ground", "")
             If airground.units.Items.Count > 0 Then
-                populate_lists(combat.targets, enemy, "Ground Targets", "")
+                populate_lists(combat_2.targets, enemy, "Ground Targets", "")
                 populate_lists(groundair.units, enemy, "Air Defence", "")
                 With airground
                     .Tag = "Air Ground"
@@ -308,7 +311,7 @@
         'area fire phase
         For i As Integer = 1 To 2
             If arty_fire_mission("AF", ph_units) Then
-                populate_lists(combat.targets, enemy, "Ground Targets", "")
+                populate_lists(combat_2.targets, enemy, "Ground Targets", "")
                 With movement
                     .Text = "Area Fire Artillery Phase for " + ph + " - Game Turn " + Str(gt)
                     .current_phase.Text = movement.Text
@@ -339,7 +342,7 @@
         For i As Integer = 1 To 2
             If cb_capable(ph_hqs) And cb_targets(enemy) Then
                 If arty_fire_mission("CB", ph_units) Then
-                    populate_lists(combat.targets, enemy, "CB Targets", "")
+                    populate_lists(combat_2.targets, enemy, "CB Targets", "")
                     With movement
                         .Text = "Counter Battery Artillery Phase for " + ph + " - Game Turn " + Str(gt)
                         .current_phase.Text = movement.Text
@@ -358,7 +361,7 @@
             For Each u As cunit In orbat
                 If u.comd = 0 Then u.reset_fire_phase(ph)
             Next
-            populate_lists(combat.targets, enemy, "Ground Targets", "")
+            populate_lists(combat_2.targets, enemy, "Ground Targets", "")
             For Each u As cunit In ph_units
                 If Not u.has_moved Then u.moving = False
             Next

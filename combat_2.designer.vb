@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class combat
+Partial Class combat_2
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -22,7 +22,7 @@ Partial Class combat
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(combat))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(combat_2))
         Me.Label2 = New System.Windows.Forms.Label()
         Me.firercover = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
@@ -82,6 +82,7 @@ Partial Class combat
         Me.Label4 = New System.Windows.Forms.Label()
         Me.return_fire = New System.Windows.Forms.Label()
         Me.Panel3 = New System.Windows.Forms.Panel()
+        Me.swap = New System.Windows.Forms.Button()
         Me.Panel1.SuspendLayout()
         Me.Panel2.SuspendLayout()
         Me.Panel3.SuspendLayout()
@@ -789,6 +790,7 @@ Partial Class combat
         'Panel3
         '
         Me.Panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.Panel3.Controls.Add(Me.swap)
         Me.Panel3.Controls.Add(Me.tgt_range_select)
         Me.Panel3.Controls.Add(Me.tgt_range)
         Me.Panel3.Controls.Add(Me.return_fire)
@@ -801,7 +803,17 @@ Partial Class combat
         Me.Panel3.Size = New System.Drawing.Size(223, 638)
         Me.Panel3.TabIndex = 83
         '
-        'combat
+        'swap
+        '
+        Me.swap.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.swap.Location = New System.Drawing.Point(27, 575)
+        Me.swap.Name = "swap"
+        Me.swap.Size = New System.Drawing.Size(165, 34)
+        Me.swap.TabIndex = 86
+        Me.swap.Text = "Swap"
+        Me.swap.UseVisualStyleBackColor = True
+        '
+        'combat_2
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -812,7 +824,7 @@ Partial Class combat
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.Panel1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
-        Me.Name = "combat"
+        Me.Name = "combat_2"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Firing"
@@ -883,4 +895,5 @@ Partial Class combat
     Friend WithEvents Label3 As Label
     Friend WithEvents t_wpn As Label
     Friend WithEvents Label8 As Label
+    Friend WithEvents swap As Button
 End Class

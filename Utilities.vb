@@ -407,10 +407,10 @@
     '        If oppfire And (movement.tactical = 0 Or movement.tactical = 2) And (target.smoke_discharger Or target.smoke_generator) Then modifiers = modifiers - 1
     '        If oppfire And movement.tactical >= 4 And target.smoke_discharger Then modifiers = modifiers - 1
     '        modifiers = modifiers + target.size
-    '        If firer.disordered Then modifiers = modifiers - 2
+    '        If firer.disrupted_gt Then modifiers = modifiers - 2
     '        If firer.insmoke Then modifiers = modifiers - 2
     '        If target.insmoke Then modifiers = modifiers - 2
-    '        If firer.mode = travel Then firer.no_of_units = 1
+    '        If firer.mode = travel Then firer.firers_available = 1
     '        If firer.heat And target.composite Then modifiers = modifiers - 2
     '        If firer.heat And target.spaced Then modifiers = modifiers - 1
     '        If Not firer.indirect And firer.moving And Not firer.stabilised Then modifiers = modifiers - 4
@@ -506,7 +506,7 @@
     '        target.hits = target.hits + 1
     '    ElseIf target.mode = disp Then
     '        generateresult = " with" + Str(c) + IIf(c = 1, " casualty", " casualties")
-    '        If c >= 2 Then target.disordered = True
+    '        If c >= 2 Then target.disrupted_gt = True
     '        target.casualties = target.casualties + c
     '        target.hits = target.hits + c
     '    ElseIf target.mode <> disp And c < 0 Then
@@ -554,25 +554,19 @@
 
     Public Sub check_demoralisation(ByVal candidates As Collection, ByVal x As String, ByVal y As String)
         Randomize()
-        Dim disrupted As Integer = 0, disordered As Integer = 0, destroyed As Integer = 0, totalunits As Integer = 0
+        Dim disrupted As Integer = 0, destroyed As Integer = 0, totalunits As Integer = 0
         For Each temp As cunit In candidates
             If temp.parent = x And temp.comd = 0 Then
                 totalunits = totalunits + temp.initial
                 destroyed = destroyed + (temp.initial - temp.strength)
                 If temp.disrupted Then
                     disrupted = disrupted + temp.strength
-                ElseIf temp.disordered Then
-                    disordered = disordered + temp.strength
-                    'ElseIf temp.pinned Then
-                    '    pinned = pinned + temp.strength
-                Else
                 End If
             End If
         Next
         Dim percentdisrupted As Single = (disrupted + destroyed) / totalunits
-        Dim percentdisrupteddisordered As Single = (disrupted + disordered + destroyed) / totalunits
         Dim d As Integer = d10()
-        If d > y And (percentdisrupted >= 0.333 Or percentdisrupteddisordered >= 0.5) Then
+        If d > y And percentdisrupted >= 0.333 Then
             With resultform_2
                 .result.Text = parent(candidates, x)
                 .ShowDialog()

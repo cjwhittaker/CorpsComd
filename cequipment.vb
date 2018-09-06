@@ -334,31 +334,6 @@
             air_to_air_effect = cannon
         End If
     End Function
-    Public Function troopcarrier() As Boolean
-        troopcarrier = False
-        If InStr("|MICV|APC|", role) > 0 Then troopcarrier = True
-    End Function
-    Public Function aircraft()
-        aircraft = False
-        If InStr("|AC|AH|OH|TB|AD|GA|AWACS|EW|", role) > 0 Then aircraft = True
-    End Function
-    Public Function heli()
-        heli = False
-        If InStr("|AH|OH|UH|TH|", role) > 0 Then heli = True
-    End Function
-    Public Function direct()
-        direct = False
-        If Not aircraft() Or role = "AH" Then direct = True
-    End Function
-    Public Function indirect()
-        indirect = False
-        If InStr("|ARTY|RL|MOR|", role) > 0 Then indirect = True
-    End Function
-    Public Function atgw()
-        atgw = False
-        If role = "ATGW" Or role = "AH" Then atgw = True
-    End Function
-
     Public Function valid_equipment(n As String, purpose As String)
         'valid_equipment = False
         'If InStr(title, "soft") > 0 Then Exit Function
@@ -368,10 +343,4 @@
         '    valid_equipment = True
         'End If
     End Function
-    Public Function airdefence()
-        airdefence = False
-        If InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then airdefence = True
-
-    End Function
-
 End Class

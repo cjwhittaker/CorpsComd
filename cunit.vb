@@ -10,6 +10,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pnation As String
     Private pquality As Integer
     Private pequipment As String
+    Private prole As String
     Private pinitial As Integer
     Private paborts As Integer
     Private pphase As String
@@ -19,7 +20,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pelevated As Boolean
     Private proadmove As Boolean
     Private pmoving As Boolean
-    Private pdisordered As Boolean
+    Private pdisrupted_gt As Boolean
     Private pdisrupted As Boolean
     Private pcover As Integer
     Private ploaded As String
@@ -27,7 +28,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pfired As Integer
     Private phit As Boolean
     Private pparent As String
-    Private pno_of_units As Integer
+    Private pfirers_available As Integer
     Private psorties As Integer
     Private pflanked As Boolean
     Private prear As Boolean
@@ -125,6 +126,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Get
         Set(ByVal Value As String)
             pequipment = Value
+        End Set
+    End Property
+    Property role() As String
+        Get
+            Return prole
+        End Get
+        Set(ByVal Value As String)
+            prole = Value
         End Set
     End Property
     Property strength() As Integer
@@ -232,12 +241,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Set
     End Property
 
-    Property disordered() As Boolean
+    Property disrupted_gt() As Boolean
         Get
-            Return pdisordered
+            Return pdisrupted_gt
         End Get
         Set(ByVal Value As Boolean)
-            pdisordered = Value
+            pdisrupted_gt = Value
         End Set
     End Property
     Property disrupted() As Boolean
@@ -505,12 +514,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             psorties = Value
         End Set
     End Property
-    Property no_of_units() As Integer
+    Property firers_available() As Integer
         Get
-            Return pno_of_units
+            Return pfirers_available
         End Get
         Set(ByVal Value As Integer)
-            pno_of_units = Value
+            pfirers_available = Value
         End Set
     End Property
     Property Cover() As Integer
@@ -604,18 +613,13 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
 
 
-    Public Function role()
-        role = "|" + Trim(eq_list(equipment).role) + "|"
-    End Function
-
     Public Function observer()
         If indirect() Then observer = True Else observer = False
         'If indirect() Or (task = "CAS" Or task = "Strike") Then observer = True Else observer = False
-
     End Function
     Public Function indirect()
         indirect = False
-        If eq_list(equipment).indirect() Then indirect = True = True
+        If InStr("|ARTY|RL|MOR|", role) > 0 Then indirect = True
     End Function
     Public Function root()
         If parent = "root" Then root = True Else root = False
@@ -639,7 +643,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         airdefence = False
         If mode = travel Then
             airdefence = False
-        ElseIf InStr(role, "Inf") > 0 And Not dismounted() Then
+        ElseIf Inf And Not dismounted() Then
             airdefence = False
         ElseIf InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then
             airdefence = True
@@ -672,11 +676,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function heli()
         heli = False
-        If eq_list(equipment).heli Then heli = True
+        If InStr("|AH|OH|UH|TH|", role) > 0 Then heli = True
     End Function
     Public Function aircraft()
         aircraft = False
-        If eq_list(equipment).aircraft Then aircraft = True
+        If InStr("|AC|AH|OH|TB|AD|GA|AWACS|EW|", role) > 0 Then aircraft = True
     End Function
 
 
@@ -685,7 +689,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function Inf()
         Inf = False
-        If InStr(eq_list(equipment).role, "Inf") > 0 Then Inf = True
+        If InStr(role, "Inf") > 0 Then Inf = True
     End Function
     Public Function cae(armd As Boolean)
         If armd Then
@@ -700,20 +704,19 @@ Imports System.Runtime.Serialization.Formatters.Binary
         afv = False
         If InStr("|MICV|TANK|", role) > 0 Then afv = True
     End Function
+    Public Function atgw()
+        atgw = False
+        If InStr("|ATGW|InfATGW|AH|", role) > 0 Then atgw = True
+    End Function
+
     Public Function armour()
-        Try
-            armour = False
-            If eq_list(equipment).defence > 0 Then armour = True
-
-        Catch ex As Exception
-            armour = False
-
-        End Try
+        armour = False
+        If eq_list(equipment).defence > 0 And Not aircraft() Then armour = True
     End Function
 
     Public Function hq()
         If Me.comd > 0 Then hq = True : Exit Function
-        If InStr(role(), "HQ") > 0 Then hq = True Else hq = False
+        If role = "|Comd|" Then hq = True Else hq = False
     End Function
     Public Function nondetect()
         If airdefence() Or Airsuperiority() Or sead() Then nondetect = True Else nondetect = False
@@ -726,8 +729,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
             text_status = "- Destroyed"
         ElseIf disrupted Then
             text_status = "- Routing"
-        ElseIf disordered Then
-            text_status = "- Disordered"
         ElseIf moved Then
             text_status = "- Moving"
         ElseIf hit Then
@@ -805,7 +806,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             ElseIf context = "AS" Then
                 If stage = 0 Then
                     effect = eq_list(equipment).air_to_air_effect
-                    If role() = "|TB|" And Not heli() Then effect = Int(effect / 3)
+                    If role = "|TB|" And Not heli() Then effect = Int(effect / 3)
                 ElseIf stage = 1 Then
                     effect = eq_list(equipment).aam
                     eq_list(target.equipment).defence = eq_list(target.equipment).miss_def
@@ -814,13 +815,13 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 Else
                     effect = eq_list(equipment).cannon
                     eq_list(target.equipment).defence = eq_list(target.equipment).gun_def
-                    If role() = "|TB|" And Not heli() Then effect = Int(effect / 3)
+                    If role = "|TB|" And Not heli() Then effect = Int(effect / 3)
                 End If
             ElseIf context = "AD" Then
-                If r / eq_list(equipment).max > 0.667 Or (r / eq_list(equipment).max > 0.5 And role() = "|AAA|") Then
+                If r / eq_list(equipment).max > 0.667 Or (r / eq_list(equipment).max > 0.5 And role = "|AAA|") Then
                     effect = eq_list(equipment).full
                     If InStr(radar, "M") > 0 And Not eligibleCB Then effect = -1
-                ElseIf r / eq_list(equipment).max > 0.333 Or role() = "|AAA|" Then
+                ElseIf r / eq_list(equipment).max > 0.333 Or role = "|AAA|" Then
                     effect = eq_list(equipment).twothird
                     If InStr(radar, "E") > 0 And Not eligibleCB Then effect = -1
                 Else
@@ -954,10 +955,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function recon()
         recon = False
-        Try
-            If role() = "|RECON|" Then recon = True
-        Catch ex As Exception
-        End Try
+        If role = "|RECON|" Then recon = True
     End Function
     Public Function size()
         size = ""
@@ -1054,8 +1052,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If Not conc() And mode = conc() Then mode = disp
             If disrupted Then
                 status = disruptedstatus
-            ElseIf disordered Then
-                status = disorderedstatus
             ElseIf strength <= 0 Then
                 status = dead
             ElseIf assault Then
@@ -1153,9 +1149,80 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
         End Try
     End Sub
-    Public Sub update_after_firing(a, b, c)
+    Public Sub update_after_firing(phasing As String, weapon As String, finished As Boolean)
+        Dim i As Integer = 0
+        If fires And weapon <> "Minefield" Then
+            'calculates tactical pts
+            'If (airdefence() And phase <> 17) Or (aircraft() And finished) Then
+            '    i = 1
+            'ElseIf finished And phasing = nation And movement.scoot Then
+            '    i = 4
+            'ElseIf phasing = nation And finished Then
+            '    i = 2
+            'ElseIf Not phasing = nation Then
+            '    If Not oppfire Then
+            '        opp_return = opp_return - firers - (casualties * 2)
+            '    ElseIf oppfire And (movement.tactical = 0 Or movement.tactical = 2) Then
+            '        opp_move = opp_move - firers
+            '    ElseIf oppfire And movement.tactical = 3 Then
+            '        opp_ca = opp_ca - firers
+            '    ElseIf oppfire And movement.tactical >= 4 Then
+            '        opp_mode = opp_mode - firers
+            '    Else
+            '    End If
+            'Else
+            'End If
+            If indirect() And loaded <> "" Then loaded = ""
+            'If Not aircraft() Then fired = gt Else fired = CorpsComd.phase
+            firers_available = firers_available - firers
+            firers = 0
+            If firers_available <= 0 Then fired = gt : firers_available = 0
+            'If indirect() And movement.tactical = 1 Then eligibleCB = True
+            If missile_armed() Then missiles = missiles - 1
+        End If
+        msg = ""
+        If aircraft() Then
+            strength = strength - casualties : casualties = 0
+            If strength < 0 Then strength = 0
+            If strength = 0 Then msg = title + "(" + equipment + ")" + " has been destroyed"
+            If strength > 0 And strength - aborts <= 0 Then msg = title + "(" + equipment + ")" + " aborts air mission"
+            If strength - aborts <= 0 Or strength = 0 Or (fires And sead()) Then lands(False)
+        ElseIf (strength - casualties <= 0) Then
+            msg = title + " has been destroyed"
+            strength = 0
+            casualties = 0
+            hits = 0
+        Else
+            msg = ""
+            'If casualties > 2 Or hits >= 4 Or statusimpact = 1 Then
+            'With morale_test
+            '    .Tag = "Immediate"
+            '    .tester = Me
+            '    .ShowDialog()
+            '    .Tag = ""
+            'End With
+            'End If
+            strength = strength - hits
+            If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
+            hits = 0
+            statusimpact = 0
+        End If
+        'If msg <> "" Then
+        '    With resultform_2
+        '        .result.Text = msg
+        '        .ShowDialog()
+        '    End With
+        'End If
+        If loaded <> "" Then
+            With orbat(loaded)
+                .strength = strength
+                .casualties = casualties
+                .mode = mode
+            End With
 
+        End If
     End Sub
+
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
@@ -1185,7 +1252,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf phase = "Orbat" And hq = parent Then
             validunit = True
-        ElseIf phase = "Direct Fire" And nation = hq And Not demoralised And Not has_fired And Not airdefence And Not aircraft And strength > 0 And Not (embussed And Inf) Then
+        ElseIf phase = "Direct Fire" And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
             validunit = True
         ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             validunit = False
@@ -1217,7 +1284,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf phase = "Air Tasking" Then
             If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
         ElseIf phase = "Artillery Support" Then
-            If indirect() And emplaced() And tacticalpts > 0 And Not disrupted And Not disordered Then
+            If indirect() And emplaced() And tacticalpts > 0 And Not disrupted Then
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                     validunit = False
                 Else
@@ -1234,7 +1301,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 End If
             End If
         ElseIf phase = "Observer" Then
-            If Not disrupted And Not disordered And Not demoralised And Not lostcomms And (ground_unit() Or heli()) And tacticalpts >= 2 Then
+            If Not disrupted And Not demoralised And Not lostcomms And (ground_unit() Or heli()) And tacticalpts >= 2 Then
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                     validunit = False
                 Else
@@ -1298,7 +1365,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If ((ground_unit() And Not indirect() And Not movement.mover.heli) Or
                 (indirect() And task = "IN") Or
                 (airdefence() And movement.mover.heli And (Not missile_armed() Or (missile_armed() And missiles > 0)))) _
-                    And Not (disordered Or disrupted Or demoralised) Then
+                    And Not (disrupted Or demoralised) Then
                 If ((movement.tactical = 0 Or movement.tactical = 2) And opp_move > 0) Or (movement.tactical = 3 And opp_ca > 0) Or (movement.tactical >= 4 And opp_mode > 0) Then validunit = True
             End If
         Else
@@ -1309,6 +1376,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         msg = ""
         modifier = 0
         effect = 0
+        hits = 0
         effective = False
         lostcomms = False
     End Sub
@@ -1341,16 +1409,27 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function has_moved()
         has_moved = False
-        If moved = gt Then has_moved = True
+        If gt - moved <= 1 And moved <> 0 Then has_moved = True
     End Function
     Public Function has_fired()
         has_fired = False
-        If fired = gt Then has_fired = True
+        If gt - fired <= 1 Then has_fired = True
     End Function
     Public Function has_moved_fired()
         has_moved_fired = False
         If moved = gt And fired = gt Then has_moved_fired = True
     End Function
+    Public Function hvy_loss(disperse As Boolean)
+        hvy_loss = False
+        Dim i As Integer = IIf(disperse, -1, 0)
+        If (hits + i > 2 And mode = disp) Or (hits + i >= 3 And mode <> disp) Or casualties + i > 4 Then hvy_loss = True
+    End Function
+    Public Function destroyed()
+        'checks generate fire message for the word destroyed
+        destroyed = False
+        If InStr(msg, "destroyed") > 0 Then destroyed = True
+    End Function
+
     Public Function Clone() As Object Implements System.ICloneable.Clone
         Dim m As New MemoryStream()
         Dim f As New BinaryFormatter()

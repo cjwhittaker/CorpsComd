@@ -5,7 +5,6 @@ C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Deb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\bin\Debug\CorpsComd.xml
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.vbprojResolveAssemblyReference.cache
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.assault.resources
-C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.combat.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.event_manager.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.mine_attack.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.morale_test.resources
@@ -21,3 +20,4 @@ C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Deb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.vbproj.GenerateResource.Cache
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.exe
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.pdb
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.combat_2.resources

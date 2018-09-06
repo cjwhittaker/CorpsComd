@@ -48,8 +48,7 @@
         If (Me.Tag = "Air Tasking" And undercommand.FocusedItem.BackColor = Color.Pink) Or
         (Me.Tag <> "Morale Recovery" And undercommand.FocusedItem.BackColor = no_action_pts) Or
         (Me.Tag <> "Morale Recovery" And undercommand.FocusedItem.BackColor = disruptedstatus) Or
-         undercommand.FocusedItem.BackColor = dead Or
-        (Me.Tag <> "Morale Recovery" And undercommand.FocusedItem.BackColor = disorderedstatus) Then
+         undercommand.FocusedItem.BackColor = dead Then
             undercommand.SelectedItems.Clear()
             Exit Sub
         End If
@@ -444,7 +443,7 @@
         If Not select_all Then select_all = True Else select_all = False
         selected_units = 0
         For Each l As ListViewItem In undercommand.Items
-            If select_all And orbat(l.Text).tacticalpts > 0 And Not orbat(l.Text).disrupted And Not orbat(l.Text).disordered Then
+            If select_all And orbat(l.Text).tacticalpts > 0 And Not orbat(l.Text).disrupted Then
                 l.BackColor = golden
             ElseIf Not select_all Then
                 l.BackColor = orbat(l.Text).status
@@ -504,7 +503,7 @@
     End Sub
 
     Public Sub load_combat(ByVal firer As cunit)
-        With combat
+        With combat_2
             .Tag = Me.Tag
             .firer = New cunit
             .firer = firer
@@ -680,14 +679,14 @@
             .ShowDialog()
         End With
         If assault.defender Is Nothing Or assault.defender.title = "" Then Exit Sub
-        With combat
+        With combat_2
             .Tag = "Opportunity Fire"
             .firer = New cunit
             .firer = assault.defender
             .targets.Visible = False
             '.selectedtarget.Text = assault.attacker.title
             .combatmode = "Opportunity Fire"
-            '.title.Text = nph + " " + combat.combatmode + "against Close Assault"
+            '.title.Text = nph + " " + combat_2.combatmode + "against Close Assault"
             .ShowDialog()
             .targets.Visible = True
         End With

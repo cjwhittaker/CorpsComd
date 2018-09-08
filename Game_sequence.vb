@@ -137,7 +137,6 @@
             .enable_controls()
             .observation(False)
             .Tag = "Direct Fire"
-            .firingmode.Text = combat_2.Tag
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = False
@@ -155,6 +154,41 @@
         End If
 
     End Sub
+    Public Sub indirect_fire_phase(side_a As String, side_b As String)
+        combat_2.targets.Items.Clear()
+        combat_2.artillery.Items.Clear()
+        combat_2.observers.Items.Clear()
+        populate_lists(combat_2.targets, enemy, "Ground Targets", side_b)
+        populate_lists(combat_2.artillery, ph_units, "Indirect Fire", side_a)
+        populate_lists(combat_2.observers, ph_units, "Observers", side_a)
+
+        With combat_2
+            .enable_controls()
+            .observation(True)
+            .Tag = "Indirect Fire"
+            .firer = New cunit
+            .target = New cunit
+            .observer = New cunit
+            .indirectfire.Visible = True
+            .directfire.Visible = False
+            .firesmoke.Visible = False
+            .abort_firer.Visible = False
+            .abort_target.Visible = False
+            .altitude.Visible = False
+            .taltitude.Visible = False
+            .range_not_needed = False
+        End With
+        If Not combat_2.Visible Then
+            With combat_2
+                .Text = "Indirect Fire Sub Phase for " + gameturn
+                .ShowDialog()
+                .indirectfire.Visible = False
+                .directfire.Visible = True
+
+            End With
+        End If
+
+    End Sub
     Public Sub smoke_barrage_phase(firer As String)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
@@ -164,7 +198,6 @@
             .enable_controls()
             .observation(False)
             .Tag = "Smoke Barrage"
-            .firingmode.Text = combat_2.Tag
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = True

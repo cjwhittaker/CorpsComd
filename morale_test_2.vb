@@ -89,7 +89,7 @@
 
     Private Sub rally_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         reset_form()
-        subject.Text = tester.equipment
+        subject.Text = tester.title
         en_visible.Enabled = True
         If tester.Inf Then
             en_visible.Text = "Enemy AFVs visible within 1000m"

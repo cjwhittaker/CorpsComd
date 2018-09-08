@@ -15,7 +15,7 @@
     Public smokefiredthisturn As Boolean
     Public qtypinned As Integer, qtyrepulsed As Integer, qtydestroyed As Integer
     Public topserial As Integer, oppfire As Boolean, result_option As String
-    Public lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray
+    Public lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray, sel As Color = can_observe
     Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, demoralisedstatus As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
     Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen
     Public opportunityfire As New unit_selection, airground As New unit_selection, groundair As New unit_selection

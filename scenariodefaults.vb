@@ -222,8 +222,8 @@
         Do
             Select Case phase
                 'Case 1 : determineinitiative()
-                Case 2 : smoke_barrage_phase(ph)
-                'Case 3 : artillery_interdiction_markers()
+                'Case 2 : smoke_barrage_phase(ph)
+                Case 3 : indirect_fire_phase(ph, nph)
                 'Case 4 : cb_fire()
                 'Case 5 : deploy_air_missions()
                 'Case 6 : air_superiority()

@@ -614,8 +614,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
 
     Public Function observer()
-        If indirect() Then observer = True Else observer = False
-        'If indirect() Or (task = "CAS" Or task = "Strike") Then observer = True Else observer = False
+        observer = False
+        If heli() Then observer = True
+        If ground_unit() And Not (indirect() And mode <> disp And Not conc()) Then observer = True
     End Function
     Public Function indirect()
         indirect = False
@@ -1192,6 +1193,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             strength = 0
             casualties = 0
             hits = 0
+            firers_available = 0
         Else
             msg = ""
             'If casualties > 2 Or hits >= 4 Or statusimpact = 1 Then
@@ -1203,6 +1205,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             'End With
             'End If
             strength = strength - hits
+            If strength < firers_available Then firers_available = strength
             If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
             hits = 0
             statusimpact = 0
@@ -1252,10 +1255,41 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf phase = "Orbat" And hq = parent Then
             validunit = True
-        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
+        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not has_fired And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
             validunit = True
         ElseIf phase = "Smoke Barrage" And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) And indirect Then
             validunit = True
+        ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 And nation = hq Then
+            If indirect() And emplaced() And tacticalpts > 0 And Not disrupted Then
+                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
+                    validunit = False
+                Else
+                    'If parent = hq Or primary = hq Then
+                    '    arty_spt = 0
+                    'ElseIf (brigade_comd(Me) = brigade_comd(orbat(hq))) Then
+                    '    arty_spt = 1
+                    'ElseIf primary <> "" Then
+                    '    If brigade_comd(orbat(hq)) = brigade_comd(orbat(primary)) Then arty_spt = 1 Else arty_spt = 2
+                    'Else
+                    '    arty_spt = 2
+                    'End If
+                    validunit = True
+                End If
+            End If
+        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer And nation = hq And (arrives = 0 Or arrives Is Nothing) Then
+            If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
+                validunit = False
+            Else
+                'If parent = hq Or (task = "Obse" And heli()) Then
+                '        arty_spt = 0
+                '    ElseIf brigade_comd(Me) = brigade_comd(orbat(hq)) Then
+                '        arty_spt = 1
+                '    Else
+                '        arty_spt = 2
+                '    End If
+                validunit = True
+                'End If
+            End If
         ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             validunit = False
         ElseIf phase = "Transport" Then
@@ -1285,38 +1319,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If parent = hq And loaded = "" And Not disrupted Then validunit = True
         ElseIf phase = "Air Tasking" Then
             If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
-        ElseIf phase = "Artillery Support" Then
-            If indirect() And emplaced() And tacticalpts > 0 And Not disrupted Then
-                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
-                    validunit = False
-                Else
-                    If parent = hq Or primary = hq Then
-                        arty_spt = 0
-                    ElseIf (brigade_comd(Me) = brigade_comd(orbat(hq))) Then
-                        arty_spt = 1
-                    ElseIf primary <> "" Then
-                        If brigade_comd(orbat(hq)) = brigade_comd(orbat(primary)) Then arty_spt = 1 Else arty_spt = 2
-                    Else
-                        arty_spt = 2
-                    End If
-                    validunit = True
-                End If
-            End If
-        ElseIf phase = "Observer" Then
-            If Not disrupted And Not demoralised And Not lostcomms And (ground_unit() Or heli()) And tacticalpts >= 2 Then
-                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
-                    validunit = False
-                Else
-                    If parent = hq Or (task = "Obse" And heli()) Then
-                        arty_spt = 0
-                    ElseIf brigade_comd(Me) = brigade_comd(orbat(hq)) Then
-                        arty_spt = 1
-                    Else
-                        arty_spt = 2
-                    End If
-                    validunit = True
-                End If
-            End If
         ElseIf phase = "Arty Tasking" Then
             If indirect() Then
                 If (parent = hq Or primary = hq) And Not disrupted And emplaced() Then validunit = True
@@ -1415,7 +1417,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function has_fired()
         has_fired = False
-        If gt - fired <= 1 Then has_fired = True
+        If gt - fired = 0 Then has_fired = True
     End Function
     Public Function has_moved_fired()
         has_moved_fired = False
@@ -1429,7 +1431,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function destroyed()
         'checks generate fire message for the word destroyed
         destroyed = False
-        If InStr(msg, "destroyed") > 0 Then destroyed = True
+        If InStr(msg, "destroyed") > 0 Or casualties > strength Then destroyed = True
     End Function
 
     Public Function Clone() As Object Implements System.ICloneable.Clone

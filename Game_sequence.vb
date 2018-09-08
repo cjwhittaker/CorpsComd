@@ -119,7 +119,6 @@
             If air Then
                 With movement
                     .Text = "Air Tasking Phase for " + ph + " - Game Turn" + Str(gt)
-                    .current_phase.Text = movement.Text
                     .Tag = "Air Tasking"
                     .options_for("Air Tasking")
                     .ShowDialog()
@@ -154,6 +153,7 @@
         End If
 
     End Sub
+
     Public Sub indirect_fire_phase(side_a As String, side_b As String)
         combat_2.targets.Items.Clear()
         combat_2.artillery.Items.Clear()
@@ -189,6 +189,7 @@
         End If
 
     End Sub
+
     Public Sub smoke_barrage_phase(firer As String)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
@@ -246,7 +247,6 @@
             If arty Then
                 With movement
                     .Text = "Arty Tasking Phase for " + ph + " - Game Turn " + Str(gt)
-                    .current_phase.Text = movement.Text
                     .Tag = "Arty Tasking"
                     .options_for("Arty Tasking")
                     .ShowDialog()
@@ -293,6 +293,7 @@
             Next
         End If
     End Sub
+
     Public Sub intercept()
         Dim cap_result As String = cap_deployed(ph_units, enemy, "Intercept")
         If cap_result <> "None" Then
@@ -317,7 +318,6 @@
         Next
 
     End Sub
-
 
     Public Sub ground_to_air()
         Dim cap_result As String = cap_deployed(ph_units, enemy, "Ground Air")
@@ -382,7 +382,6 @@
                 populate_lists(combat_2.targets, enemy, "Ground Targets", "")
                 With movement
                     .Text = "Area Fire Artillery Phase for " + ph + " - Game Turn " + Str(gt)
-                    .current_phase.Text = movement.Text
                     .Tag = "Area Fire"
                     .options_for("Area Fire")
                     .ShowDialog()
@@ -413,7 +412,6 @@
                     populate_lists(combat_2.targets, enemy, "CB Targets", "")
                     With movement
                         .Text = "Counter Battery Artillery Phase for " + ph + " - Game Turn " + Str(gt)
-                        .current_phase.Text = movement.Text
                         .Tag = "CB Fire"
                         .options_for("CB Fire")
                         .ShowDialog()
@@ -424,7 +422,7 @@
         Next
     End Sub
 
-    Public Sub fire_and_movement()
+    Public Sub movement_phase()
         Do
             For Each u As cunit In orbat
                 If u.comd = 0 Then u.reset_fire_phase(ph)
@@ -437,9 +435,8 @@
                 u.comdpts = 1
             Next
             With movement
-                .Text = "Fire and Movement Phase for " + ph + " - Game Turn " + Str(gt)
-                .current_phase.Text = movement.Text
-                .Tag = "Fire and Movement"
+                .Text = "Fire and Movement Phase " + gameturn
+                .Tag = "Movement"
                 .options_for("Fire and Movement")
                 .ShowDialog()
             End With
@@ -483,9 +480,8 @@
             Next
             With movement
                     .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
-                    .current_phase.Text = movement.Text
-                    .options_for("Morale Recovery")
-                    .Tag = "Morale Recovery"
+                .options_for("Morale Recovery")
+                .Tag = "Morale Recovery"
                     .ShowDialog()
                 End With
                 swap_phasing_player(True)

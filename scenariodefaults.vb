@@ -238,7 +238,7 @@
                 Case 16 : air_mission_planning()
                 Case 17 : break_emcon()
                 Case 18 : artillery_allocation_planning()
-                Case 19 : fire_and_movement()
+                Case 19 : movement_phase()
                 Case 20 : morale_recovery()
                 Case 21 : end_sorties()
             End Select

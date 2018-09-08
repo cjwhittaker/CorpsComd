@@ -33,7 +33,6 @@ Partial Class movement
         Me.cover = New System.Windows.Forms.Label()
         Me.executeorders = New System.Windows.Forms.Button()
         Me.unitcover = New System.Windows.Forms.GroupBox()
-        Me.current_phase = New System.Windows.Forms.Label()
         Me.o1 = New System.Windows.Forms.Label()
         Me.o2 = New System.Windows.Forms.Label()
         Me.o3 = New System.Windows.Forms.Label()
@@ -57,9 +56,9 @@ Partial Class movement
         Me.undercommand.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.undercommand.FullRowSelect = True
         Me.undercommand.GridLines = True
-        Me.undercommand.Location = New System.Drawing.Point(482, 110)
+        Me.undercommand.Location = New System.Drawing.Point(482, 44)
         Me.undercommand.Name = "undercommand"
-        Me.undercommand.Size = New System.Drawing.Size(418, 456)
+        Me.undercommand.Size = New System.Drawing.Size(418, 522)
         Me.undercommand.TabIndex = 43
         Me.undercommand.UseCompatibleStateImageBehavior = False
         Me.undercommand.View = System.Windows.Forms.View.Details
@@ -90,7 +89,7 @@ Partial Class movement
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.ForeColor = System.Drawing.Color.White
-        Me.Label1.Location = New System.Drawing.Point(77, 75)
+        Me.Label1.Location = New System.Drawing.Point(78, 9)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(288, 32)
         Me.Label1.TabIndex = 44
@@ -102,7 +101,7 @@ Partial Class movement
         Me.selected_hq.BackColor = System.Drawing.Color.Transparent
         Me.selected_hq.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.selected_hq.ForeColor = System.Drawing.Color.White
-        Me.selected_hq.Location = New System.Drawing.Point(543, 75)
+        Me.selected_hq.Location = New System.Drawing.Point(504, 9)
         Me.selected_hq.Name = "selected_hq"
         Me.selected_hq.Size = New System.Drawing.Size(357, 32)
         Me.selected_hq.TabIndex = 44
@@ -124,7 +123,7 @@ Partial Class movement
         '
         Me.executeorders.Enabled = False
         Me.executeorders.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.executeorders.Location = New System.Drawing.Point(197, 587)
+        Me.executeorders.Location = New System.Drawing.Point(261, 590)
         Me.executeorders.Name = "executeorders"
         Me.executeorders.Size = New System.Drawing.Size(609, 60)
         Me.executeorders.TabIndex = 52
@@ -136,25 +135,12 @@ Partial Class movement
         Me.unitcover.Controls.Add(Me.cover)
         Me.unitcover.Enabled = False
         Me.unitcover.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.unitcover.Location = New System.Drawing.Point(938, 517)
+        Me.unitcover.Location = New System.Drawing.Point(938, 501)
         Me.unitcover.Name = "unitcover"
         Me.unitcover.Size = New System.Drawing.Size(297, 65)
         Me.unitcover.TabIndex = 53
         Me.unitcover.TabStop = False
         Me.unitcover.Text = "Unit Cover"
-        '
-        'current_phase
-        '
-        Me.current_phase.BackColor = System.Drawing.Color.Transparent
-        Me.current_phase.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, CType(((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic) _
-                Or System.Drawing.FontStyle.Underline), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.current_phase.ForeColor = System.Drawing.Color.White
-        Me.current_phase.Location = New System.Drawing.Point(128, 18)
-        Me.current_phase.Name = "current_phase"
-        Me.current_phase.Size = New System.Drawing.Size(706, 34)
-        Me.current_phase.TabIndex = 57
-        Me.current_phase.Text = "Game Phase and Player"
-        Me.current_phase.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'o1
         '
@@ -308,7 +294,7 @@ Partial Class movement
         Me.tactical_actions.Controls.Add(Me.o2)
         Me.tactical_actions.Controls.Add(Me.o8)
         Me.tactical_actions.Controls.Add(Me.o3)
-        Me.tactical_actions.Location = New System.Drawing.Point(938, 129)
+        Me.tactical_actions.Location = New System.Drawing.Point(938, 98)
         Me.tactical_actions.Name = "tactical_actions"
         Me.tactical_actions.Size = New System.Drawing.Size(297, 382)
         Me.tactical_actions.TabIndex = 68
@@ -319,7 +305,7 @@ Partial Class movement
         '
         Me.opp_fire.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.opp_fire.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.opp_fire.Location = New System.Drawing.Point(938, 75)
+        Me.opp_fire.Location = New System.Drawing.Point(938, 44)
         Me.opp_fire.Name = "opp_fire"
         Me.opp_fire.Size = New System.Drawing.Size(297, 34)
         Me.opp_fire.TabIndex = 69
@@ -331,10 +317,10 @@ Partial Class movement
         Me.comdtree.AllowDrop = True
         Me.comdtree.BackColor = System.Drawing.Color.White
         Me.comdtree.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.comdtree.Location = New System.Drawing.Point(57, 110)
+        Me.comdtree.Location = New System.Drawing.Point(57, 44)
         Me.comdtree.Name = "comdtree"
         Me.comdtree.ShowPlusMinus = False
-        Me.comdtree.Size = New System.Drawing.Size(329, 456)
+        Me.comdtree.Size = New System.Drawing.Size(329, 522)
         Me.comdtree.TabIndex = 70
         '
         'movement
@@ -347,7 +333,6 @@ Partial Class movement
         Me.Controls.Add(Me.comdtree)
         Me.Controls.Add(Me.opp_fire)
         Me.Controls.Add(Me.tactical_actions)
-        Me.Controls.Add(Me.current_phase)
         Me.Controls.Add(Me.unitcover)
         Me.Controls.Add(Me.executeorders)
         Me.Controls.Add(Me.selected_hq)
@@ -372,7 +357,6 @@ Partial Class movement
     Friend WithEvents executeorders As System.Windows.Forms.Button
     Friend WithEvents unitcover As System.Windows.Forms.GroupBox
     Friend WithEvents ColumnHeader5 As System.Windows.Forms.ColumnHeader
-    Friend WithEvents current_phase As System.Windows.Forms.Label
     Friend WithEvents o1 As Label
     Friend WithEvents o2 As Label
     Friend WithEvents o3 As Label

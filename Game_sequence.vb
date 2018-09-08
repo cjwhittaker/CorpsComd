@@ -22,7 +22,11 @@
         p2_Units = New Collection
         oppfire = False
         For Each u As cunit In orbat
-            If u.comd = 0 Then u.firers_available = u.strength
+            'test line
+            If u.comd = 0 Then u.reset_unit()
+            'non test line
+            'If u.comd = 0 And phase = 0 Then u.reset_unit()
+
             If u.nation = scenariodefaults.player1.Text Then
                 p1_orbat.Add(u, u.title)
                 If u.comd > 0 Then p1_hqs.Add(u, u.title) Else p1_units.Add(u, u.title)
@@ -30,16 +34,6 @@
                 p2_orbat.Add(u, u.title)
                 If u.comd > 0 Then p2_HQs.Add(u, u.title) Else p2_Units.Add(u, u.title)
             End If
-            If u.comd = 0 And phase = 0 Then
-                With u
-                    .hits = 0
-                    .aborts = 0
-                    .casualties = 0
-                    .sorties = IIf(u.aircraft And u.sorties > 0, u.sorties - 1, u.sorties)
-                    .disrupted_gt = False
-                End With
-            End If
-
         Next
         If phase <> 0 Then swap_phasing_player(False)
         gameturn = " for Game Turn" + Str(gt) + " at " + Format(gamedate, "HHmm") + "hrs " + Format(gamedate, "dd MMM yyyy")
@@ -424,9 +418,9 @@
 
     Public Sub movement_phase()
         Do
-            For Each u As cunit In orbat
-                If u.comd = 0 Then u.reset_fire_phase(ph)
-            Next
+            'For Each u As cunit In orbat
+            '    If u.comd = 0 Then u.reset_fire_phase(ph)
+            'Next
             populate_lists(combat_2.targets, enemy, "Ground Targets", "")
             For Each u As cunit In ph_units
                 If Not u.has_moved Then u.moving = False

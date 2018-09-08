@@ -39,21 +39,22 @@
             If u.validunit(purpose, hq) Then
                 listitem = New ListViewItem
                 listitem.Text = u.title
-                If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryFire and MovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
+                If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
                     'listitem.SubItems.Add(u.comdpts)
                 ElseIf l.Name = "undercommand" Then
                     If u.loaded <> "" Then loaded = "*" Else loaded = ""
                     If InStr("Arty Tasking", purpose) > 0 Then
                         info = u.task
-                    ElseIf purpose = "Fire and Movement" Then
+                    ElseIf purpose = "Movement" Then
                         info = UCase(Strings.Left(u.mode, 1))
                     Else
                     End If
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(info)
+                    listitem.SubItems.Add(IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), ""))
                     listitem.SubItems.Add(u.equipment + loaded)
                     'l.BackColor = u.status
-                ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsIndirect FireDirect FireFire and MovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
+                ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
                     listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
@@ -79,7 +80,7 @@
                     Else
                         li.BackColor = not_on_net
                     End If
-                ElseIf InStr("DemoralisationMorale RecoveryFire and MovementArty Tasking", purpose) > 0 Then
+                ElseIf InStr("DemoralisationMorale RecoveryMovementArty Tasking", purpose) > 0 Then
                     li.BackColor = orbat(li.Text).status("")
                 Else
                 End If

@@ -120,7 +120,7 @@
             End If
         End If
         result_option = ""
-        Dim f As Boolean = firer.hvy_loss(False) And Not firer.destroyed, t As Boolean = (target.hvy_loss(False) And Not target.destroyed) Or (Not target.destroyed And firer.heavy_fire)
+        Dim f As Boolean = firer.hvy_loss(True) And Not firer.destroyed, t As Boolean = (target.hvy_loss(True) And Not target.destroyed) Or (Not target.destroyed And firer.heavy_fire)
         With resultform_2
             .result.Text = "Results" + vbNewLine + init_msg + vbNewLine + firer.msg + vbNewLine + target.msg
             .Tag = "firing"
@@ -143,8 +143,22 @@
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If InStr(result_option, "Disperse Firer") > 0 Then firer.casualties = firer.casualties - 1 : firer.hits = firer.hits - 1
-        If InStr(result_option, "Disperse Target") > 0 Then target.casualties = target.casualties - 1 : target.hits = target.hits - 1
+        If InStr(result_option, "Disperse Firer") > 0 Then
+            With firer
+                .casualties = firer.casualties - 1
+                .hits = firer.hits - 1
+                .mode = disp
+            End With
+        End If
+        If InStr(result_option, "Disperse Target") > 0 Then
+            With target
+                .casualties = target.casualties - 1
+                .hits = target.hits - 1
+                .mode = disp
+            End With
+        End If
+        f = firer.hvy_loss(False) And Not firer.destroyed
+        t = (target.hvy_loss(False) And Not target.destroyed) Or (Not target.destroyed And firer.heavy_fire)
 
         If f Then
             With morale_test
@@ -257,7 +271,7 @@
         firecasualties = 0
         Dim airtoair As Boolean = firer.airborne And target.airborne
         Dim airdefence As Boolean = firer.airdefence And target.airborne
-        Dim directfire As Boolean = IIf(combat_2.Tag = "Direct Fire", True, False)
+        Dim directfire As Boolean = IIf(combat_2.Tag = "Direct Fire" Or combat_2.Tag = "Opportunity Fire", True, False)
         Dim indirectfire As Boolean = IIf(combat_2.Tag = "Indirect Fire", True, False)
 
         Dim modifiers As Integer = 0, col As Integer = 0, row As Integer = 0, dice As Integer = 0, fv As Integer = 0, fire_effect As Integer = 0, fire_strength As Integer = 0

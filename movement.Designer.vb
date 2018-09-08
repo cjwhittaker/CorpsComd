@@ -46,19 +46,20 @@ Partial Class movement
         Me.tactical_actions = New System.Windows.Forms.GroupBox()
         Me.opp_fire = New System.Windows.Forms.Label()
         Me.comdtree = New System.Windows.Forms.TreeView()
+        Me.ColumnHeader1 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.unitcover.SuspendLayout()
         Me.tactical_actions.SuspendLayout()
         Me.SuspendLayout()
         '
         'undercommand
         '
-        Me.undercommand.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader3, Me.ColumnHeader4, Me.ColumnHeader6, Me.ColumnHeader5})
+        Me.undercommand.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader3, Me.ColumnHeader4, Me.ColumnHeader6, Me.ColumnHeader1, Me.ColumnHeader5})
         Me.undercommand.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.undercommand.FullRowSelect = True
         Me.undercommand.GridLines = True
-        Me.undercommand.Location = New System.Drawing.Point(482, 44)
+        Me.undercommand.Location = New System.Drawing.Point(455, 44)
         Me.undercommand.Name = "undercommand"
-        Me.undercommand.Size = New System.Drawing.Size(418, 522)
+        Me.undercommand.Size = New System.Drawing.Size(461, 522)
         Me.undercommand.TabIndex = 43
         Me.undercommand.UseCompatibleStateImageBehavior = False
         Me.undercommand.View = System.Windows.Forms.View.Details
@@ -66,7 +67,7 @@ Partial Class movement
         'ColumnHeader3
         '
         Me.ColumnHeader3.Text = "Unit"
-        Me.ColumnHeader3.Width = 186
+        Me.ColumnHeader3.Width = 155
         '
         'ColumnHeader4
         '
@@ -82,7 +83,7 @@ Partial Class movement
         'ColumnHeader5
         '
         Me.ColumnHeader5.Text = "Equipment"
-        Me.ColumnHeader5.Width = 134
+        Me.ColumnHeader5.Width = 146
         '
         'Label1
         '
@@ -323,6 +324,11 @@ Partial Class movement
         Me.comdtree.Size = New System.Drawing.Size(329, 522)
         Me.comdtree.TabIndex = 70
         '
+        'ColumnHeader1
+        '
+        Me.ColumnHeader1.Text = "Cover"
+        Me.ColumnHeader1.Width = 59
+        '
         'movement
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -371,4 +377,5 @@ Partial Class movement
     Friend WithEvents opp_fire As Label
     Friend WithEvents ColumnHeader6 As ColumnHeader
     Friend WithEvents comdtree As TreeView
+    Friend WithEvents ColumnHeader1 As ColumnHeader
 End Class

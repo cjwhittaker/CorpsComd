@@ -1,7 +1,7 @@
 ﻿Public Class combat_2
 
     Public firer As cunit, target As cunit, observer As cunit, combatmode As String, target_fires As Boolean = False, range_not_needed As Boolean
-    Private weapon As String, fired_this_turn As Integer = 0, nt As Integer, nf As Integer, no As Integer
+    Public weapon As String, fired_this_turn As Integer = 0, nt As Integer, nf As Integer, no As Integer
     Dim currentrange As Integer, tn As Integer
     Public Sub enable_controls()
         For Each c As Control In Me.Controls
@@ -88,7 +88,7 @@
             directfire.Visible = False
             indirectfire.Visible = True
         End If
-        If Tag = "Direct Fire" Then
+        If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
             directfire.Visible = True
             indirectfire.Visible = False
         End If
@@ -248,7 +248,7 @@
 
     End Sub
 
-    Private Sub firer_strength(f1 As Object, f2 As Object, f3 As Object, strength As Integer)
+    Public Sub firer_strength(f1 As Object, f2 As Object, f3 As Object, strength As Integer)
         reset_strength(f1, f2, f3)
         If strength <= 5 Then
             f1.Enabled = True
@@ -318,7 +318,7 @@
         End If
     End Sub
 
-    Private Sub update_parameters(opt As String)
+    Public Sub update_parameters(opt As String)
         If opt = "firers" Then
             reset_unit_options(directfire)
             If firer.Cover > 0 Then select_cover(firercover, Nothing)
@@ -419,8 +419,8 @@
     Private Sub set_sel_color(obj As Object, set_color As Boolean)
         For Each l As ListViewItem In obj
             If set_color Then
-                If l.Focused Then l.Selected = False : l.BackColor = sel
-            ElseIf Not set_color And l.BackColor = sel Then
+                If l.Focused Then l.Selected = False : l.BackColor = golden
+            ElseIf Not set_color And l.BackColor = golden Then
                 l.BackColor = nostatus
             Else
             End If
@@ -477,9 +477,9 @@
     End Sub
 
     Private Sub mode(sender As Object, e As EventArgs) Handles firermode.Click, targetmode.Click, obs_mode.Click
-        If sender.name = "targetmode" And target.title Is Nothing Then Exit Sub
-        If sender.name = "firermode" And firer.title Is Nothing Then Exit Sub
-        If sender.name = "obs_mode" And observer.title Is Nothing Then Exit Sub
+        If target.title Is Nothing Then If sender.name = "targetmode" Then Exit Sub
+        If firer.title Is Nothing Then If sender.name = "firermode" Then Exit Sub
+        If observer.title Is Nothing Then If sender.name = "obs_mode" Then Exit Sub
 
         If sender.text = conc Then
             sender.text = disp
@@ -747,8 +747,11 @@
     End Sub
 
     Private Sub rangechange(sender As Object, e As EventArgs) Handles tgt_range_select.SelectedIndexChanged, vis_range_select.SelectedIndexChanged
-        If observer.title = firer.title And tgt_range_select.SelectedItem <> vis_range_select.SelectedItem Then
-            If sender = " tgt_range_select" Then vis_range_select.SelectedItem = tgt_range_select.SelectedItem Else tgt_range_select.SelectedItem = vis_range_select.SelectedItem
+        If Tag = "Indirect Fire" Then
+
+            If observer.title = firer.title And tgt_range_select.SelectedItem <> vis_range_select.SelectedItem Then
+                If sender = " tgt_range_select" Then vis_range_select.SelectedItem = tgt_range_select.SelectedItem Else tgt_range_select.SelectedItem = vis_range_select.SelectedItem
+            End If
         End If
         eligible_to_fire(sender)
     End Sub
@@ -830,7 +833,7 @@
             Exit Sub
         End If
 
-        If Tag = "Direct Fire" Then
+        If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
             fire.Enabled = spotting(Val(tgt_range.Text), firer, target)
             target.spotted = fire.Enabled
             If Not fire.Enabled Then return_fire_disable()
@@ -879,7 +882,7 @@
         If Tag = "Indirect Fire" And visrange.Text = "Vis Range" Then Exit Sub
         If target.title Is Nothing Then Exit Sub
         firer.firers = 0 : target.firers = 0
-        If Tag = "Direct Fire" Then
+        If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
             firer.firers = IIf(s1.BackColor = golden, Val(s1.Text), 0) + IIf(s2.BackColor = golden, Val(s2.Text), 0) + IIf(s3.BackColor = golden, Val(s3.Text), 0)
         ElseIf Tag = "Indirect Fire" Then
             firer.firers = IIf(a1.BackColor = golden, Val(a1.Text), 0) + IIf(a2.BackColor = golden, Val(a2.Text), 0) + IIf(a3.BackColor = golden, Val(a3.Text), 0)
@@ -901,6 +904,8 @@
         firer.fires = True
         target.update_after_firing(ph, t_wpn.Text, True)
         firer.update_after_firing(ph, f_wpn.Text, False)
+        If Tag = "Opportunity Fire" Then Close() : Exit Sub
+        If InStr(Text, "Moving Fire") > 0 And firer.firers_available = 0 Then Close() : Exit Sub
         reset_target()
         reset_firer()
 

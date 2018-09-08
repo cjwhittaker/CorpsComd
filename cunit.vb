@@ -1050,7 +1050,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf fm <> "Orbat" And demoralised Then
             status = demoralisedstatus
         ElseIf comd = 0 Then
-            If Not conc() And mode = conc() Then mode = disp
+            If Not conc() And mode = "conc" Then mode = disp
             If disrupted Then
                 status = disruptedstatus
             ElseIf strength <= 0 Then
@@ -1119,19 +1119,22 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
         End Try
     End Function
-    Public Sub reset_fire_phase(phasing As String)
-        '    ooc = False
-        '    If nation = phasing Then
-        '        If fired = gt Then halfstrength = 0 Else halfstrength = 4
-        '        lostcomms = False
-        '        If atgw() Then reset_missiles()
-        '    Else
-        '        fatigue = strength * 2
-        '        opp_ca = strength * 2
-        '        opp_mode = strength * 2
-        '        opp_move = strength * 2
-        '    End If
-        '    hits = 0
+    Public Sub reset_unit()
+        ooc = False
+        lostcomms = False
+        If atgw() Then reset_missiles()
+        fatigue = strength * 2
+        opp_ca = strength * 2
+        opp_mode = strength * 2
+        opp_move = strength * 2
+        hits = 0
+        firers_available = strength
+        hits = 0
+        aborts = 0
+        casualties = 0
+        sorties = IIf(aircraft() And sorties > 0, sorties - 1, sorties)
+        disrupted_gt = False
+
     End Sub
     Public Sub reset_missiles()
         Try
@@ -1257,6 +1260,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not has_fired And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
             validunit = True
+        ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
+            If ((movement.tactical = 0 Or movement.tactical = 1) And opp_move > 0) Or (movement.tactical = 3 And opp_ca > 0) Or (movement.tactical >= 4 And opp_mode > 0) Then
+                validunit = True
+            Else
+                validunit = False
+            End If
         ElseIf phase = "Smoke Barrage" And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) And indirect Then
             validunit = True
         ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 And nation = hq Then
@@ -1264,15 +1273,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                     validunit = False
                 Else
-                    'If parent = hq Or primary = hq Then
-                    '    arty_spt = 0
-                    'ElseIf (brigade_comd(Me) = brigade_comd(orbat(hq))) Then
-                    '    arty_spt = 1
-                    'ElseIf primary <> "" Then
-                    '    If brigade_comd(orbat(hq)) = brigade_comd(orbat(primary)) Then arty_spt = 1 Else arty_spt = 2
-                    'Else
-                    '    arty_spt = 2
-                    'End If
                     validunit = True
                 End If
             End If
@@ -1280,31 +1280,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                 validunit = False
             Else
-                'If parent = hq Or (task = "Obse" And heli()) Then
-                '        arty_spt = 0
-                '    ElseIf brigade_comd(Me) = brigade_comd(orbat(hq)) Then
-                '        arty_spt = 1
-                '    Else
-                '        arty_spt = 2
-                '    End If
                 validunit = True
-                'End If
             End If
         ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             validunit = False
         ElseIf phase = "Transport" Then
             If troopcarrier() And loaded = "" And parent = hq Then validunit = True
-        ElseIf phase = "Fire and Movement" Then
-            If Not ground_unit() And Not heli() Then
-                validunit = False
-            ElseIf demoralised Then
-                validunit = False
-            ElseIf parent = hq Then
-                validunit = True
-                'ElseIf coc(hq, Me, comd) Then
-                '    validunit = True
-            Else
-            End If
+        ElseIf phase = "Movement" And (ground_unit() Or heli()) And Not demoralised And parent = hq And arrives = 0 Then
+            validunit = True
         ElseIf phase = "CA Defenders" Then
             If ground_unit() Then validunit = True
         ElseIf phase = "Morale Recovery" Then
@@ -1365,13 +1348,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If aircraft() And airborne And Not heli() And task <> "CAP" Then validunit = True
         ElseIf phase = "Ground Targets" And nation = hq Then
             If ground_unit() Then validunit = True
-        ElseIf phase = "Opportunity Fire" Then
-            If ((ground_unit() And Not indirect() And Not movement.mover.heli) Or
-                (indirect() And task = "IN") Or
-                (airdefence() And movement.mover.heli And (Not missile_armed() Or (missile_armed() And missiles > 0)))) _
-                    And Not (disrupted Or demoralised) Then
-                If ((movement.tactical = 0 Or movement.tactical = 2) And opp_move > 0) Or (movement.tactical = 3 And opp_ca > 0) Or (movement.tactical >= 4 And opp_mode > 0) Then validunit = True
-            End If
         Else
         End If
     End Function
@@ -1423,10 +1399,13 @@ Imports System.Runtime.Serialization.Formatters.Binary
         has_moved_fired = False
         If moved = gt And fired = gt Then has_moved_fired = True
     End Function
-    Public Function hvy_loss(disperse As Boolean)
+    Public Function hvy_loss(before_test As Boolean)
         hvy_loss = False
-        Dim i As Integer = IIf(disperse, -1, 0)
-        If (hits + i > 2 And mode = disp) Or (hits + i >= 3 And mode <> disp) Or casualties + i > 4 Then hvy_loss = True
+        If Not before_test Then
+            If (hits > 2 And mode = disp) Or (hits - 1 > 2 And mode <> disp) Or casualties + IIf(mode <> disp, -1, 0) > 4 Then hvy_loss = True
+        Else
+            If hits > 2 Or casualties > 4 Then hvy_loss = True
+        End If
     End Function
     Public Function destroyed()
         'checks generate fire message for the word destroyed

@@ -26,9 +26,9 @@
                 sender.backcolor = golden
                 result_option = result_option + sender.text
                 If sender.name = "yb" Then
-                    hvy1.Visible = combat_2.firer.hvy_loss(True) Or combat_2.target.heavy_fire
+                    hvy1.Visible = combat_2.firer.hvy_loss(False) Or combat_2.target.heavy_fire
                 Else
-                    hvy2.Visible = combat_2.target.hvy_loss(True) Or combat_2.firer.heavy_fire
+                    hvy2.Visible = combat_2.target.hvy_loss(False) Or combat_2.firer.heavy_fire
                 End If
             Else
                 sender.backcolor = defa

@@ -3,8 +3,7 @@
 
     Public Sub load_orbat()
         If Not My.Computer.FileSystem.FileExists(Replace(scenario, ".sce", ".orb")) Then Exit Sub
-        Dim pnames As New Collection
-        Dim myType As Type = GetType(cunit), pname As String = "", pval As String = "", i As Integer
+        Dim myType As Type = GetType(cunit), pval As String = "", i As Integer
         Dim p As System.Reflection.PropertyInfo
         MyReader = New Microsoft.VisualBasic.FileIO.TextFieldParser(Strings.Left(scenario, (Len(scenario) - 4)) + ".orb")
         orbat = New Collection
@@ -12,10 +11,10 @@
         MyReader.TextFieldType = FileIO.FieldType.Delimited
         MyReader.SetDelimiters(",")
         Dim currentRow As String()
-        currentRow = MyReader.ReadFields()
-        For Each cfield As String In currentRow
-            pnames.Add(cfield)
-        Next
+        'currentRow = MyReader.ReadFields()
+        'For Each cfield As String In currentRow
+        '    pnames.Add(cfield)
+        'Next
         While Not MyReader.EndOfData
             u = New cunit
             Try
@@ -56,11 +55,11 @@
         order_command_structure(scenariodefaults.player1.Text)
         order_command_structure(scenariodefaults.player2.Text)
         file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".orb"), False)
-        Dim y As String = "", n As String = ""
-        For Each p As System.Reflection.PropertyInfo In properties
-            y = y + p.Name + ","
-        Next
-        file.WriteLine(y)
+        'Dim y As String = "", n As String = ""
+        'For Each p As System.Reflection.PropertyInfo In properties
+        '    y = y + p.Name + ","
+        'Next
+        'file.WriteLine(y)
         save_command_structure(p1_tree)
         save_command_structure(p2_tree)
         file.Close()
@@ -157,6 +156,27 @@
                 Next
                 'If eq_list.Contains(equip.title) Then eq_list.Remove(equip.title)
                 eq_list.Add(equip, equip.title)
+            Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
+                MsgBox("Line " & ex.Message &
+                "is not valid and will be skipped.")
+            End Try
+        End While
+
+    End Sub
+    Public Sub load_orbat_properties()
+        If Not My.Computer.FileSystem.FileExists(d_dir + "properties.dat") Then Exit Sub
+        'Dim myType As Type = GetType(cequipment), pval As String = ""
+        Dim MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(d_dir + "properties.dat")
+        'Using MyReader
+        MyReader.TextFieldType = FileIO.FieldType.Delimited
+        MyReader.SetDelimiters(",")
+        Dim currentRow As String()
+        While Not MyReader.EndOfData
+            Try
+                currentRow = MyReader.ReadFields()
+                For Each cfield As String In currentRow
+                    pnames.Add(cfield)
+                Next
             Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
                 MsgBox("Line " & ex.Message &
                 "is not valid and will be skipped.")

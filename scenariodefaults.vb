@@ -348,6 +348,8 @@
         'g_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Graphics\"
         'd_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Data\"
         eq_list = New Collection
+        pnames = New Collection
+        load_orbat_properties()
         load_equipment()
         unittypes = New Collection
         load_subunits()

@@ -1,6 +1,6 @@
 ﻿Module common_variables
     Public orbat As Collection, u As cunit, phase As Integer, playerphase As Integer, gamedate As Date, gameturn As String
-    Public eq_list As Collection, event_list As Collection
+    Public eq_list As Collection, event_list As Collection, pnames As Collection, pname As String
     Public TOE As Collection, subunit As csubunit
     Public unittypes As Collection, unittype As cunittype
     Public scenario As String, gt As Integer, dice As Integer

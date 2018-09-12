@@ -27,6 +27,7 @@ Partial Class movement
         Me.ColumnHeader3 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader4 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader6 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.ColumnHeader1 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader5 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.Label1 = New System.Windows.Forms.Label()
         Me.selected_hq = New System.Windows.Forms.Label()
@@ -46,7 +47,7 @@ Partial Class movement
         Me.tactical_actions = New System.Windows.Forms.GroupBox()
         Me.opp_fire = New System.Windows.Forms.Label()
         Me.comdtree = New System.Windows.Forms.TreeView()
-        Me.ColumnHeader1 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.form_function = New System.Windows.Forms.Label()
         Me.unitcover.SuspendLayout()
         Me.tactical_actions.SuspendLayout()
         Me.SuspendLayout()
@@ -57,7 +58,7 @@ Partial Class movement
         Me.undercommand.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.undercommand.FullRowSelect = True
         Me.undercommand.GridLines = True
-        Me.undercommand.Location = New System.Drawing.Point(455, 44)
+        Me.undercommand.Location = New System.Drawing.Point(361, 44)
         Me.undercommand.Name = "undercommand"
         Me.undercommand.Size = New System.Drawing.Size(461, 522)
         Me.undercommand.TabIndex = 43
@@ -80,6 +81,11 @@ Partial Class movement
         Me.ColumnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.ColumnHeader6.Width = 44
         '
+        'ColumnHeader1
+        '
+        Me.ColumnHeader1.Text = "Cover"
+        Me.ColumnHeader1.Width = 59
+        '
         'ColumnHeader5
         '
         Me.ColumnHeader5.Text = "Equipment"
@@ -90,7 +96,7 @@ Partial Class movement
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.ForeColor = System.Drawing.Color.White
-        Me.Label1.Location = New System.Drawing.Point(78, 9)
+        Me.Label1.Location = New System.Drawing.Point(43, 9)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(288, 32)
         Me.Label1.TabIndex = 44
@@ -102,7 +108,7 @@ Partial Class movement
         Me.selected_hq.BackColor = System.Drawing.Color.Transparent
         Me.selected_hq.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.selected_hq.ForeColor = System.Drawing.Color.White
-        Me.selected_hq.Location = New System.Drawing.Point(504, 9)
+        Me.selected_hq.Location = New System.Drawing.Point(404, 9)
         Me.selected_hq.Name = "selected_hq"
         Me.selected_hq.Size = New System.Drawing.Size(357, 32)
         Me.selected_hq.TabIndex = 44
@@ -124,9 +130,9 @@ Partial Class movement
         '
         Me.executeorders.Enabled = False
         Me.executeorders.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.executeorders.Location = New System.Drawing.Point(261, 590)
+        Me.executeorders.Location = New System.Drawing.Point(361, 590)
         Me.executeorders.Name = "executeorders"
-        Me.executeorders.Size = New System.Drawing.Size(609, 60)
+        Me.executeorders.Size = New System.Drawing.Size(461, 60)
         Me.executeorders.TabIndex = 52
         Me.executeorders.Text = "Execute Actions"
         Me.executeorders.UseVisualStyleBackColor = True
@@ -136,7 +142,7 @@ Partial Class movement
         Me.unitcover.Controls.Add(Me.cover)
         Me.unitcover.Enabled = False
         Me.unitcover.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.unitcover.Location = New System.Drawing.Point(938, 501)
+        Me.unitcover.Location = New System.Drawing.Point(938, 98)
         Me.unitcover.Name = "unitcover"
         Me.unitcover.Size = New System.Drawing.Size(297, 65)
         Me.unitcover.TabIndex = 53
@@ -295,7 +301,7 @@ Partial Class movement
         Me.tactical_actions.Controls.Add(Me.o2)
         Me.tactical_actions.Controls.Add(Me.o8)
         Me.tactical_actions.Controls.Add(Me.o3)
-        Me.tactical_actions.Location = New System.Drawing.Point(938, 98)
+        Me.tactical_actions.Location = New System.Drawing.Point(938, 184)
         Me.tactical_actions.Name = "tactical_actions"
         Me.tactical_actions.Size = New System.Drawing.Size(297, 382)
         Me.tactical_actions.TabIndex = 68
@@ -318,16 +324,23 @@ Partial Class movement
         Me.comdtree.AllowDrop = True
         Me.comdtree.BackColor = System.Drawing.Color.White
         Me.comdtree.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.comdtree.Location = New System.Drawing.Point(57, 44)
+        Me.comdtree.Location = New System.Drawing.Point(12, 44)
         Me.comdtree.Name = "comdtree"
         Me.comdtree.ShowPlusMinus = False
         Me.comdtree.Size = New System.Drawing.Size(329, 522)
         Me.comdtree.TabIndex = 70
         '
-        'ColumnHeader1
+        'form_function
         '
-        Me.ColumnHeader1.Text = "Cover"
-        Me.ColumnHeader1.Width = 59
+        Me.form_function.BackColor = System.Drawing.Color.Transparent
+        Me.form_function.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.form_function.ForeColor = System.Drawing.Color.White
+        Me.form_function.Location = New System.Drawing.Point(915, 9)
+        Me.form_function.Name = "form_function"
+        Me.form_function.Size = New System.Drawing.Size(357, 32)
+        Me.form_function.TabIndex = 71
+        Me.form_function.Text = "Movement Actions"
+        Me.form_function.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'movement
         '
@@ -336,6 +349,7 @@ Partial Class movement
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(1284, 662)
+        Me.Controls.Add(Me.form_function)
         Me.Controls.Add(Me.comdtree)
         Me.Controls.Add(Me.opp_fire)
         Me.Controls.Add(Me.tactical_actions)
@@ -378,4 +392,5 @@ Partial Class movement
     Friend WithEvents ColumnHeader6 As ColumnHeader
     Friend WithEvents comdtree As TreeView
     Friend WithEvents ColumnHeader1 As ColumnHeader
+    Friend WithEvents form_function As Label
 End Class

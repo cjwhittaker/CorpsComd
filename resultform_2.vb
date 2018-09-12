@@ -40,16 +40,16 @@
                 End If
             End If
             button_press = sender.text
-        Else
-            If sender.name = "yb" And InStr(Me.Tag, "eliminated") = 0 Then
+        ElseIf Tag = "ca" Then
+            If sender.name = "yb" Then
                 sender.backcolor = golden
-                Me.Tag = Me.Tag + "eliminated"
-            ElseIf sender.name = "yb" And InStr(Me.result.Text, "eliminated") > 0 And sender.backcolor = golden Then
-                sender.backcolor = defa
-                Me.Tag = Replace(Me.Tag, "eliminated", "")
+                Me.Tag = Me.Tag + " destroyed"
             Else
+                sender.backcolor = defa
+                Me.Tag = Replace(Me.Tag, " destroyed", "")
             End If
             button_press = sender.text
+        Else
         End If
         'result_option = Me.Tag
     End Sub

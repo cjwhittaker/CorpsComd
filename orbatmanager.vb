@@ -317,8 +317,8 @@
         If targetNode Is Nothing Then Exit Sub
         orbat(dropNode.Text).parent = targetNode.Text
         orbat(dropNode.Text).arrives = orbat(targetNode.Text).arrives
-        l = orbat(dropNode.Text).loaded
-        If orbat(dropNode.Text).loaded <> "" Then orbat(orbat(dropNode.Text).loaded).parent = targetNode.Text
+        l = orbat(dropNode.Text).carrying
+        If orbat(dropNode.Text).carrying <> "" Then orbat(orbat(dropNode.Text).carrying).parent = targetNode.Text
 
         'Remove the drop node from its current location
         dropNode.Remove()
@@ -431,38 +431,38 @@
     Private Sub loadvehicles(action As String, no As TreeNode)
         Dim tpt As String = "", title As String = no.Text
         If action = "Embus" Then
-            If orbat(title).inf And orbat(title).loaded = "" And orbat(title).debussed Then
+            If orbat(title).inf And orbat(title).carrying = "" And orbat(title).debussed Then
                 tpt = Replace(orbat(title).title, "#", "")
                 If orbat.Contains(tpt) Then
-                    orbat(title).loaded = tpt
+                    orbat(title).carrying = tpt
                     orbat(title).debussed = False
-                    orbat(tpt).loaded = orbat(title).title
+                    orbat(tpt).carrying = orbat(title).title
                     orbat(tpt).debussed = False
                 End If
-            ElseIf orbat(title).inf And orbat(title).loaded <> "" And orbat(title).debussed Then
+            ElseIf orbat(title).inf And orbat(title).carrying <> "" And orbat(title).debussed Then
                 tpt = Replace(orbat(title).title, "#", "")
                 orbat(title).debussed = False
                 orbat(tpt).debussed = False
             Else
             End If
         ElseIf action = "Dismount" Then
-            If orbat(title).inf And orbat(title).loaded <> "" Then
-                orbat(orbat(title).loaded).loaded = ""
-                orbat(orbat(title).loaded).debussed = True
-                orbat(title).loaded = ""
+            If orbat(title).inf And orbat(title).carrying <> "" Then
+                orbat(orbat(title).carrying).carrying = ""
+                orbat(orbat(title).carrying).debussed = True
+                orbat(title).carrying = ""
                 orbat(title).debussed = True
             End If
         ElseIf action = "Debus" Then
-            If orbat(title).inf And orbat(title).loaded <> "" Then
-                orbat(orbat(title).loaded).debussed = True
+            If orbat(title).inf And orbat(title).carrying <> "" Then
+                orbat(orbat(title).carrying).debussed = True
                 orbat(title).debussed = True
-                no.Text = orbat(title).loaded
-            ElseIf orbat(title).inf And orbat(title).loaded = "" And orbat(title).debussed Then
+                no.Text = orbat(title).carrying
+            ElseIf orbat(title).inf And orbat(title).carrying = "" And orbat(title).debussed Then
                 tpt = Replace(orbat(title).title, "#", "")
                 If orbat.Contains(tpt) Then
-                    orbat(title).loaded = tpt
+                    orbat(title).carrying = tpt
                     orbat(title).debussed = True
-                    orbat(tpt).loaded = orbat(title).title
+                    orbat(tpt).carrying = orbat(title).title
                     orbat(tpt).debussed = True
                 End If
             Else

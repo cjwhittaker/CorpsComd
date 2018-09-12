@@ -77,8 +77,8 @@
                     End If
                     n = New cunit
                     If InStr(l, pas) > 0 Then
-                        orbat(Replace(Trim(l) + Trim(orbattitle.Text), pas, "")).loaded = Replace(Trim(l) + Trim(orbattitle.Text), pas, "#")
-                        n.loaded = Replace(Trim(l) + Trim(orbattitle.Text), pas, "")
+                        orbat(Replace(Trim(l) + Trim(orbattitle.Text), pas, "")).carrying = Replace(Trim(l) + Trim(orbattitle.Text), pas, "#")
+                        n.carrying = Replace(Trim(l) + Trim(orbattitle.Text), pas, "")
                         l = Replace(l, pas, "#")
                     End If
                     With n

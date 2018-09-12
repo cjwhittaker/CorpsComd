@@ -58,6 +58,7 @@ Partial Class scenariodefaults
         Me.Label10 = New System.Windows.Forms.Label()
         Me.scenario_name = New System.Windows.Forms.TextBox()
         Me.p2_events = New System.Windows.Forms.Button()
+        Me.Button1 = New System.Windows.Forms.Button()
         CType(Me.start_time_inc, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -457,6 +458,15 @@ Partial Class scenariodefaults
         Me.p2_events.Text = "P2 Events"
         Me.p2_events.UseVisualStyleBackColor = True
         '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(548, 538)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(84, 42)
+        Me.Button1.TabIndex = 35
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'scenariodefaults
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -464,6 +474,7 @@ Partial Class scenariodefaults
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(684, 661)
+        Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.p2_events)
         Me.Controls.Add(Me.sunset)
         Me.Controls.Add(Me.Label12)
@@ -546,4 +557,5 @@ Partial Class scenariodefaults
     Friend WithEvents Label10 As Label
     Friend WithEvents scenario_name As TextBox
     Friend WithEvents p2_events As Button
+    Friend WithEvents Button1 As Button
 End Class

@@ -27,10 +27,10 @@
             If InStr(c.Name, "firer") > 0 Then firer.elevated = True Else target.elevated = True
         ElseIf InStr(c.Name, "elevation") > 0 And c.Text <> "Elevated" Then
             If InStr(c.Name, "firer") > 0 Then firer.elevated = False Else target.elevated = False
-        ElseIf InStr(c.Name, "dismounted") > 0 And c.Text = "Dismounted" And c.enabled Then
-            If InStr(c.Name, "firer") > 0 Then target.dismounted = True Else firer.dismounted = True
-        ElseIf InStr(c.Name, "dismounted") > 0 And (c.Text <> "Dismounted" Or Not c.enabled) Then
-            If InStr(c.Name, "firer") > 0 Then target.dismounted = False Else firer.dismounted = False
+            'ElseIf InStr(c.Name, "dismounted") > 0 And c.Text = "Dismounted" And c.enabled Then
+            '    If InStr(c.Name, "firer") > 0 Then target.dismounted = True Else firer.dismounted = True
+            'ElseIf InStr(c.Name, "dismounted") > 0 And (c.Text <> "Dismounted" Or Not c.enabled) Then
+            '    If InStr(c.Name, "firer") > 0 Then target.dismounted = False Else firer.dismounted = False
         ElseIf InStr(c.Name, "mode") > 0 Then
             If InStr(c.Name, "firer") > 0 Then firer.mode = c.Text Else target.mode = c.Text
         ElseIf InStr(c.Name, "roadmove") > 0 And c.Text = "Road Move" Then
@@ -150,7 +150,7 @@
     End Sub
 
     Public Sub observation(enable As Boolean)
-        'If enable Then observer.Text = firer.loaded
+        'If enable Then observer.Text = firer.carrying
         'observer.Visible = enable
         visrange.Visible = enable
         vis_range_select.Visible = enable
@@ -332,7 +332,7 @@
             f_wpn.Text = firer.equipment
             If firer.w2 = "" Then f_wpn.Enabled = False Else f_wpn.Enabled = True
             If firer.troopcarrier And firer.embussed Then firerdismounted.Enabled = True Else firerdismounted.Enabled = False
-            If firer.Inf And firer.loaded = "" Then
+            If firer.Inf And firer.dismounted Then
                 With firerdismounted
                     .Enabled = True
                     .Text = "Mount"
@@ -443,33 +443,18 @@
             sender.text = "Mount"
             sender.backcolor = golden
             If sender.name = "firerdismounted" Then
-                tmp = firer.loaded
-                firer.loaded = ""
-                orbat(tmp).loaded = ""
-                orbat(tmp).mode = firer.mode
+                firer.debus()
                 populate_lists(firers, orbat, "Direct Fire", firer.nation)
             Else
-                tmp = target.loaded
-                target.loaded = ""
-                orbat(tmp).loaded = ""
-                orbat(tmp).mode = target.mode
+                target.debus()
                 populate_lists(targets, orbat, "Direct Fire", target.nation)
             End If
         Else
-            sender.text = "Dismount"
-            sender.backcolor = defa
-            If sender.name = "firerdismounted" Then
-                tmp = Replace(firer.title, "#", "")
-                firer.loaded = tmp
-                orbat(tmp).loaded = firer.title
-                orbat(tmp).mode = firer.mode
-                firers.FocusedItem.Remove()
-            Else
-                tmp = Replace(target.title, "#", "")
-                target.loaded = tmp
-                orbat(tmp).loaded = target.title
-                orbat(tmp).mode = target.mode
-                targets.FocusedItem.Remove()
+            If sender.name = "firerdismounted" Then firer.embus() Else target.embus()
+            If (sender.name = "firerdismounted" And firer.embussed) Or (sender.name = "targetdismounted" And target.embussed) Then
+                If sender.name = "firerdismounted" Then firers.FocusedItem.Remove() Else targets.FocusedItem.Remove()
+                sender.text = "Dismount"
+                sender.backcolor = defa
             End If
         End If
         eligible_to_fire(sender)

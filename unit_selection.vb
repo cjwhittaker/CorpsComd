@@ -245,7 +245,7 @@
                 units.Items(i).Remove()
             Else
                 movement.observing = True
-                movement.mover.loaded = units.Items(i).Text
+                movement.mover.carrying = units.Items(i).Text
                 'combat_2.observer.Text = units.Items(i).Text
                 Me.Hide()
             End If
@@ -263,8 +263,8 @@
                             movement.mover.lostcomms = True
                             Me.Hide()
                         Else
-                            subject.loaded = movement.mover.title
-                            movement.load_combat(subject)
+                            subject.carrying = movement.mover.title
+                            'movement.load_combat(subject)
                             If subject.tacticalpts <= 0 Then units.Items(i).Remove()
                         End If
                     End If

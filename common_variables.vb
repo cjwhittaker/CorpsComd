@@ -23,7 +23,7 @@
     Public sys_dir As String, g_dir As String, d_dir As String
     Public golden As Color = Color.Goldenrod, defa As Color = SystemColors.Control
     Public travel As String = "Travel", conc As String = "Conc", disp As String = "Disp"
-    Public debussed As String = "debussed", embussed As String = "embussed", dismounted As String = "dismounted", unloaded As String = "unloaded", loaded As String = "loaded"
+    Public debussed As String = "debussed", embussed As String = "embussed", dismounted As String = "dismounted", uncarrying As String = "uncarrying", carrying As String = "carrying"
     Public fire_loss_table(,) As Integer = {{0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2},
 {0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2},
 {0, 0, 0, 0, 0, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3},

@@ -390,7 +390,7 @@
     Function generateresult(ByVal target As cunit, ByVal c As Integer, ByVal indirect As Boolean, airtoair As Boolean, ByVal assault As Boolean)
         target.hits = 0
         generateresult = ""
-        If target.mode = travel And Not target.recon Then
+        If Not assault And Not airtoair And target.mode = travel And Not target.recon Then
             If c = -1 Then
                 c = 1
             ElseIf c > 0 Then
@@ -407,7 +407,7 @@
         ElseIf assault Then
             If Not (target.assault Or target.support) And target.strength > 0 Then
                 generateresult = " disrupted, and suffered  " + Str(target.casualties) + " casualties, and must retreat 600m"
-            ElseIf Not (target.assault Or target.support) And target.strength = 0 Then
+            ElseIf target.strength = 0 Then
                 generateresult = " destroyed  "
             Else
                 generateresult = " disrupted, and suffered  " + Str(target.casualties) + " casualties, and holds its current position"

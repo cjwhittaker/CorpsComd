@@ -23,7 +23,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pdisrupted_gt As Boolean
     Private pdisrupted As Boolean
     Private pcover As Integer
-    Private ploaded As String
+    Private pcarrying As String
     Private pmoved As Integer
     Private pfired As Integer
     Private phit As Boolean
@@ -46,7 +46,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pewsupported As Boolean
     Private pplains As Boolean
     Private pinsmoke As Boolean
-    Private parrives As String
+    Private parrives As Integer
     Private pspotted As Boolean
     Private peffective As Boolean
     Private peffect As Integer
@@ -65,9 +65,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private popp_mode As Integer
     Private popp_ca As Integer
     Private popp_return As Integer
-
-    Private pdismounted As Boolean
-    Private pdebussed As Boolean
+    Private pspare1 As Boolean
+    Private pdebussed_gt As Boolean
     Private party_int As Integer
     Private pooc As Boolean
 
@@ -200,12 +199,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             pparent = Value
         End Set
     End Property
-    Property loaded() As String
+    Property carrying() As String
         Get
-            Return ploaded
+            Return pcarrying
         End Get
         Set(ByVal Value As String)
-            ploaded = Value
+            pcarrying = Value
         End Set
     End Property
     Property secondary() As String
@@ -224,20 +223,20 @@ Imports System.Runtime.Serialization.Formatters.Binary
             pprimary = Value
         End Set
     End Property
-    Property dismounted() As Boolean
+    Property spare1() As Boolean
         Get
-            Return pdismounted
+            Return pspare1
         End Get
         Set(ByVal Value As Boolean)
-            pdismounted = Value
+            pspare1 = Value
         End Set
     End Property
-    Property debussed() As Boolean
+    Property debussed_gt() As Boolean
         Get
-            Return pdebussed
+            Return pdebussed_gt
         End Get
         Set(ByVal Value As Boolean)
-            pdebussed = Value
+            pdebussed_gt = Value
         End Set
     End Property
 
@@ -595,11 +594,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Set
     End Property
 
-    Property arrives() As String
+    Property arrives() As Integer
         Get
             Return parrives
         End Get
-        Set(ByVal Value As String)
+        Set(ByVal Value As Integer)
             parrives = Value
         End Set
     End Property
@@ -631,8 +630,33 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function embussed() As Boolean
         embussed = False
-        If (InStr(title, "#") > 0 And loaded <> "") Or (troopcarrier And loaded<>"") Then embussed = True
+        If carrying <> "" And (InStr(title, "#") > 0 Or troopcarrier()) Then embussed = True
     End Function
+    Public Function dismounted() As Boolean
+        dismounted = False
+        If (InStr(title, "#") > 0 And carrying = "") Then dismounted = True
+    End Function
+    Public Sub embus()
+        If debussed_gt Or Not Inf() Or Not dismounted() Then Exit Sub
+        Dim tmp As String = Replace(title, "#", "")
+        If Not orbat.Contains(tmp) Or orbat(tmp).debussed_gt Then Exit Sub
+        carrying = tmp
+        With orbat(tmp)
+            .carrying = ""
+            .mode = mode
+            .debussed_gt = True
+        End With
+    End Sub
+    Public Sub debus()
+        Dim tmp As String = carrying
+        carrying = ""
+        debussed_gt = True
+        With orbat(tmp)
+            .carrying = ""
+            .mode = mode
+            .debussed_gt = True
+        End With
+    End Sub
     'Public Function loiter()
     '    loiter = False
     '    Try
@@ -644,7 +668,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         airdefence = False
         If mode = travel Then
             airdefence = False
-        ElseIf Inf And Not dismounted() Then
+        ElseIf Inf() And Not dismounted() Then
             airdefence = False
         ElseIf InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then
             airdefence = True
@@ -683,27 +707,26 @@ Imports System.Runtime.Serialization.Formatters.Binary
         aircraft = False
         If InStr("|AC|AH|OH|TB|AD|GA|AWACS|EW|", role) > 0 Then aircraft = True
     End Function
+    Public Function engr()
+        engr = False
+        If InStr("|AEV|Eng|", role) > 0 Then engr = True
 
+    End Function
 
     Public Function Airground()
         If task = "CAS" Or task = "Strike" Or task = "SEAD" Then Airground = True Else Airground = False
     End Function
     Public Function Inf()
         Inf = False
-        If InStr(role, "Inf") > 0 Then Inf = True
+        If InStr("|Inf|Eng|", role) > 0 Then Inf = True
     End Function
     Public Function cae(armd As Boolean)
-        If armd Then
-            cae = eq_list(equipment).cae
-        Else
-            cae = eq_list(equipment + "soft").cae
-        End If
-
-
+        cae = 0
+        If Not equipment Is Nothing Then If armd Then cae = eq_list(equipment).cae Else cae = eq_list(equipment + "soft").cae
     End Function
     Public Function afv()
         afv = False
-        If InStr("|MICV|TANK|", role) > 0 Then afv = True
+        If InStr("|MICV|TANK|RECON|", role) > 0 Then afv = True
     End Function
     Public Function atgw()
         atgw = False
@@ -712,7 +735,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function armour()
         armour = False
-        If eq_list(equipment).defence > 0 And Not aircraft() Then armour = True
+        If Not equipment Is Nothing Then If eq_list(equipment).defence > 0 And Not aircraft() Then armour = True
     End Function
 
     Public Function hq()
@@ -740,7 +763,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function getmaxrange(ByVal secondary As String)
         Dim maxrange As Integer
-        Try
+        If Not equipment Is Nothing Then
             If airborne And Airground() And InStr(UCase(equipment), "GA") > 0 Then
                 getmaxrange = 5000
             ElseIf secondary.Equals(equipment) Then
@@ -749,23 +772,15 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 getmaxrange = eq_list(equipment + w2()).maxrange
             Else
             End If
-
-        Catch ex As Exception
-            'getmaxrange = 2000
-
-        End Try
+        End If
         getmaxrange = maxrange
     End Function
     Public Sub set_fire_effect(target As cunit, r As Integer, stage As Integer)
         Dim context As String = ""
         Dim max_range As Integer
         Dim standoff_range As String = ""
-        Try
-            If secondary = "" Then max_range = eq_list(equipment).maxrange Else max_range = eq_list(secondary).maxrange
-            standoff_range = eq_list(target.equipment).standoff_range
-        Catch ex As Exception
-            standoff_range = ""
-        End Try
+        If Not equipment Is Nothing Then If secondary = "" Then max_range = eq_list(equipment).maxrange Else max_range = eq_list(secondary).maxrange
+        If Not equipment Is Nothing Then standoff_range = eq_list(target.equipment).standoff_range
         If airdefence() And target.airborne Then
             context = "AD"
         ElseIf airborne And target.airborne Then
@@ -789,7 +804,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End If
 
 
-        If Not context = "AS" And r > max_range Then effect = 0 : Exit Sub
+        If equipment Is Nothing Or (Not context = "AS" And r > max_range) Then effect = 0 : Exit Sub
         Try
 
             If context = "SEAD" And target.eligibleCB And target.airdefence Then
@@ -872,19 +887,19 @@ Imports System.Runtime.Serialization.Formatters.Binary
                         Case 4000
                             j = eq_list(weapon).R4000
                     End Select
-                    If loaded = "" Then
+                    If carrying = "" Then
                         Exit For
-                    ElseIf Inf() And debussed And i = 1 Then
+                    ElseIf Inf() And debussed_gt And i = 1 Then
                         effect = j
-                        weapon = orbat(loaded).equipment
-                    ElseIf Inf() And debussed And i = 2 Then
+                        weapon = orbat(carrying).equipment
+                    ElseIf Inf() And debussed_gt And i = 2 Then
                         j = Int(j / 2)
-                        weapon = orbat(loaded).equipment
-                    ElseIf troopcarrier() And Not debussed And i = 1 Then
+                        weapon = orbat(carrying).equipment
+                    ElseIf troopcarrier() And Not debussed_gt And i = 1 Then
                         effect = j
                         If armour() Then Exit For
-                        weapon = orbat(loaded).equipment
-                    ElseIf troopcarrier() And Not debussed And i = 2 And r <= 300 Then
+                        weapon = orbat(carrying).equipment
+                    ElseIf troopcarrier() And Not debussed_gt And i = 2 And r <= 300 Then
                         j = j / 3
                     Else
                     End If
@@ -906,53 +921,28 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Sub
     Public Function composite()
         composite = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "C") > 0 Then composite = True
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "C") > 0 Then composite = True
     End Function
     Public Function heat()
         heat = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "H") > 0 Then heat = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "H") > 0 Then heat = True
     End Function
     Public Function heavy_fire()
         heavy_fire = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "Y") > 0 Then heavy_fire = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "Y") > 0 Then heavy_fire = True
     End Function
     Public Function bomblets()
         bomblets = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "X") > 0 Then bomblets = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "X") > 0 Then bomblets = True
     End Function
 
     Public Function spaced()
         spaced = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "S") > 0 Then spaced = True
-        Catch ex As Exception
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "S") > 0 Then spaced = True
     End Function
     Public Function stabilised()
         stabilised = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "B") > 0 Then stabilised = True
-        Catch ex As Exception
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "B") > 0 Then stabilised = True
     End Function
     Public Function recon()
         recon = False
@@ -960,43 +950,23 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function size()
         size = ""
-        Try
-            size = eq_list(equipment).size
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then size = eq_list(equipment).size
     End Function
     Public Function soft_tpt()
         soft_tpt = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "V") > 0 Then soft_tpt = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "V") > 0 Then soft_tpt = True
     End Function
     Public Function conc()
         conc = True
-        If InStr(UCase(eq_list(equipment).special), "D") > 0 Then conc = False
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "D") > 0 Then conc = False
     End Function
     Public Function smoke_discharger()
         smoke_discharger = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "P") > 0 Then smoke_discharger = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "P") > 0 Then smoke_discharger = True
     End Function
     Public Function smoke_generator()
         smoke_generator = False
-        Try
-            If InStr(UCase(eq_list(equipment).special), "G") > 0 Then smoke_generator = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "G") > 0 Then smoke_generator = True
     End Function
     Public Function arty_hq()
         arty_hq = False
@@ -1010,34 +980,30 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function emplaced()
         Dim x As Integer
         emplaced = False
-        Try
-            If indirect() And mode = disp Then
-                If moved = -1 Then emplaced = True : Exit Function
-                sorties = 0
-                If InStr(eq_list(equipment).special, "2") > 0 Then
-                    sorties = 2
-                ElseIf InStr(eq_list(equipment).special, "1") > 0 Then
-                    sorties = 1
-                Else
-                End If
-                If InStr(UCase(eq_list(equipment).special), "L") = 0 Then sorties = sorties - 1
-                x = Val(scenariodefaults.gameturn.Text) - moved + sorties
-                If (orbat(parent).comd - 2) - x <= 0 Then emplaced = True
+        If Not equipment Is Nothing And indirect() And mode = disp Then
+            If moved = -1 Then emplaced = True : Exit Function
+            sorties = 0
+            If InStr(eq_list(equipment).special, "2") > 0 Then
+                sorties = 2
+            ElseIf InStr(eq_list(equipment).special, "1") > 0 Then
+                sorties = 1
+            Else
             End If
+            If InStr(UCase(eq_list(equipment).special), "L") = 0 Then sorties = sorties - 1
+            x = Val(scenariodefaults.gameturn.Text) - moved + sorties
+            If (orbat(parent).comd - 2) - x <= 0 Then emplaced = True
+        End If
 
-        Catch ex As Exception
-
-        End Try
     End Function
     Public Function ground_unit()
         ground_unit = False
         If aircraft() Or comd > 0 Then Exit Function
         ground_unit = True
-        If troopcarrier() And debussed And loaded <> "" Then
+        If troopcarrier() And carrying <> "" Then
+            ground_unit = True
+        ElseIf Inf() And embussed Then
             ground_unit = False
-        ElseIf Inf() And Not debussed Then
-            ground_unit = False
-        ElseIf (troopcarrier() And debussed And loaded = "") Or (Inf() And debussed And loaded = "") Then
+        ElseIf (troopcarrier() And carrying = "") Or (Inf() And carrying = "") Then
             ground_unit = True
         Else
         End If
@@ -1082,12 +1048,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Sub lands(aborted As Boolean)
         If Not airborne Then Exit Sub
-        Try
-            If aborted Then sorties = scenariodefaults.gameturn.Text + 1 Else sorties = eq_list(equipment).sortie
+        If Not equipment Is Nothing Then If aborted Then sorties = scenariodefaults.gameturn.Text + 1 Else sorties = eq_list(equipment).sortie
 
-        Catch ex As Exception
 
-        End Try
         strength = strength - casualties
         If strength <= 0 Then strength = 0
         casualties = 0
@@ -1112,12 +1075,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Sub
     Public Function missile_armed()
         missile_armed = False
-        Try
-            If InStr(eq_list(equipment).special, "1") + InStr(eq_list(equipment).special, "2") + InStr(eq_list(equipment).special, "3") > 0 Then missile_armed = True
-
-        Catch ex As Exception
-
-        End Try
+        If Not equipment Is Nothing Then If InStr(eq_list(equipment).special, "1") + InStr(eq_list(equipment).special, "2") + InStr(eq_list(equipment).special, "3") > 0 Then missile_armed = True
     End Function
     Public Sub reset_unit()
         ooc = False
@@ -1134,10 +1092,13 @@ Imports System.Runtime.Serialization.Formatters.Binary
         casualties = 0
         sorties = IIf(aircraft() And sorties > 0, sorties - 1, sorties)
         disrupted_gt = False
-
+        debussed_gt = False
+        assault = False
+        support = False
     End Sub
     Public Sub reset_missiles()
-        Try
+        missiles = 0
+        If Not equipment Is Nothing Then
             If InStr(eq_list(equipment).special, "1") > 0 Then
                 missiles = 1
             ElseIf InStr(eq_list(equipment).special, "2") > 0 Then
@@ -1147,11 +1108,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             Else
                 missiles = 0
             End If
-
-        Catch ex As Exception
-            missiles = 0
-
-        End Try
+        End If
     End Sub
     Public Sub update_after_firing(phasing As String, weapon As String, finished As Boolean)
         Dim i As Integer = 0
@@ -1176,7 +1133,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             '    End If
             'Else
             'End If
-            If indirect() And loaded <> "" Then loaded = ""
+            If indirect() And carrying <> "" Then carrying = ""
             'If Not aircraft() Then fired = gt Else fired = CorpsComd.phase
             firers_available = firers_available - firers
             firers = 0
@@ -1219,8 +1176,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
         '        .ShowDialog()
         '    End With
         'End If
-        If loaded <> "" Then
-            With orbat(loaded)
+        If carrying <> "" Then
+            With orbat(carrying)
                 .strength = strength
                 .casualties = casualties
                 .mode = mode
@@ -1232,6 +1189,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
+        'If parent = "231 Recon" Then Stop
+        'If indirect() Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then
                 validunit = True
@@ -1239,15 +1198,15 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 validunit = True
             ElseIf phase = "Demoralisation" And demoralised Then
                 validunit = True
-            ElseIf phase = "Fire and Movement" And hq = parent And Not demoralised Then
+            ElseIf phase = "Movement" And hq = parent And Not demoralised Then
                 validunit = True
             ElseIf phase = "Air Tasking" And hq = parent And Not demoralised And primary = "Air units" Then
                 validunit = True
-            ElseIf InStr("Arty TaskingArea Fire", phase) > 0 And hq = parent And Not demoralised And loaded = "Arty units" Then
+            ElseIf InStr("Arty TaskingArea Fire", phase) > 0 And hq = parent And Not demoralised And carrying = "Arty units" Then
                 validunit = True
-            ElseIf phase = "CB Fire" And hq = parent And Not demoralised And loaded = "Arty units" And arty_int > 0 Then
+            ElseIf phase = "CB Fire" And hq = parent And Not demoralised And carrying = "Arty units" And arty_int > 0 Then
                 validunit = True
-            ElseIf phase = "Observer" And hq = "" And Not demoralised And loaded = "Arty units" And arty_int > 0 Then
+            ElseIf phase = "Observer" And hq = "" And Not demoralised And carrying = "Arty units" And arty_int > 0 Then
                 validunit = True
             ElseIf phase = "Arty Support" And divisional_comd(Me) = hq Then
                 validunit = True
@@ -1258,25 +1217,38 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf phase = "Orbat" And hq = parent Then
             validunit = True
-        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not has_fired And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
+        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
             validunit = True
-        ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And nation = hq And Not demoralised And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
+        ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
             If ((movement.tactical = 0 Or movement.tactical = 1) And opp_move > 0) Or (movement.tactical = 3 And opp_ca > 0) Or (movement.tactical >= 4 And opp_mode > 0) Then
                 validunit = True
             Else
                 validunit = False
             End If
-        ElseIf phase = "Smoke Barrage" And Not disrupted And nation = hq And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) And indirect Then
+        ElseIf phase = "CA Defenders" And arrives = 0 Then
+            If ground_unit() Then validunit = True
+        ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
+            If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
+        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) And indirect() Then
             validunit = True
-        ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 And nation = hq Then
-            If indirect() And emplaced() And tacticalpts > 0 And Not disrupted Then
+        ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
+            If indirect() And emplaced() And tacticalpts > 0 Then
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                     validunit = False
                 Else
                     validunit = True
                 End If
             End If
-        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer And nation = hq And (arrives = 0 Or arrives Is Nothing) Then
+        ElseIf phase = "Artillery Support" And indirect() And emplaced() And Not disrupted And Not support Then
+            If parent = hq Or (primary = hq And task = "DS") Then
+                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
+                    validunit = False
+                Else
+                    validunit = True
+                End If
+
+            End If
+        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
             If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                 validunit = False
             Else
@@ -1285,11 +1257,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             validunit = False
         ElseIf phase = "Transport" Then
-            If troopcarrier() And loaded = "" And parent = hq Then validunit = True
+            If troopcarrier() And carrying = "" And parent = hq Then validunit = True
         ElseIf phase = "Movement" And (ground_unit() Or heli()) And Not demoralised And parent = hq And arrives = 0 Then
             validunit = True
-        ElseIf phase = "CA Defenders" Then
-            If ground_unit() Then validunit = True
         ElseIf phase = "Morale Recovery" Then
             If ground_unit() And coc(hq, Me, comd) And strength > 0 Then validunit = True
         ElseIf phase = "Area Fire" Then
@@ -1299,7 +1269,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf phase = "CB Targets" Then
             If eligibleCB Then validunit = True
         ElseIf phase = "Transport" Then
-            If parent = hq And loaded = "" And Not disrupted Then validunit = True
+            If parent = hq And carrying = "" And Not disrupted Then validunit = True
         ElseIf phase = "Air Tasking" Then
             If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
         ElseIf phase = "Arty Tasking" Then
@@ -1331,7 +1301,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 If missile_armed() And missiles = 0 Then
                     validunit = False
                 ElseIf CorpsComd.phase = 8 Then
-                    If eq_list(equipment).maxrange >= 30000 Then validunit = True Else validunit = False
+                    validunit = False
+                    If Not equipment Is Nothing Then If eq_list(equipment).maxrange >= 30000 Then validunit = True
                 Else
                     validunit = True
                 End If
@@ -1372,7 +1343,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function capable_of_abort(firer As String)
         capable_of_abort = False
-        Try
+        If Not equipment Is Nothing Then
             If eq_list(equipment).miss_def >= eq_list(firer).aam Then
                 capable_of_abort = True
             ElseIf eq_list(equipment).miss_def >= eq_list(firer).aam_close Then
@@ -1382,9 +1353,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             Else
             End If
 
-        Catch ex As Exception
-
-        End Try
+        End If
     End Function
 
     Public Function has_moved()

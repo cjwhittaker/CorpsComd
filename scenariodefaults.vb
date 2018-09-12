@@ -325,19 +325,11 @@
         End With
     End Sub
 
-    Private Sub Button1_Click_1(sender As Object, e As EventArgs)
+    Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
 
-        'Dim u As cunit
-        'u = orbat("D/4RTR")
-
-        Dim x As Integer
-        'x = eq_list("Challenger").maxrange
-        x = eq_list.Count
-        With resultform_2
-            .result.Text = u.equipment + vbNewLine + Str(x) + vbNewLine ' + Str(eq_list("Challenger").CAE)
-            .ShowDialog()
-        End With
-
+        For Each u As cunit In orbat
+            If u.parent = "1-115 MRR" Then u.arrives = 0
+        Next
     End Sub
 
 

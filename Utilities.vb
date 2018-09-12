@@ -22,7 +22,7 @@
     End Function
 
     Public Sub populate_lists(ByVal l As ListView, ByVal c As Collection, ByVal purpose As String, ByVal hq As String)
-        Dim listitem As ListViewItem, j As Integer = 0, loaded As String = "*", info As String = ""
+        Dim listitem As ListViewItem, j As Integer = 0, info As String = ""
         'For Each i As ListViewItem In l.Items
         '    i.Remove()
         'Next
@@ -42,7 +42,6 @@
                 If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
                     'listitem.SubItems.Add(u.comdpts)
                 ElseIf l.Name = "undercommand" Then
-                    If u.loaded <> "" Then loaded = "*" Else loaded = ""
                     If InStr("Arty Tasking", purpose) > 0 Then
                         info = u.task
                     ElseIf purpose = "Movement" Then
@@ -52,9 +51,9 @@
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), ""))
-                    listitem.SubItems.Add(u.equipment + loaded)
+                    listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
                     'l.BackColor = u.status
-                ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersGround TargetsCB TargetsAir DefenceCAP MissionsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
+                ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsAir DefenceCAP MissionsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
                     listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
@@ -73,13 +72,13 @@
         For Each li As ListViewItem In l.Items
             If orbat.Contains(li.Text) Then
                 If purpose = "Observer" Or purpose = "Artillery Support" Then
-                    If orbat(li.Text).arty_spt = 0 Then
-                        li.BackColor = in_ds
-                    ElseIf orbat(li.Text).arty_spt = 1 Then
-                        li.BackColor = can_observe
-                    Else
-                        li.BackColor = not_on_net
-                    End If
+                    'If orbat(li.Text).arty_spt = 0 Then
+                    '    li.BackColor = in_ds
+                    'ElseIf orbat(li.Text).arty_spt = 1 Then
+                    '    li.BackColor = can_observe
+                    'Else
+                    '    li.BackColor = not_on_net
+                    'End If
                 ElseIf InStr("DemoralisationMorale RecoveryMovementArty Tasking", purpose) > 0 Then
                     li.BackColor = orbat(li.Text).status("")
                 Else
@@ -105,7 +104,7 @@
     Public Sub hq_functions(ByVal p As cunit, func As String)
         If p.parent <> "root" Then hq_functions(orbat(p.parent), func)
         If func = "Air units" And p.primary <> func Then p.primary = func
-        If func = "Arty units" And p.loaded <> func Then p.loaded = func
+        If func = "Arty units" And p.carrying <> func Then p.carrying = func
     End Sub
 
     Public Sub ewsupport(ByVal candidates As Collection, ByVal phase As String)
@@ -312,8 +311,8 @@
     '            obr = 1200
     '        ElseIf target.mode = travel Then
     '            obr = 1000
-    '        ElseIf target.debussed And target.loaded <> "" And target.Inf Then
-    '            obr = eq_list(orbat(target.loaded).equipment).bor
+    '        ElseIf target.debussed And target.carrying <> "" And target.Inf Then
+    '            obr = eq_list(orbat(target.carrying).equipment).bor
     '            If target.mode = disp Then obr = 100
     '        ElseIf target.mode = disp Then
     '            obr = 600
@@ -672,9 +671,9 @@
                         subNode.BackColor = orbat(x).status(purpose)
                         If orbat(x).comd = 0 Then
                             If purpose = "Orbat" And orbat(x).inf Then
-                                If orbat(x).debussed And orbat(x).loaded = "" Then
+                                If orbat(x).debussed And orbat(x).carrying = "" Then
                                     subNode.ToolTipText = "Dismounted"
-                                ElseIf orbat(x).debussed And orbat(x).loaded <> "" Then
+                                ElseIf orbat(x).debussed And orbat(x).carrying <> "" Then
                                     subNode.ToolTipText = "Debussed"
                                 ElseIf Not orbat(x).debussed Then
                                     subNode.ToolTipText = "Embused"
@@ -715,7 +714,7 @@
                         End With
                         For Each u As cunit In orbat
                             If u.nation = e.side And (u.title = e.unit Or u.parent = e.unit) Then
-                                u.arrives = ""
+                                u.arrives = 0
                                 If u.comd = 0 Then
                                     If Not u.conc Then u.mode = travel
                                 End If

@@ -1,10 +1,29 @@
 ﻿Public Class assault
     Public defender As cunit, attacker As cunit, supporter As cunit
+    Private Sub select_unit(ByVal sender As Object, ByVal e As System.EventArgs) Handles supports.Click, defenders.Click
+
+        If sender.FocusedItem.BackColor = golden Then
+            sender.FocusedItem.BackColor = nostatus
+            If sender.name = "supports" Then supporter = New cunit Else defender = New cunit
+            defender = New cunit
+            d_arty.Items.Clear()
+        Else
+            For Each l As ListViewItem In sender.items
+                If l.BackColor = golden Then l.BackColor = nostatus
+            Next
+            sender.FocusedItem.BackColor = golden
+            If sender.name = "supports" Then supporter = orbat(sender.FocusedItem.Text) Else defender = orbat(sender.FocusedItem.Text)
+            If sender.name = "defenders" Then populate_lists(d_arty, enemy, "Artillery Support", defender.parent)
+
+        End If
+        sender.SelectedItems.Clear()
+    End Sub
 
     Private Sub conduct_close_assault() Handles fight.Click
         Dim modi As Integer = 0, odds As Single = 0
-        modi = close_assault_difference(attacker, defender)
-        odds = close_assault_ratio(attacker, supporter, defender, defile.Checked)
+        attacker.assault = True : supporter.assault = True
+        modi = close_assault_difference()
+        odds = close_assault_ratio(attacker, supporter, defender)
         modi = modi + Asc(attacker.quality) - Asc(defender.quality)
         If odds > 1 Then
             modi = modi + Int(odds) - 1
@@ -12,13 +31,14 @@
             modi = modi - Int(1 / odds) + 1
         Else
         End If
-        modi = modi + arty_support(a_arty_spt)
-        modi = modi - arty_support(d_arty_spt)
+        modi = modi + arty_support(a_arty, True)
+        modi = modi - arty_support(d_arty, True)
         If cover.Text <> "None" Then modi = modi - (1 + Val(cover.Text))
-        If engr.Checked Then modi = modi + 1 + Val(cover.Text)
-        If uphill.Checked Then modi = modi - 1
-        If (attacker.Inf And supporter.afv) Or (supporter.Inf And attacker.afv) Or (attacker.Inf And attacker.debussed And attacker.loaded <> "" And orbat(attacker.loaded).afv) Then modi = modi + 2
-        If (attacker.afv Or supporter.afv Or (attacker.Inf And attacker.debussed And attacker.loaded <> "" And orbat(attacker.loaded).afv)) And atgw_spt.Checked = True Then modi = modi - 2
+        If attacker.engr Or supporter.engr Then modi = modi + 1 + Val(cover.Text)
+        'If uphill.Checked Then modi = modi - 1
+        If (attacker.Inf And supporter.afv) Or (supporter.Inf And attacker.afv) Then modi = modi + 2
+        If (attacker.afv Or supporter.afv) And atgw_spt.BackColor = golden Then modi = modi - 2
+        If afv_spt.BackColor = golden Then modi = modi - 1
         If defender.disrupted Then modi = modi + 4
         modi = modi + d6()
         Select Case modi
@@ -35,7 +55,16 @@
             Case Is >= 12
                 defender.casualties = 3
         End Select
-        If modi <= 5 Then attacker.disrupted = True
+        If modi <= 5 Then
+            attacker.disrupted = True
+            supporter.disrupted = True
+            attacker.strength = attacker.strength - attacker.casualties
+            If attacker.strength <= 0 Then
+                supporter.strength = supporter.strength + attacker.strength
+                attacker.strength = 0
+                If supporter.strength <= 0 Then supporter.strength = 0
+            End If
+        End If
         If modi >= 5 And defender.disrupted Then
             With defender
                 .strength = 0
@@ -46,10 +75,14 @@
             defender.disrupted = True
         Else
         End If
+        defender.strength = defender.strength - defender.casualties
+        If defender.strength <= 0 Then defender.strength = 0
         If modi < 5 Then
             resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
+            If Not supporter.title Is Nothing Then resultform_2.result.Text = resultform_2.result.Text + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
         ElseIf modi = 5 Then
             resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
+            If Not supporter.title Is Nothing Then resultform_2.result.Text = resultform_2.result.Text + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
             resultform_2.result.Text = resultform_2.result.Text + vbNewLine + defender.title + " " + generateresult(defender, 1, False, False, True)
         Else
             resultform_2.result.Text = defender.title + " " + generateresult(defender, 2, False, False, True)
@@ -57,128 +90,126 @@
         With resultform_2
             .Tag = "ca"
             .ok_button.Visible = True
-            .yb.Visible = IIf(InStr(Me.Text, "retreat") > 0, True, False)
-            .yb.Text = "Defender destroyed"
+            .yb.Text = "Defender Destroyed"
+            .yb.Visible = IIf(InStr(resultform_2.result.Text, "retreat") > 0, True, False)
             .ShowDialog()
             .yb.Text = "Yes"
             .nb.Text = "No"
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If resultform_2.Tag = " has been destroyed" Then defender.casualties = defender.strength
-        If modi <= 2 Then applyresult(attacker)
-        If modi >= 8 And defender.strength > 0 Then applyresult(defender)
+        If resultform_2.Tag = "ca destroyed" Then defender.strength = 0
+        'If modi <= 2 Then applyresult(attacker)
+        'If modi >= 8 And defender.strength > 0 Then applyresult(defender)
+        For Each l As ListViewItem In movement.undercommand.Items
+            If l.Text = attacker.title Then l.Remove()
+        Next
+        If Not supporter.title Is Nothing Then
+            For Each l As ListViewItem In movement.undercommand.Items
+                If l.Text = supporter.title Then l.Remove()
+            Next
+        End If
         Me.Hide()
     End Sub
-    Private Function close_assault_ratio(a As cunit, s As cunit, d As cunit, defile As Boolean)
+    Private Function close_assault_ratio(a As cunit, s As cunit, d As cunit)
         close_assault_ratio = 1
         Dim at As Integer = 0, dt As Integer = 0
-        If a.Inf And a.debussed And a.loaded <> "" Then
+        If a.Inf And a.dismounted And a.carrying <> "" Then
             at = a.strength + s.strength
         ElseIf s Is Nothing Or s.title = "" Then
             at = a.strength
         Else
             at = a.strength + s.strength
         End If
-        If defile Then at = at / 2
-        If d.Inf And d.debussed And d.loaded <> "" Then dt = d.strength + orbat(d.loaded).strength Else dt = d.strength
+        If defile.backcolor = golden Then at = at / 2
+        If d.Inf And d.dismounted And d.carrying <> "" Then dt = d.strength + orbat(d.carrying).strength Else dt = d.strength
         close_assault_ratio = at / dt
     End Function
-    Private Function close_assault_difference(a As cunit, d As cunit)
+    Private Function close_assault_difference()
         close_assault_difference = 0
-        Dim ac As Integer = 0, dc As Integer = 0
-        If a.loaded = "" Then
-            ac = a.cae(d.armour)
-        ElseIf a.Inf And a.debussed Then
-            ac = a.cae(d.armour) + orbat(a.loaded).cae(d.armour) / 2
-        ElseIf a.troopcarrier And Not a.debussed Then
-            ac = a.cae(d.armour) + IIf(d.armour, 0, orbat(a.loaded).cae(d.armour) / 2)
+        Dim ac As Integer = attacker.cae(defender.armour), dc As Integer = defender.cae(attacker.armour)
+        If attacker.troopcarrier And attacker.afv And attacker.embussed And Not defender.afv Then ac = ac + 2
+        If attacker.disrupted Then
+            ac = ac - 4
+            If ac > 4 Then ac = 4
+        ElseIf attacker.mode = disp And Not attacker.dismounted And Not defender.armour Then
+            ac = ac - 2
         Else
-            ac = 0
         End If
-        If d.loaded = "" Then
-            dc = d.cae(a.armour)
-        ElseIf d.Inf And d.debussed Then
-            dc = d.cae(a.armour) + orbat(d.loaded).cae(a.armour) / 2
-        ElseIf d.troopcarrier And Not d.debussed Then
-            dc = d.cae(a.armour) + IIf(a.armour, 0, orbat(d.loaded).cae(a.armour) / 2)
+
+        If defender.troopcarrier And defender.afv And defender.embussed And Not attacker.afv Then dc = dc + 2
+        If defender.disrupted Then
+            dc = dc - 4
+            If dc > 4 Then dc = 4
+        ElseIf defender.mode = disp And Not defender.dismounted And Not (attacker.armour Or supporter.armour) Then
+            dc = dc - 2
         Else
-            dc = 0
         End If
+
         close_assault_difference = ac - dc
 
     End Function
 
-    Private Sub select_cover_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles select_cover.Click
+    Private Sub select_cover_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cover.Click
         If cover.Text = "None" Then
-            cover.Text = "+1" : cover.BackColor = Color.DarkGoldenrod
+            cover.Text = "+1" : cover.BackColor = golden
         ElseIf cover.Text = "+1" Then
             cover.Text = "+2"
         ElseIf cover.Text = "+2" Then
             cover.Text = "+3"
         Else
-            cover.Text = "None" : cover.BackColor =defa
+            cover.Text = "None" : cover.BackColor = defa
         End If
-        defender.Cover = Val(cover.text)
+        defender.Cover = Val(cover.Text)
+    End Sub
+    Public Sub reset_factors()
+        For Each c As Control In factors.Controls
+            If c.BackColor = golden Then
+                c.Text = Tag
+                c.BackColor = defa
+            End If
+        Next
     End Sub
 
-    Private Sub assault_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
-        If defender.Cover > 0 Then
-            cover.Text = "+" + Trim(Val(defender.Cover))
-            cover.BackColor = golden
-        End If
-        assaulting.Text = attacker.title
-        defending.Text = defender.title
-        If attacker.Inf And attacker.debussed And attacker.loaded <> "" Then
-            supporting.Text = attacker.loaded
-            supporter = orbat(attacker.loaded)
-        Else
-            supporting.Text = supporter.title
-        End If
-        If defender.troopcarrier And Not defender.debussed Then debus.Visible = True Else debus.Visible = False
-    End Sub
-
-    Private Sub Factors_Checked(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles engr.CheckedChanged, uphill.CheckedChanged, afv_spt.CheckedChanged, atgw_spt.CheckedChanged, defile.CheckedChanged
+    Private Sub Factors_Checked(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles afv_spt.Click, atgw_spt.Click, defile.Click
+        Dim tmp As String = sender.text
         If sender.checked Then
             sender.backcolor = golden
         Else
-            sender.backcolor =defa
+            sender.backcolor = defa
         End If
+        sender.text = sender.tag
+        sender.tag = tmp
     End Sub
 
-    Private Sub debus_Click(sender As Object, e As EventArgs) Handles debus.Click
-        If debus.BackColor = golden Then Exit Sub
-        debus.BackColor = golden
-        defender.debussed = True
-        movement.debus(defender, False)
-        defender = orbat(defender.loaded)
-        defending.Text = defender.title
-    End Sub
-
-    Private Sub select_arty_spt(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ListViewItemSelectionChangedEventArgs) Handles a_arty_spt.ItemSelectionChanged, d_arty_spt.ItemSelectionChanged
-        If Not e.IsSelected Then Exit Sub
-        If sender.items.count = 0 Then Exit Sub
-        Dim j As Integer = e.ItemIndex
-        If sender.Items(j).BackColor = golden Then
-            sender.Items(j).BackColor = nostatus
-            Exit Sub
-        ElseIf sender.Items(j).BackColor = nostatus Then
-            sender.Items(j).BackColor = golden
+    Private Sub select_arty_spt(ByVal sender As Object, ByVal e As System.EventArgs) Handles a_arty.Click, d_arty.Click
+        If sender.focuseditem.BackColor = golden Then
+            sender.focuseditem.BackColor = nostatus
+        ElseIf sender.focuseditem.BackColor = nostatus Then
+            sender.focuseditem.BackColor = golden
+            If arty_support(sender, False) > 4 Then sender.focuseditem.BackColor = nostatus
         Else
         End If
+        sender.selecteditems.clear
     End Sub
 
-    Private Function arty_support(ByVal spt As ListView)
+    Private Function arty_support(ByVal spt As ListView, fired As Boolean)
         arty_support = 0
         For Each l As ListViewItem In spt.Items
             If l.BackColor = golden Then
                 arty_support = arty_support + orbat(l.Text).strength
+                If fired Then
+                    With orbat(l.Text)
+                        .fired = gt
+                        .support = True
+                    End With
+                End If
             End If
         Next
         Dim i As Integer = 0
         If Strings.Left(spt.Name, 1) = "a" Then i = 6 Else i = 4
 
         arty_support = Int(arty_support / i)
-        If arty_support > 4 Then arty_support = 4
+        'If arty_support > 4 Then arty_support = 4
     End Function
 End Class

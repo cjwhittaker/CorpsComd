@@ -18,6 +18,7 @@
     Private pR3000 As Integer
     Private pR4000 As Integer
     Private pmaxrange As Integer
+    Private popr As Integer
     Private psortie As Integer
     Private pEWCapable As Boolean
     Private pmiss_def As Integer
@@ -186,6 +187,14 @@
         End Get
         Set(ByVal Value As Integer)
             pmaxrange = Value
+        End Set
+    End Property
+    Property opr() As Integer
+        Get
+            Return popr
+        End Get
+        Set(ByVal Value As Integer)
+            popr = Value
         End Set
     End Property
     Property sortie() As Integer

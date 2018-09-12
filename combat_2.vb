@@ -786,7 +786,7 @@
         If Not range_not_needed And tgt_range_select.SelectedIndex = -1 and Tag<>"Indirect Fire" Then Exit Sub
         tgt_range.Text = tgt_range_select.SelectedItem
         Dim rge As Integer = Val(tgt_range.Text), out_of_range As Boolean = False
-        If Not firer.equipment Is Nothing Then if rge > eq_list(firer.equipment).maxrange Then out_of_range = True
+        If Not firer.equipment Is Nothing Then If (rge > eq_list(firer.equipment).maxrange) Or (Tag = "Opportunity Fire" And rge > eq_list(firer.equipment).opr) Then out_of_range = True
         If out_of_range Or (firer.firers = 0 And Tag = "Direct Fire") Then
             fire.Enabled = False
             'firesmoke.Enabled = False

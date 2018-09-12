@@ -44,7 +44,7 @@
                 ElseIf l.Name = "undercommand" Then
                     If InStr("Arty Tasking", purpose) > 0 Then
                         info = u.task
-                    ElseIf purpose = "Movement" Then
+                    ElseIf purpose = "Movement" Or purpose = "Command" Then
                         info = UCase(Strings.Left(u.mode, 1))
                     Else
                     End If
@@ -52,7 +52,7 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), ""))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
-                    'l.BackColor = u.status
+                    If purpose = "Command" Then listitem.BackColor = u.status(purpose)
                 ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsAir DefenceCAP MissionsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
                     listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
                     listitem.SubItems.Add(u.equipment)
@@ -69,22 +69,22 @@
                 j = j + 1
             End If
         Next
-        For Each li As ListViewItem In l.Items
-            If orbat.Contains(li.Text) Then
-                If purpose = "Observer" Or purpose = "Artillery Support" Then
-                    'If orbat(li.Text).arty_spt = 0 Then
-                    '    li.BackColor = in_ds
-                    'ElseIf orbat(li.Text).arty_spt = 1 Then
-                    '    li.BackColor = can_observe
-                    'Else
-                    '    li.BackColor = not_on_net
-                    'End If
-                ElseIf InStr("DemoralisationMorale RecoveryMovementArty Tasking", purpose) > 0 Then
-                    li.BackColor = orbat(li.Text).status("")
-                Else
-                End If
-            End If
-        Next
+        'For Each li As ListViewItem In l.Items
+        '    If orbat.Contains(li.Text) Then
+        '        If purpose = "Observer" Or purpose = "Artillery Support" Then
+        '            'If orbat(li.Text).arty_spt = 0 Then
+        '            '    li.BackColor = in_ds
+        '            'ElseIf orbat(li.Text).arty_spt = 1 Then
+        '            '    li.BackColor = can_observe
+        '            'Else
+        '            '    li.BackColor = not_on_net
+        '            'End If
+        '        ElseIf InStr("DemoralisationMorale RecoveryMovementArty Tasking", purpose) > 0 Then
+        '            li.BackColor = orbat(li.Text).status("")
+        '        Else
+        '        End If
+        '    End If
+        'Next
     End Sub
 
     Public Function divisional_comd(ByVal p As cunit)

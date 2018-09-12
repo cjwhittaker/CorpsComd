@@ -1033,8 +1033,10 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 status = Color.DarkKhaki
             ElseIf arty_spt = 1 Then
                 status = can_observe
-            ElseIf fm <> "Orbat" And secondary <> "" And task = "DS" Then
+            ElseIf fm <> "Orbat" And primary <> "" And task = "DS" Then
                 status = in_ds
+            ElseIf ooc And fm = "Command" Then
+                status = assaulting
             Else
                 status = nostatus
             End If
@@ -1215,7 +1217,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
             Else
                 validunit = False
             End If
-        ElseIf phase = "Orbat" And hq = parent Then
+        ElseIf (phase = "Orbat" And hq = parent) Then
+            validunit = True
+        ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not (Inf And embussed) Then
             validunit = True
         ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
             validunit = True

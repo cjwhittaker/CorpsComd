@@ -1,9 +1,39 @@
 ﻿Public Class movement
     Public carrier As cunit, mover As cunit, notfired As Boolean, tac_opt As Integer = -1, tac As Integer = 0, tac_less_move As Integer = 0, tac_opt_txt As String = "", tactical As Integer, observing As Boolean, scoot As Boolean
-    Dim commander As New cunit, subject As New cunit, j As Integer, k As Integer = -1, recovermsg As String, cover_selected As Boolean = False, select_count As Integer
+    Dim commander As New cunit, subject As New cunit, j As Integer, k As Integer = -1, recovermsg As String, cover_selected As Boolean = False, select_count As Integer, supportee As String = ""
     Dim comdpoints As Integer = 0, ca As Boolean = False, spt As Boolean = False, select_all As Boolean = False, stabilised As Boolean = False, not_conc As Boolean = False
 
-    Private Sub select_hq(ByVal sender As Object, ByVal e As System.Windows.Forms.TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
+    Private Sub allocate_Click(sender As Object, e As EventArgs) Handles allocate.Click
+        If supportee <> "" Then
+            For Each l As ListViewItem In undercommand.Items
+                If l.BackColor = golden And orbat(l.Text).indirect Then
+                    orbat(l.Text).primary = supportee
+                    orbat(l.Text).task = "DS"
+                    l.BackColor = in_ds
+                End If
+            Next
+            units.FindItemWithText(supportee).BackColor = defa
+        End If
+        movement_actions.Visible = True
+        arty_allocation.Visible = False
+        executeorders.Enabled = True
+    End Sub
+
+    Private Sub select_unit_to_support(sender As Object, e As EventArgs) Handles units.Click
+        If units.FocusedItem.BackColor = golden Then
+            units.FocusedItem.BackColor = nostatus
+            supportee = ""
+        Else
+            units.FocusedItem.BackColor = golden
+            If supportee <> "" Then units.FindItemWithText(supportee).BackColor = nostatus
+            supportee = units.FocusedItem.Text
+        End If
+        units.SelectedItems.Clear()
+    End Sub
+
+
+    Private Sub comdtree_NodeMouseClick(sender As Object, e As TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
+
         Dim x As Integer = 1, parentnode As New TreeNode
         If comdtree.SelectedNode Is Nothing Then Exit Sub
         'selectunit(orbat(e.Node.Text))
@@ -162,6 +192,16 @@
             unitcover.Visible = False
             unitcover.Visible = False
             opp_fire.Visible = False
+        ElseIf purpose = "Command" Then
+            movement_actions.Visible = True
+            form_function.Tag = form_function.Text
+            form_function.Text = "Command Tasks"
+            tactical_actions.Visible = True
+            load_orders("Command")
+            tactical_actions.Text = "Commands"
+            executeorders.Text = "Execute Commands"
+            opp_fire.Visible = False
+            unitcover.Visible = False
         Else
 
         End If
@@ -169,7 +209,7 @@
 
     End Sub
 
-    Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cover.Click
+    Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs)
         If select_count <= 0 Then Exit Sub
         cover_selected = True
         If cover.Text = "None" Then
@@ -192,65 +232,56 @@
     End Sub
 
     Private Sub Execute_orders() Handles executeorders.Click
-        Dim comdcost As Integer = 0, dice As Integer, tactical_option As Integer
-        tactical = -1
-        For Each c As Control In tactical_actions.Controls
-            If c.BackColor = golden Then
-                tactical = Val(c.Tag)
-                Exit For
-            End If
-        Next
-        If tactical = -1 Then reset_unit_options() : Exit Sub
         If Tag = "Movement" Then
-            tactical_option = tactical
-            If select_count > 1 And tactical_option = 6 Then Exit Sub
-            Dim msg As String = ""
-            'For Each l As ListViewItem In undercommand.Items
-            '    If l.BackColor = golden Then
-            '        dice = d6()
-            '        If orbat(l.Text).ooc Or (dice >= 4 And orbat(orbat(l.Text).parent).ooc) Then
-            '            orbat(l.Text).ooc = True
-            '            msg = msg + l.Text + ", "
-            '            l.BackColor = no_action_pts
-            '        End If
-            '    End If
-            'Next
-            'If msg <> "" Then
-            '    With resultform_2
-            '        .result.Text = "The following units cannot move or change mode because their command HQ is out of command:" + vbNewLine + msg
-            '        .ShowDialog()
-            '    End With
-            'End If
-            If Not ca And select_count = 0 Then Exit Sub
-            If ca And select_count = 0 Then spt = True
-            If Not ca Then assault.attacker = New cunit
-            If ca And spt Then
-                assault.supporter = New cunit
-                assault.defender = New cunit
-            End If
-
-        ElseIf Tag = "Air Tasking" Then
-            tactical_option = 16
-        ElseIf Tag = "Arty Tasking" Then
-            tactical_option = tactical + 20
-        ElseIf Tag = "Morale Recovery" Then
-            tactical_option = 17
+            movement_orders()
+        ElseIf Tag = "Command" Then
+            command_orders
         Else
         End If
-        'If Tag <> "Morale Recovery" And Not ca And tac_opt_txt = "" Then Exit Sub
-        'establish which tactical action or order has been chosen = tactical
+    End Sub
+
+    Private Sub command_orders()
+        Dim comdcost As Integer = 0, tactical_option As Integer
+        For Each a As Control In tactical_actions.Controls
+            If a.BackColor = golden Then
+                tactical_option = Val(a.Tag)
+                Select Case tac
+
+                    Case 0
+                        'out of command
+                        For Each l As ListViewItem In undercommand.Items
+                            If l.BackColor = golden Then
+                                l.BackColor = defa
+                                orbat(l.Text).ooc = True
+                                orbat(l.Text).status(Tag)
+                                If Strings.Left(l.Text, 2) = "HQ" Then orbat(orbat(l.Text).parent).ooc = True
+                            End If
+                        Next
+                    Case 1
+                                    'line of supply broken
+                    Case 2
+                                    'out of supply
+                    Case 3
+                        'Allocate Artillery
+                        'If Not mover.indirect Then Exit Select
+                        movement_actions.Visible = False
+                        arty_allocation.Visible = True
+                        executeorders.Enabled = False
+                        allocate.Enabled = True
+                End Select
+            End If
+        Next
+
+    End Sub
+    Private Sub movement_orders()
+        Dim comdcost As Integer = 0, tactical_option As Integer
         For Each l As ListViewItem In undercommand.Items
             mover = New cunit
             mover = orbat(l.SubItems(0).Text)
             If l.BackColor = golden Then
-                If tactical_option = 5 And ((Not mover.troopcarrier And mover.carrying <> "") Or (Not mover.Inf And mover.carrying = "")) Then Exit Sub
-                notfired = False
-                mover.modifier = 0
-                scoot = False
                 For Each a As Control In tactical_actions.Controls
                     If a.BackColor = golden Then
                         tactical_option = Val(a.Tag)
-
                         Select Case tactical_option
                             Case 0
                                 'move
@@ -322,78 +353,75 @@
                                     End If
                                     l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
                                 End If
-                            Case 15
-                                mover.moved = gt
-                                mover.fired = gt
-                                comdcost = 3
-                            Case 16
-                                If (tactical = 0 And InStr(mover.equipment, "AS") = 0) Or
-                                    (tactical = 1 And InStr(mover.equipment, "EW") = 0) Or
-                                    (tactical = 2 And InStr(mover.equipment, "GA") = 0) Or
-                                    (tactical = 3 And InStr(mover.equipment, "SO") = 0) Or
-                                    (tactical = 4 And InStr(mover.equipment, "SEAD") = 0) Or
-                                    (tactical = 5 And Not mover.heli And Not mover.role = "|AH|") Or
-                                    (tactical = 6 And Not mover.heli) Then Exit Select
-                                dice = d10()
-                                If (dice <= mover.quality Or dice = 1) And dice <> 10 Then
-                                    With mover
-                                        .airborne = True
-                                        .fired = IIf(mover.heli, 0, gt)
-                                        .task = tac_opt_txt
-                                    End With
-                                    With l
-                                        .BackColor = Color.Aquamarine
-                                        .SubItems(2).Text = IIf(Len(tac_opt_txt) < 4, tac_opt_txt, Strings.Left(tac_opt_txt, 4))
-                                    End With
-                                    If tactical = 6 Then
-                                        populate_lists(unit_selection.units, ph_hqs, "Observee", "commanders")
-                                    End If
-                                Else
-                                    l.BackColor = Color.Pink
-                                End If
-                            Case 17
-                                If l.BackColor <> golden Or mover.effective Then comdcost = 0 : Exit Select
-                                Dim recovermsg As String = ""
-                                With morale_test
-                                    .Tag = Tag
-                                    .tester = mover
-                                    .rallying = IIf(o5.BackColor = golden, False, True)
-                                    .modifier = tac
-                                    .testing(Me.executeorders, Nothing)
-                                    .rallying = False
-                                End With
-                                With resultform_2
-                                    .result.Text = morale_test.test_result.Text
-                                    .ShowDialog()
-                                End With
-                                mover.effective = True
-                                l.Remove()
-                            Case 22
-                                mover.task = "CB"
-                                l.SubItems(2).Text = UCase(mover.task)
-                            Case 20, 21, 23
-                                If tactical_option = 20 Then
-                                    tac_opt_txt = "AF"
-                                ElseIf tactical_option = 21 Then
-                                    tac_opt_txt = "IN"
-                                Else
-                                    tac_opt_txt = "DS"
-                                End If
-                                populate_lists(unit_selection.units, orbat, "Arty Support", divisional_comd(mover))
-                                With unit_selection
-                                    .Tag = "Arty Support"
-                                    .ShowDialog()
-                                End With
+                                'Case 15
+                                '    mover.moved = gt
+                                '    mover.fired = gt
+                                '    comdcost = 3
+                                'Case 16
+                                '    If (tactical = 0 And InStr(mover.equipment, "AS") = 0) Or
+                                '        (tactical = 1 And InStr(mover.equipment, "EW") = 0) Or
+                                '        (tactical = 2 And InStr(mover.equipment, "GA") = 0) Or
+                                '        (tactical = 3 And InStr(mover.equipment, "SO") = 0) Or
+                                '        (tactical = 4 And InStr(mover.equipment, "SEAD") = 0) Or
+                                '        (tactical = 5 And Not mover.heli And Not mover.role = "|AH|") Or
+                                '        (tactical = 6 And Not mover.heli) Then Exit Select
+                                '    dice = d10()
+                                '    If (dice <= mover.quality Or dice = 1) And dice <> 10 Then
+                                '        With mover
+                                '            .airborne = True
+                                '            .fired = IIf(mover.heli, 0, gt)
+                                '            .task = tac_opt_txt
+                                '        End With
+                                '        With l
+                                '            .BackColor = Color.Aquamarine
+                                '            .SubItems(2).Text = IIf(Len(tac_opt_txt) < 4, tac_opt_txt, Strings.Left(tac_opt_txt, 4))
+                                '        End With
+                                '        If tactical = 6 Then
+                                '            populate_lists(unit_selection.units, ph_hqs, "Observee", "commanders")
+                                '        End If
+                                '    Else
+                                '        l.BackColor = Color.Pink
+                                '    End If
+                                'Case 17
+                                '    If l.BackColor <> golden Or mover.effective Then comdcost = 0 : Exit Select
+                                '    Dim recovermsg As String = ""
+                                '    With morale_test
+                                '        .Tag = Tag
+                                '        .tester = mover
+                                '        .rallying = IIf(o5.BackColor = golden, False, True)
+                                '        .modifier = tac
+                                '        .testing(Me.executeorders, Nothing)
+                                '        .rallying = False
+                                '    End With
+                                '    With resultform_2
+                                '        .result.Text = morale_test.test_result.Text
+                                '        .ShowDialog()
+                                '    End With
+                                '    mover.effective = True
+                                '    l.Remove()
+                                'Case 20
+                                '    'out of command
+                                'Case 21
+                                '    'line of supply broken
+                                'Case 22
+                                '    ' out of supply
+                                'Case 23
+                                '    'Allocate Artillery
+                                '    If Not mover.indirect Then Exit Select
+                                '    movement_actions.Visible = False
+                                '    arty_allocation.Visible = True
+                                '    executeorders.Enabled = False
+                                '    allocate.Enabled = True
                         End Select
-                        If tactical_option <> 16 Then l.BackColor = mover.status(Me.Name)
+                        'If tactical_option <> 16 Then l.BackColor = mover.status(Me.Name)
                         If Not mover Is Nothing Or mover.title <> "" Then
-                            If tactical_option <= 9 Then
-                                l.SubItems(1).Text = mover.strength
-                                l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
-                            ElseIf tactical_option >= 20 Then
-                                If mover.primary <> commander.title And commander.title <> mover.parent Then l.Remove()
-                            Else
-                            End If
+                            'If tactical_option <= 9 Then
+                            '    l.SubItems(1).Text = mover.strength
+                            '    l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
+                            'ElseIf tactical_option >= 20 Then
+                            '    If mover.primary <> commander.title And commander.title <> mover.parent Then l.Remove()
+                            'Else
+                            'End If
                             If cover_selected Then mover.Cover = Val(cover.Text)
                         End If
                     End If
@@ -401,7 +429,7 @@
 
             End If
         Next
-        If ca And spt Then conduct_assault()
+        'If ca And spt Then conduct_assault()
         update_title(commander.title)
         reset_unit_options()
         tactical_option = 0
@@ -471,10 +499,11 @@
             If select_all And Not orbat(l.Text).disrupted Then
                 l.BackColor = golden
             ElseIf Not select_all Then
-                l.BackColor = nostatus
+                If Tag = "Command" Then l.BackColor = orbat(l.Text).status(Tag) Else l.BackColor = nostatus
             Else
             End If
         Next
+        count_selected_units()
         If select_count > 0 Then set_actions()
     End Sub
 
@@ -517,7 +546,7 @@
         'End If
     End Sub
 
-    Private Sub opp_fire_clicked(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles opp_fire.Click
+    Private Sub opp_fire_clicked(ByVal sender As System.Object, ByVal e As System.EventArgs)
         If opp_fire.BackColor = defa Then
             opp_fire.BackColor = golden
             oppfire = True
@@ -615,6 +644,17 @@
             o7.Text = ""
             o8.Text = ""
             o9.Text = ""
+        ElseIf purpose = "Command" Then
+            o0.Text = "Out of Command"
+            o1.Text = "Line of Supply broken"
+            o2.Text = "Out of Supply"
+            o3.Text = "Allocate Artillery"
+            o4.Text = ""
+            o5.Text = ""
+            o6.Text = ""
+            o7.Text = ""
+            o8.Text = ""
+            o9.Text = ""
 
         Else
 
@@ -640,6 +680,11 @@
                 sender.backcolor = golden
                 tac = tac + t
             End If
+        ElseIf Tag = "Command" Then
+            For Each c As Control In tactical_actions.Controls
+                If c.BackColor = golden And sender.name <> c.Name Then c.BackColor = defa
+            Next
+            If sender.backcolor = golden Then sender.backcolor = defa : tac = -1 Else sender.backcolor = golden : tac = t
         ElseIf Tag = "Movement" Then
             Dim x As Integer = select_count
             If t = 1 And sender.backcolor = golden Then
@@ -694,7 +739,7 @@
                     tac = 0
                 End If
             Else
-                End If
+            End If
             'If t = 1 Then o1.BackColor = golden
             If tac = 0 Then
                 o1.Text = "Move"
@@ -716,9 +761,6 @@
                 sender.backcolor = golden
                 tac_opt_txt = sender.text
                 tac = t
-                For Each c As Control In tactical_actions.Controls
-                    If Strings.Left(c.Name, 1) = "o" And c.BackColor = golden And sender.name <> c.Name Then c.BackColor = defa
-                Next
             Else
                 sender.backcolor = defa
                 If sender.name = "o0" And sender.text = "Full Move (4)" Then sender.text = "Half Move (2)"
@@ -752,5 +794,6 @@
         'undercommand.Items(assault.supporter.sorties).BackColor = assault.supporter.status(Me.Name)
 
     End Sub
+
 
 End Class

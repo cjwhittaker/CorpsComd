@@ -69,17 +69,16 @@
     End Sub
 
     Public Sub command_and_control()
-        For i As Integer = 1 To 2
-            'populate_lists(unit_selection.units, ph_hqs, "Command", "commanders")
-            populate_command_structure(unit_selection.comdtree, ph, "Command")
-            With unit_selection
-                .Tag = "Command"
-                .Text = ph + " Command and Control Phase " + gameturn
-                .ShowDialog()
-            End With
-            test_for_events(ph, gamedate)
-            swap_phasing_player(True)
-        Next
+        'populate_lists(unit_selection.units, ph_hqs, "Command", "commanders")
+        'populate_command_structure(unit_selection.comdtree, ph, "Command")
+        populate_lists(movement.units, ph_hqs, "Command", "")
+        With movement
+            .Tag = "Command"
+            .Text = "Command and Control Phase " + gameturn
+            .options_for("Command")
+            .ShowDialog()
+        End With
+        test_for_events(ph, gamedate)
     End Sub
 
     Public Sub air_mission_planning()
@@ -429,9 +428,9 @@
                 u.comdpts = 1
             Next
             With movement
-                .Text = "Fire and Movement Phase " + gameturn
+                .Text = "Movement Phase " + gameturn
                 .Tag = "Movement"
-                .options_for("Fire and Movement")
+                .options_for("Movement")
                 .ShowDialog()
             End With
             playerphase = playerphase + 1

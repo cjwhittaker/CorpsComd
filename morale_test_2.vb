@@ -58,7 +58,7 @@
             tester.mode = disp
         ElseIf result <= 4 Then
             r = Replace(r, "X", "<")
-            test_result.Text = tester.title + " has failed its Morale Test and is now disrupted" + IIf(oppfire And movement.tac_opt = 3, ", and fails to close to the defender's position. ", ". ") + r
+            test_result.Text = tester.title + " has failed its Morale Test and is now disrupted" + r
             tester.disrupted = True
             tester.disrupted_gt = True
         Else

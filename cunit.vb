@@ -1089,6 +1089,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         opp_move = strength * 2
         hits = 0
         firers_available = strength
+        fires = False
         hits = 0
         aborts = 0
         casualties = 0
@@ -1122,28 +1123,27 @@ Imports System.Runtime.Serialization.Formatters.Binary
             '    i = 4
             'ElseIf phasing = nation And finished Then
             '    i = 2
-            'ElseIf Not phasing = nation Then
-            '    If Not oppfire Then
-            '        opp_return = opp_return - firers - (casualties * 2)
-            '    ElseIf oppfire And (movement.tactical = 0 Or movement.tactical = 2) Then
-            '        opp_move = opp_move - firers
-            '    ElseIf oppfire And movement.tactical = 3 Then
-            '        opp_ca = opp_ca - firers
-            '    ElseIf oppfire And movement.tactical >= 4 Then
-            '        opp_mode = opp_mode - firers
-            '    Else
-            '    End If
             'Else
-            'End If
+            If phasing <> nation And oppfire Then
+                If movement.tactical_option = 1 Then
+                    opp_move = opp_move - firers
+                ElseIf movement.tactical_option = 2 Then
+                    opp_ca = opp_ca - firers
+                ElseIf movement.tactical_option >= 3 Then
+                    opp_mode = opp_mode - firers
+                Else
+                End If
+            Else
+            End If
             If indirect() And carrying <> "" Then carrying = ""
             'If Not aircraft() Then fired = gt Else fired = CorpsComd.phase
             firers_available = firers_available - firers
-            firers = 0
-            If firers_available <= 0 Then fired = gt : firers_available = 0
-            'If indirect() And movement.tactical = 1 Then eligibleCB = True
-            If missile_armed() Then missiles = missiles - 1
-        End If
-        msg = ""
+                firers = 0
+                If firers_available <= 0 Then firers_available = 0
+                'If indirect() And movement.tactical = 1 Then eligibleCB = True
+                If missile_armed() Then missiles = missiles - 1
+            End If
+            msg = ""
         If aircraft() Then
             strength = strength - casualties : casualties = 0
             If strength < 0 Then strength = 0
@@ -1233,7 +1233,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If ground_unit() Then validunit = True
         ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
             If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
-        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) And indirect() Then
+        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 Then
             validunit = True
         ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
             If indirect() And emplaced() And tacticalpts > 0 Then

@@ -1,5 +1,5 @@
 ﻿Public Class movement
-    Public carrier As cunit, mover As cunit, notfired As Boolean, tac_opt As Integer = -1, tac As Integer = 0, tac_less_move As Integer = 0, tac_opt_txt As String = "", tactical As Integer, observing As Boolean, scoot As Boolean
+    Public carrier As cunit, mover As cunit, notfired As Boolean, tactical_option As Integer = -1, tac As Integer = 0, tac_less_move As Integer = 0, tac_opt_txt As String = "", tactical As Integer, observing As Boolean, scoot As Boolean
     Dim commander As New cunit, subject As New cunit, j As Integer, k As Integer = -1, recovermsg As String, cover_selected As Boolean = False, select_count As Integer, supportee As String = ""
     Dim comdpoints As Integer = 0, ca As Boolean = False, spt As Boolean = False, select_all As Boolean = False, stabilised As Boolean = False, not_conc As Boolean = False
 
@@ -241,7 +241,7 @@
     End Sub
 
     Private Sub command_orders()
-        Dim comdcost As Integer = 0, tactical_option As Integer
+        Dim comdcost As Integer = 0
         For Each a As Control In tactical_actions.Controls
             If a.BackColor = golden Then
                 tactical_option = Val(a.Tag)

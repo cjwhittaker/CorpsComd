@@ -146,7 +146,7 @@
         Else
         End If
         'update_firer_parameters()
-        firer.fires = False
+        'firer.fires = False
     End Sub
 
     Public Sub observation(enable As Boolean)

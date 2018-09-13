@@ -249,7 +249,7 @@
         If spotter.has_moved Then om = om - 1
         If spotter.mode = travel Then om = om - 1
         If spotter.task <> "FFE" Then
-            If target.fired Then om = om + 2
+            If gt - target.fired <= 1 Then om = om + 2
             If target.has_moved Then om = om + 1
             If target.roadmove And Not target.mode = disp Then om = om + 1
             If target.plains Then om = om + 1

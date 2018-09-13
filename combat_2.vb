@@ -92,7 +92,7 @@
             directfire.Visible = True
             indirectfire.Visible = False
         End If
-
+        If Tag = "Opportunity Fire" Then swap.Visible = False Else swap.Visible = True
         If Me.Tag = "Air Ground" Or Me.Tag = "SEAD" Then
             targets.Visible = True
             fireraspect.Enabled = True
@@ -356,7 +356,7 @@
         End If
     End Sub
 
-    Private Sub Select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click, observers.Click, artillery.Click
+    Private Sub select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click, observers.Click, artillery.Click
         set_sel_color(sender.items, False)
         If sender.name = "targets" Then
             target = orbat(sender.FocusedItem.Text)
@@ -464,7 +464,7 @@
     Private Sub mode(sender As Object, e As EventArgs) Handles firermode.Click, targetmode.Click, obs_mode.Click
         If target.title Is Nothing Then If sender.name = "targetmode" Then Exit Sub
         If firer.title Is Nothing Then If sender.name = "firermode" Then Exit Sub
-        If observer.title Is Nothing Then If sender.name = "obs_mode" Then Exit Sub
+        If Tag = "Indirect Fire" Then If observer.title Is Nothing Then If sender.name = "obs_mode" Then Exit Sub
 
         If sender.text = conc Then
             sender.text = disp
@@ -889,10 +889,22 @@
         firer.fires = True
         target.update_after_firing(ph, t_wpn.Text, True)
         firer.update_after_firing(ph, f_wpn.Text, False)
-        If Tag = "Opportunity Fire" Then Close() : Exit Sub
-        If InStr(Text, "Moving Fire") > 0 And firer.firers_available = 0 Then Close() : Exit Sub
-        reset_target()
-        reset_firer()
+        If Tag = "Opportunity Fire" Then
+            reset_strength(s1, s2, s3)
+            reset_unit_options(directfire)
+            reset_range()
+            firers.FindItemWithText(firer.title).Remove()
+            firer = New cunit
+            If target.strength = 0 Then Exit Sub
+            targets.FindItemWithText(target.title).SubItems(1).Text = target.strength
+        ElseIf InStr(Text, "Moving Fire") > 0 And firer.firers_available > 0 Then
+            reset_target()
+            firer_strength(s1, s2, s3, firer.firers_available)
+            reset_range()
+        Else
+            reset_target()
+            reset_firer()
+        End If
 
     End Sub
 

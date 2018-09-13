@@ -416,26 +416,22 @@
     End Sub
 
     Public Sub movement_phase()
-        Do
-            'For Each u As cunit In orbat
-            '    If u.comd = 0 Then u.reset_fire_phase(ph)
-            'Next
-            populate_lists(combat_2.targets, enemy, "Ground Targets", "")
-            For Each u As cunit In ph_units
-                If Not u.has_moved Then u.moving = False
-            Next
-            For Each u As cunit In ph_hqs
-                u.comdpts = 1
-            Next
-            With movement
-                .Text = "Movement Phase " + gameturn
-                .Tag = "Movement"
-                .options_for("Movement")
-                .ShowDialog()
-            End With
-            playerphase = playerphase + 1
-            swap_phasing_player(True)
-        Loop Until playerphase > 2
+        'For Each u As cunit In orbat
+        '    If u.comd = 0 Then u.reset_fire_phase(ph)
+        'Next
+        populate_lists(combat_2.targets, enemy, "Ground Targets", "")
+        For Each u As cunit In ph_units
+            If Not u.has_moved Then u.moving = False
+        Next
+        For Each u As cunit In ph_hqs
+            u.comdpts = 1
+        Next
+        With movement
+            .Text = "Movement Phase " + gameturn
+            .Tag = "Movement"
+            .options_for("Movement")
+            .ShowDialog()
+        End With
 
     End Sub
 

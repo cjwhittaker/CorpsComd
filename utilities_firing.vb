@@ -206,6 +206,7 @@
     Function spotting(range As Integer, spotter As cunit, target As cunit)
         spotting = False
         If target Is Nothing Or target.equipment = "" Then Exit Function
+        If spotter Is Nothing Or spotter.title = "" Then Exit Function
         If spotter.indirect Then
             If spotter.Cover > 0 And target.Cover > 0 And range <= 300 Then
                 spotting = True

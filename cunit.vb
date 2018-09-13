@@ -718,7 +718,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function Inf()
         Inf = False
-        If InStr("|Inf|Eng|", role) > 0 Then Inf = True
+        If InStr(role, "Inf") > 0 Or InStr(role, "Eng") Then Inf = True
     End Function
     Public Function cae(armd As Boolean)
         cae = 0
@@ -1083,10 +1083,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ooc = False
         lostcomms = False
         If atgw() Then reset_missiles()
+        Dim x As Integer = IIf(atgw, 1, 2)
         fatigue = strength * 2
-        opp_ca = strength * 2
-        opp_mode = strength * 2
-        opp_move = strength * 2
+        opp_ca = strength * x
+        opp_mode = strength * x
+        opp_move = strength * x
         hits = 0
         firers_available = strength
         fires = False
@@ -1124,26 +1125,29 @@ Imports System.Runtime.Serialization.Formatters.Binary
             'ElseIf phasing = nation And finished Then
             '    i = 2
             'Else
+            firers_available = firers_available - firers
             If phasing <> nation And oppfire Then
                 If movement.tactical_option = 1 Then
                     opp_move = opp_move - firers
+                    If opp_move <= strength Then firers_available = opp_move
                 ElseIf movement.tactical_option = 2 Then
                     opp_ca = opp_ca - firers
+                    If opp_ca <= strength Then firers_available = opp_ca
                 ElseIf movement.tactical_option >= 3 Then
                     opp_mode = opp_mode - firers
+                    If opp_mode <= strength Then firers_available = opp_mode
                 Else
                 End If
             Else
             End If
+            firers = 0
+            If firers_available <= 0 Then firers_available = 0
             If indirect() And carrying <> "" Then carrying = ""
             'If Not aircraft() Then fired = gt Else fired = CorpsComd.phase
-            firers_available = firers_available - firers
-                firers = 0
-                If firers_available <= 0 Then firers_available = 0
-                'If indirect() And movement.tactical = 1 Then eligibleCB = True
-                If missile_armed() Then missiles = missiles - 1
-            End If
-            msg = ""
+            'If indirect() And movement.tactical = 1 Then eligibleCB = True
+            If missile_armed() Then missiles = missiles - 1
+        End If
+        msg = ""
         If aircraft() Then
             strength = strength - casualties : casualties = 0
             If strength < 0 Then strength = 0

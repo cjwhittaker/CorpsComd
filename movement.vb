@@ -274,7 +274,7 @@
 
     End Sub
     Private Sub movement_orders()
-        Dim comdcost As Integer = 0, tactical_option As Integer
+        Dim comdcost As Integer = 0
         For Each l As ListViewItem In undercommand.Items
             mover = New cunit
             mover = orbat(l.SubItems(0).Text)
@@ -284,11 +284,11 @@
                         tactical_option = Val(a.Tag)
                         Select Case tactical_option
                             Case 0
-                                'move
+                                'half fire
                                 If mover.has_fired Or mover.has_moved_fired Then Exit Select
                                 conduct_fire(tactical_option)
                             Case 1
-                                'half fire
+                                'move
                                 If mover.has_moved Or mover.has_moved_fired Then Exit Select
                                 mover.moved = gt
                                 If mover.indirect Then mover.eligibleCB = False
@@ -447,7 +447,7 @@
             .SubItems.Add(mover.equipment)
             .BackColor = golden
         End With
-        If opt <> 1 Then
+        If opt <> 0 Then
             populate_lists(combat_2.firers, enemy, "Opportunity Fire", nph)
             With combat_2
                 .firer = New cunit
@@ -458,7 +458,7 @@
                 .Tag = "Opportunity Fire"
                 .Text = "Opportunity Fire for " + gameturn
             End With
-        ElseIf opt = 1 Then
+        ElseIf opt = 0 Then
             populate_lists(combat_2.targets, enemy, "Direct Fire", nph)
             With combat_2
                 .firers.Items.Add(t)
@@ -489,6 +489,17 @@
             With combat_2
                 .ShowDialog()
             End With
+        End If
+        If opt <> 0 Then
+            If mover.strength = 0 Or mover.disrupted Then
+                undercommand.FindItemWithText(mover.title).Remove()
+            Else
+                With undercommand.FindItemWithText(mover.title)
+                    .SubItems(1).Text = mover.strength
+                    .SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
+                End With
+
+            End If
         End If
 
     End Sub

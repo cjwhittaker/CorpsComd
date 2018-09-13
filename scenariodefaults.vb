@@ -235,22 +235,22 @@
                 'Case 12 : conduct_air_to_ground()
                 'Case 13 : direct_fire_phase(ph, nph)
                 'player 1
-                Case 15 : command_and_control()
-                    'Case 16 : movement_phase()
-                    'player 2
-                Case 17 : command_and_control()
-                    'Case 18 : movement_phase()
-
-                    'Case 20 : morale_recovery()
-                    'Case 21 : end_sorties()
+                'Case 15 : command_and_control()
+                Case 16 : movement_phase()
+                'player 2
+                'Case 17 : command_and_control()
+                'Case 18 : movement_phase()
+                'Case 20 : morale_recovery()
+                'Case 21 : end_sorties()
             End Select
-            If ph <> initiative Then swap_phasing_player(True)
-            phase = phase + 1
-            If phase = 15 Or phase = 17 Or phase = 21 Then
+            'If ph <> initiative Then swap_phasing_player(True)
+            If phase = 13 Or phase = 16 Or phase = 18 Then
                 For Each u As cunit In orbat
                     If u.comd = 0 And u.fires And u.fired <> gt Then u.fired = gt
                 Next
             End If
+            If phase = 16 Then swap_phasing_player(True)
+            phase = phase + 1
             'If phase = 2 Then phase = 17
             'If phase = 18 Then phase = 20
             'savedata(scenario)

@@ -23,6 +23,8 @@
     Private pEWCapable As Boolean
     Private pmiss_def As Integer
     Private pgun_def As Integer
+    Private pecm_miss As Integer
+    Private pecm_gun As Integer
     Private pcannon As Integer
     Private pordnance As Integer
     Private pstandoff As Integer
@@ -227,6 +229,22 @@
         End Get
         Set(ByVal Value As Integer)
             pgun_def = Value
+        End Set
+    End Property
+    Property ecm_miss() As Integer
+        Get
+            Return pecm_miss
+        End Get
+        Set(ByVal Value As Integer)
+            pecm_miss = Value
+        End Set
+    End Property
+    Property ecm_gun() As Integer
+        Get
+            Return pecm_gun
+        End Get
+        Set(ByVal Value As Integer)
+            pecm_gun = Value
         End Set
     End Property
     Property cannon() As Integer

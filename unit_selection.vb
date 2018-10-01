@@ -112,7 +112,7 @@
                 .Tag = Me.Tag
                 .firer = New cunit
                 .firer = subject
-                .firermode.Text = subject.mode
+                .f_mode.Text = subject.mode
                 .targets.Visible = False
                 '.selectedtarget.Text = movement.mover.title
                 .combatmode = subject.nation + " " + Me.Tag

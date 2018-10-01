@@ -4,14 +4,15 @@
     Public TOE As Collection, subunit As csubunit
     Public unittypes As Collection, unittype As cunittype
     Public scenario As String, gt As Integer, dice As Integer
-    Public ph As String, nph As String, initiative As String
+    Public ph As String, nph As String, initiative As String, p1 As String, p2 As String
     Public ph_hqs As Collection, recovered As Collection
     Public p1_hqs As Collection, p2_HQs As Collection
     Public p1_units As Collection, p2_Units As Collection
+    Public p1_air As Collection, p2_air As Collection
     Public p1_orbat As Collection, p2_orbat As Collection
     Public p1_tree As Collection, p2_tree As Collection
     Public p1_cap As Integer, p2_cap As Integer, p1_sead As Integer, p2_sead As Integer
-    Public ph_units As Collection, enemy As Collection
+    Public ph_units As Collection, enemy As Collection, enemy_air As Collection, friend_air As Collection
     Public smokefiredthisturn As Boolean
     Public qtypinned As Integer, qtyrepulsed As Integer, qtydestroyed As Integer
     Public topserial As Integer, oppfire As Boolean, result_option As String

@@ -58,12 +58,13 @@
             modifier = modifier - 10
         Loop Until modifier <= 0
         tester.msg = "100m of the minefield crossed " + generateresult(tester, cas, True, False, False)
+        Dim max_cas As Boolean = IIf(tester.strength - tester.casualties + 1 = 0, True, False)
         With resultform_2
             .result.Text = "Results" + vbNewLine + tester.msg
             .Tag = "firing"
             .ok_button.Visible = True
             .yb.Visible = False
-            .nb.Visible = IIf(InStr(tester.msg, "disperse") > 0, True, False)
+            .nb.Visible = IIf(InStr(tester.msg, "disperse") > 0 And Not max_cas, True, False)
             .nb.Text = "Disperse " + tester.title
             .ShowDialog()
             .yb.Text = "Yes"
@@ -71,11 +72,18 @@
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If InStr(result_option, "Disperse") > 0 Then
-            tester.casualties = tester.casualties + cas - 1
-            tester.mode = disp
+        If InStr(result_option, "Disperse") > 0 Or max_cas Then
+            With tester
+                .casualties = .casualties + cas - 1
+                .mode = disp
+                .moved = gt
+            End With
+            movement.undercommand.FindItemWithText(tester.title).Remove()
+        Else
+            With tester
+                .strength = .strength - .casualties
+            End With
         End If
-        tester.update_after_firing(ph, "Minefield", False)
         permitted = permitted + 1
         If InStr(result_option, "Disperse") > 0 Or permitted > 4 Then
             reset_form()

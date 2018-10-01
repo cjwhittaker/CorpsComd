@@ -221,35 +221,35 @@
         If phase = 0 Then phase = phase + 1
         Do
             Select Case phase
-                'Case 1 : determineinitiative()
+                Case 1 : determineinitiative()
                 'Case 2 : smoke_barrage_phase(ph)
                 'Case 3 : indirect_fire_phase(ph, nph)
-                'Case 4 : cb_fire()
+                    'Case 4 : cb_fire()
                 'Case 5 : deploy_air_missions()
-                'Case 6 : air_superiority()
+                'Case 6 : air_air_combat(ph, nph)
                 'Case 7 : ground_to_air()
-                'Case 8 : intercept()
-                'Case 9 : ground_to_air("SEAD")
-                'Case 10 : conduct_sead()
-                'Case 11 : ground_to_air("Ground Attack")
-                'Case 12 : conduct_air_to_ground()
-                'Case 13 : direct_fire_phase(ph, nph)
-                'player 1
-                'Case 15 : command_and_control()
-                Case 16 : movement_phase()
-                'player 2
-                'Case 17 : command_and_control()
-                'Case 18 : movement_phase()
-                'Case 20 : morale_recovery()
-                'Case 21 : end_sorties()
+                    'Case 8 : intercept()
+                    'Case 9 : ground_to_air("SEAD")
+                    'Case 10 : conduct_sead()
+                    'Case 11 : ground_to_air("Ground Attack")
+                    'Case 12 : conduct_air_to_ground()
+                    'Case 13 : direct_fire_phase(ph, nph)
+                    'player 1
+                Case 15 : command_and_control()
+                    'Case 16 : movement_phase()
+                    'player 2
+                Case 17 : command_and_control()
+                    'Case 18 : movement_phase()
+                    'Case 20 : morale_recovery()
+                    'Case 21 : end_sorties()
             End Select
             'If ph <> initiative Then swap_phasing_player(True)
-            If phase = 13 Or phase = 16 Or phase = 18 Then
+            If phase = 16 Or phase = 20 Then swap_phasing_player(True)
+            If phase = 2 Or phase = 3 Or phase = 7 Or phase = 13 Or phase = 16 Or phase = 18 Then
                 For Each u As cunit In orbat
                     If u.comd = 0 And u.fires And u.fired <> gt Then u.fired = gt
                 Next
             End If
-            If phase = 16 Then swap_phasing_player(True)
             phase = phase + 1
             'If phase = 2 Then phase = 17
             'If phase = 18 Then phase = 20
@@ -335,8 +335,9 @@
     Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
 
         For Each u As cunit In orbat
-            If u.parent = "1-115 MRR" Then u.arrives = 0
+            u.fatigue = 0
         Next
+        Dim a As String = Strings.Left("F16-AS", InStr("F16-AS", "-") - 1)
     End Sub
 
 

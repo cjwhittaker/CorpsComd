@@ -50,11 +50,11 @@
                     End If
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(info)
-                    listitem.SubItems.Add(IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), ""))
+                    listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
                     If purpose = "Command" Then listitem.BackColor = u.status(purpose)
-                ElseIf InStr("Artillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsAir DefenceCAP MissionsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsInterceptAir to AirCAP AD Targets", purpose) > 0 Then
-                    listitem.SubItems.Add(IIf(u.aircraft, u.strength - u.aborts, u.strength))
+                ElseIf InStr("Air to AirGround to AirAir to GroundADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
+                    listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
                     listitem.SubItems.Add(u.task)
@@ -106,7 +106,18 @@
         If func = "Air units" And p.primary <> func Then p.primary = func
         If func = "Arty units" And p.carrying <> func Then p.carrying = func
     End Sub
-
+    Public Function air_hq(hq As String)
+        air_hq = False
+        If orbat(hq).primary = "Air Units" Then air_hq = True : Exit Function
+        For Each u As cunit In orbat
+            If u.aircraft And hq = u.parent Then
+                air_hq = True
+                orbat(u.parent).primary = "Air Units"
+                Exit Function
+            End If
+        Next
+        orbat(u.parent).primary = "Ground Units"
+    End Function
     Public Sub ewsupport(ByVal candidates As Collection, ByVal phase As String)
         Dim ewac As Boolean = False
         For Each subject As cunit In candidates
@@ -184,7 +195,41 @@
 
         coc = coc(title, orbat(hq.parent), comd)
     End Function
+    Public Sub initialise_collections()
+        p1_hqs = New Collection
+        p2_HQs = New Collection
+        p1_orbat = New Collection
+        p2_orbat = New Collection
+        p1_units = New Collection
+        p2_Units = New Collection
+        p1_air = New Collection
+        p2_air = New Collection
+        p1 = scenariodefaults.player1.Text
+        p2 = scenariodefaults.player2.Text
+        For Each u As cunit In orbat
+            If u.nation = p1 Then
+                p1_orbat.Add(u, u.title)
+                If u.comd > 0 Then
+                    p1_hqs.Add(u, u.title)
+                ElseIf u.comd = 0 And u.aircraft Then
+                    p1_air.Add(u, u.title)
+                Else
+                    p1_units.Add(u, u.title)
+                End If
+            Else
+                p2_orbat.Add(u, u.title)
+                If u.comd > 0 Then
+                    p2_HQs.Add(u, u.title)
+                ElseIf u.comd = 0 And u.aircraft Then
+                    p2_air.Add(u, u.title)
+                Else
+                    p2_Units.Add(u, u.title)
+                End If
+            End If
+            Dim tmp As Boolean = IIf(u.comd > 0, air_hq(u.title), False)
+        Next
 
+    End Sub
 
     Public Sub swap_phasing_player(exec As Boolean)
         Dim tmp As String
@@ -198,15 +243,23 @@
             ph_hqs = p1_hqs
             ph_units = New Collection
             ph_units = p1_units
+            friend_air = New Collection
+            friend_air = p1_air
             enemy = New Collection
             enemy = p2_Units
+            enemy_air = New Collection
+            enemy_air = p2_air
         Else
             ph_hqs = New Collection
             ph_hqs = p2_HQs
             ph_units = New Collection
             ph_units = p2_Units
+            friend_air = New Collection
+            friend_air = p2_air
             enemy = New Collection
             enemy = p1_units
+            enemy_air = New Collection
+            enemy_air = p1_air
         End If
     End Sub
 
@@ -233,27 +286,18 @@
     End Sub
     Public Sub CreateNodes(ByRef side As String, ByRef ParentNode As TreeNode, ByRef currentcomd As String, ByRef purpose As String)
         Dim subNode As New TreeNode
+        'If currentcomd = "ASOC" Then Stop
         For x As Integer = 1 To orbat.Count
             If orbat(x).nation = side Then
-
                 If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
                     If (orbat(x).comd = 0 And purpose = "Orbat") Or orbat(x).comd > 0 Then
                         subNode = ParentNode.Nodes.Add(orbat(x).Title, orbat(x).Title)
                         subNode.BackColor = orbat(x).status(purpose)
                         If orbat(x).comd = 0 Then
-                            If purpose = "Orbat" And orbat(x).inf Then
-                                If orbat(x).debussed And orbat(x).carrying = "" Then
-                                    subNode.ToolTipText = "Dismounted"
-                                ElseIf orbat(x).debussed And orbat(x).carrying <> "" Then
-                                    subNode.ToolTipText = "Debussed"
-                                ElseIf Not orbat(x).debussed Then
-                                    subNode.ToolTipText = "Embused"
-                                Else
-                                End If
-                            End If
+                            If purpose = "Orbat" And orbat(x).Inf Then If orbat(x).dismounted Then subNode.ToolTipText = "Dismounted" Else subNode.ToolTipText = "Embused"
                         End If
                     End If
-                    If (purpose = "Orbat") Or (purpose = "Command" And orbat(x).comd > 1) Then CreateNodes(side, subNode, orbat(x).title, purpose)
+                    If (purpose = "Orbat" And orbat(x).comd > 0) Or (purpose = "Command" And orbat(x).comd > 1) Then CreateNodes(side, subNode, orbat(x).title, purpose)
                 End If
             End If
         Next

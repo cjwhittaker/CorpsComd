@@ -46,6 +46,10 @@ Partial Class orbatmanager
         Me.travelmode = New System.Windows.Forms.Button()
         Me.embusvehicles = New System.Windows.Forms.Button()
         Me.dismountvehicles = New System.Windows.Forms.Button()
+        Me.insert_formation = New System.Windows.Forms.Button()
+        Me.clone_formation = New System.Windows.Forms.Button()
+        Me.generate_sub_units = New System.Windows.Forms.Button()
+        Me.edit_selected_units = New System.Windows.Forms.Button()
         Me.selectedunit.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -238,7 +242,7 @@ Partial Class orbatmanager
         Me.selectedunit.Enabled = False
         Me.selectedunit.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.selectedunit.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.selectedunit.Location = New System.Drawing.Point(462, 85)
+        Me.selectedunit.Location = New System.Drawing.Point(763, 85)
         Me.selectedunit.Name = "selectedunit"
         Me.selectedunit.Size = New System.Drawing.Size(372, 382)
         Me.selectedunit.TabIndex = 15
@@ -305,13 +309,57 @@ Partial Class orbatmanager
         Me.dismountvehicles.Text = "Dismount"
         Me.dismountvehicles.UseVisualStyleBackColor = True
         '
+        'insert_formation
+        '
+        Me.insert_formation.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.insert_formation.Location = New System.Drawing.Point(462, 85)
+        Me.insert_formation.Name = "insert_formation"
+        Me.insert_formation.Size = New System.Drawing.Size(181, 42)
+        Me.insert_formation.TabIndex = 29
+        Me.insert_formation.Text = "Insert a new formation"
+        Me.insert_formation.UseVisualStyleBackColor = True
+        '
+        'clone_formation
+        '
+        Me.clone_formation.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.clone_formation.Location = New System.Drawing.Point(462, 153)
+        Me.clone_formation.Name = "clone_formation"
+        Me.clone_formation.Size = New System.Drawing.Size(181, 42)
+        Me.clone_formation.TabIndex = 30
+        Me.clone_formation.Text = "Clone the formation"
+        Me.clone_formation.UseVisualStyleBackColor = True
+        '
+        'generate_sub_units
+        '
+        Me.generate_sub_units.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.generate_sub_units.Location = New System.Drawing.Point(462, 223)
+        Me.generate_sub_units.Name = "generate_sub_units"
+        Me.generate_sub_units.Size = New System.Drawing.Size(181, 42)
+        Me.generate_sub_units.TabIndex = 31
+        Me.generate_sub_units.Text = "Generate Sub Units"
+        Me.generate_sub_units.UseVisualStyleBackColor = True
+        '
+        'edit_selected_units
+        '
+        Me.edit_selected_units.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.edit_selected_units.Location = New System.Drawing.Point(462, 302)
+        Me.edit_selected_units.Name = "edit_selected_units"
+        Me.edit_selected_units.Size = New System.Drawing.Size(181, 42)
+        Me.edit_selected_units.TabIndex = 32
+        Me.edit_selected_units.Text = "Edit Selected Units"
+        Me.edit_selected_units.UseVisualStyleBackColor = True
+        '
         'orbatmanager
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(884, 662)
+        Me.ClientSize = New System.Drawing.Size(1284, 662)
+        Me.Controls.Add(Me.edit_selected_units)
+        Me.Controls.Add(Me.generate_sub_units)
+        Me.Controls.Add(Me.clone_formation)
+        Me.Controls.Add(Me.insert_formation)
         Me.Controls.Add(Me.dismountvehicles)
         Me.Controls.Add(Me.embusvehicles)
         Me.Controls.Add(Me.travelmode)
@@ -357,4 +405,8 @@ Partial Class orbatmanager
     Friend WithEvents travelmode As Button
     Friend WithEvents embusvehicles As Button
     Friend WithEvents dismountvehicles As Button
+    Friend WithEvents insert_formation As Button
+    Friend WithEvents clone_formation As Button
+    Friend WithEvents generate_sub_units As Button
+    Friend WithEvents edit_selected_units As Button
 End Class

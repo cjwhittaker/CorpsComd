@@ -1,24 +1,52 @@
 ﻿Module Utilities_air_ops
-
-
-    Public Function cap_deployed(cap_a As Collection, cap_b As Collection, purpose As String)
-        cap_deployed = ""
-        Dim x As Integer = 0, y As Integer = 0
-        For Each ac As cunit In cap_a
-            If ac.airborne And ac.task = "CAP" Then x = x + 1
-        Next
-        For Each ac As cunit In cap_b
-            If ac.airborne And ac.task = "CAP" Then y = y + 1
-        Next
-
-        If x = 0 And y = 0 Then cap_deployed = "None" : Exit Function
-        If x > 0 And y > 0 And purpose = "AS" Then cap_deployed = "AS battle" : Exit Function
-        If x = y And x > 0 And y > 0 Then cap_deployed = "None" : Exit Function
-        If x > 0 And (y = 0 Or x > y) And purpose = "Intercept" Then cap_deployed = "ph intercept" : Exit Function
-        If (y > x Or x = 0) And y > 0 And purpose = "Intercept" Then cap_deployed = "nph intercept" : Exit Function
-        If x > 0 And y = 0 And purpose = "Ground Air" Then cap_deployed = "nph ground air" : Exit Function
-        If x = 0 And y > 0 And purpose = "Ground Air" Then cap_deployed = "ph ground air" : Exit Function
+    Public Function abort_option(f As cunit, t As cunit, stage As Integer)
+        abort_option = False
+        If f.strength - f.aborts - f.casualties > 0 Then
+            If stage = 3 Then
+                If eq_list(f.equipment).gun_def + 2 >= eq_list(t.equipment).gun_def Then abort_option = True
+            ElseIf stage > 0 Then
+                If eq_list(f.equipment).miss_def + 2 >= eq_list(t.equipment).miss_def Then abort_option = True
+            Else
+                If eq_list(f.equipment).miss_def >= eq_list(t.equipment).miss_def Then abort_option = True
+            End If
+        End If
     End Function
+
+    Public Function air_assessment(subphase As Integer, curr As String)
+        air_assessment = ""
+        Dim x As Integer = 0, y As Integer = 0, x_ad As Integer = 0, y_ad As Integer = 0, x1 As Integer = 0, y1 As Integer = 0, x2 As Integer = 0, y2 As Integer = 0
+        For Each ac As cunit In p1_air
+            If ac.airborne And ac.task = "CAP" And ac.tacticalpts = 3 Then x = x + 1
+            If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 2 Then x1 = x1 + 1
+            If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 1 Then x2 = x2 + 1
+            If ac.area_air_defence Then x_ad = x_ad + 1
+        Next
+        For Each ac As cunit In p2_air
+            If ac.airborne And ac.task = "CAP" And ac.tacticalpts = 3 Then y = y + 1
+            If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 2 Then y1 = y1 + 1
+            If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 1 Then y2 = y2 + 1
+            If ac.area_air_defence Then y_ad = y_ad + 1
+        Next
+        If x + x1 + x2 = 0 And y + y1 + y2 = 0 Then air_assessment = "None" : Exit Function
+        If subphase = 1 Then
+            If x = y Then air_assessment = "Parity"
+            If x > y Then air_assessment = p1
+            If x < y Then air_assessment = p2
+        ElseIf subphase = 2 Then
+            If x = 0 And y > 0 And x_ad > 0 Then air_assessment = p1 + " ADSAM"
+            If y = 0 And x > 0 And y_ad > 0 Then air_assessment = p2 = " ADSAM"
+        ElseIf subphase = 3 Then
+            If x = 0 And y + y1 > 0 And y2 = 0 Then air_assessment = p2
+            If y = 0 And x + x1 > 0 And x2 = 0 Then air_assessment = p1
+        ElseIf subphase = 4 Then
+            If p1 = curr And x2 + x1 + x = 0 Then air_assessment = "None" : Exit Function
+            If p2 = curr And y2 + y1 + y = 0 Then air_assessment = "None" : Exit Function
+            air_assessment = curr
+        Else
+        End If
+
+    End Function
+
     Public Function arty_fire_mission(mission As String, side As Collection)
         arty_fire_mission = False
         For Each u As cunit In side

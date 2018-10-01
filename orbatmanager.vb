@@ -3,38 +3,23 @@
     Dim no As TreeNode, mgt As String = "", parentnode As New TreeNode, currcomd As Integer, col As Collection
     Dim neworbat As Collection
     Dim file As System.IO.StreamWriter
+
     Private Sub selectnode(ByVal sender As Object, ByVal e As System.Windows.Forms.TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
         Dim x As Integer = 1, parentnode As New TreeNode
+
         If comdtree.SelectedNode Is Nothing Then Exit Sub
         selectunit(orbat(e.Node.Text))
         currcomd = orbat(e.Node.Text).comd
         mgt = ""
         If Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Left And currcomd > 0 Then
             'insert new units
-            mgt = "insert"
-            purpose.Text = "Inserting a new Command"
-            comdtree.Enabled = False
-            selectedunit.Enabled = True
-            n = New cunit
-            n.parent = e.Node.Text
-            selectunit(n)
-            parentnode = comdtree.SelectedNode
+            insert_formation_click(insert_formation, Nothing)
         ElseIf Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Right And currcomd > 0 Then
             'insert sub units
-            mgt = "insert-subunits"
-            go_generate_subunits(orbat(e.Node.Text))
-            populate_command_structure(comdtree, orbatside, "Orbat")
+            generate_sub_units_Click(generate_sub_units, Nothing)
         ElseIf Control.ModifierKeys = Keys.Alt And e.Button = Windows.Forms.MouseButtons.Left And e.Node.Text <> comdtree.TopNode.Text Then
             'Clone Unit
-            mgt = "clone"
-            purpose.Text = "Cloning a Command"
-            no = e.Node
-            comdtree.Enabled = False
-            selectedunit.Enabled = True
-            n = New cunit
-            n.parent = e.Node.Text
-            selectunit(n)
-
+            clone_formation_Click(clone_formation, Nothing)
         ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.Left Then
             'mark to edit
             mgt = "edit"
@@ -42,13 +27,9 @@
             n = New cunit
             n = orbat(e.Node.Text)
             selectunit(n)
-            If e.Node.BackColor = golden Then
-                e.Node.BackColor = nostatus
-            Else
-                e.Node.BackColor = golden
-            End If
+            If e.Node.BackColor = golden Then e.Node.BackColor = nostatus Else e.Node.BackColor = golden
         ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.Right Then
-            ' edit
+            'group edit
             Dim editunit As Boolean = False
             mgt = "edit"
             purpose.Text = "Editing a Command"
@@ -74,7 +55,7 @@
         Next
     End Sub
     Private Sub group_edit()
-        no = check_next_to_edit(comdtree.TopNode)
+        no = check_next_to_edit(comdtree.Nodes(0))
         If Not no Is Nothing Then
             no.BackColor = nostatus
             comdtree.Enabled = False
@@ -350,8 +331,10 @@
             .orbattitle.Text = u.title
             '.unittype.SelectedIndex = 0
             .quality.SelectedIndex = 1
+
             .ShowDialog()
         End With
+        generate_subunits.Hide()
     End Sub
 
     Private Sub printorbattofile()
@@ -399,7 +382,44 @@
         Next
     End Sub
 
+    Private Sub insert_formation_click(sender As Object, e As EventArgs) Handles insert_formation.Click
+        mgt = "insert"
+        purpose.Text = "Inserting a new Command"
+        comdtree.Enabled = False
+        selectedunit.Enabled = True
+        n = New cunit
+        n.parent = comdtree.SelectedNode.Text
+        selectunit(n)
+        parentnode = comdtree.SelectedNode
 
+    End Sub
+
+    Private Sub generate_sub_units_Click(sender As Object, e As EventArgs) Handles generate_sub_units.Click
+        If comdtree.SelectedNode.Text Is Nothing Then Exit Sub
+        mgt = "insert-subunits"
+        go_generate_subunits(orbat(comdtree.SelectedNode.Text))
+        populate_command_structure(comdtree, orbatside, "Orbat")
+
+    End Sub
+
+    Private Sub clone_formation_Click(sender As Object, e As EventArgs) Handles clone_formation.Click
+        mgt = "clone"
+        purpose.Text = "Cloning a Command"
+        no = comdtree.SelectedNode
+        comdtree.Enabled = False
+        selectedunit.Enabled = True
+        n = New cunit
+        n.parent = comdtree.SelectedNode.Text
+        selectunit(n)
+    End Sub
+
+    Private Sub edit_selected_units_Click(sender As Object, e As EventArgs) Handles edit_selected_units.Click
+        mgt = "edit"
+        purpose.Text = "Editing a Command"
+        If comdtree.SelectedNode.BackColor <> golden Then comdtree.SelectedNode.BackColor = golden
+        group_edit()
+
+    End Sub
 
     Private Sub printunit(ByVal currentcomd As String, ByVal indentlevel As Integer)
         Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")

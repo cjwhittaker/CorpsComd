@@ -49,6 +49,7 @@
         For Each u As cunit In orbat
             If u.comd = 0 Then u.role = "|" + eq_list(u.equipment).role + "|"
         Next
+        initialise_collections()
     End Sub
     Public Sub save_orbat()
         If IsNothing(orbat) Then Exit Sub

@@ -5,35 +5,13 @@
             For Each u As cunit In orbat
                 u.fired = -1
                 u.moved = -1
-            Next
-            For Each u As cunit In orbat
-                If u.comd = 0 Then
-                    If Not u.conc Then u.mode = disp Else u.mode = conc
-
-                End If
+                If u.comd = 0 Then If Not u.conc Then u.mode = disp Else u.mode = conc
             Next
         End If
         Randomize(3600 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
-        p1_hqs = New Collection
-        p2_HQs = New Collection
-        p1_orbat = New Collection
-        p2_orbat = New Collection
-        p1_units = New Collection
-        p2_Units = New Collection
         oppfire = False
         For Each u As cunit In orbat
-            'test line
             If u.comd = 0 Then u.reset_unit()
-            'non test line
-            'If u.comd = 0 And phase = 0 Then u.reset_unit()
-
-            If u.nation = scenariodefaults.player1.Text Then
-                p1_orbat.Add(u, u.title)
-                If u.comd > 0 Then p1_hqs.Add(u, u.title) Else p1_units.Add(u, u.title)
-            Else
-                p2_orbat.Add(u, u.title)
-                If u.comd > 0 Then p2_HQs.Add(u, u.title) Else p2_Units.Add(u, u.title)
-            End If
         Next
         If phase <> 0 Then swap_phasing_player(False)
         gameturn = " for Game Turn" + Str(gt) + " at " + Format(gamedate, "HHmm") + "hrs " + Format(gamedate, "dd MMM yyyy")
@@ -120,22 +98,23 @@
             swap_phasing_player(True)
         Next
     End Sub
-    Public Sub direct_fire_phase(firer As String, target As String)
+    Public Sub direct_fire_phase(first As String, second As String)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
-        populate_lists(combat_2.targets, enemy, "Ground Targets", target)
-        populate_lists(combat_2.firers, ph_units, "Direct Fire", firer)
+        populate_lists(combat_2.targets, enemy, "Ground Targets", second)
+        populate_lists(combat_2.firers, ph_units, "Direct Fire", first)
         With combat_2
-            .enable_controls()
-            .observation(False)
             .Tag = "Direct Fire"
+            .enable_controls(True, combat_2.directfirepanel)
+            .enable_controls(True, combat_2.targetpanel)
+            .observation(False)
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = False
-            .abort_firer.Visible = False
-            .abort_target.Visible = False
-            .altitude.Visible = False
-            .taltitude.Visible = False
+            '.abort_firer.Visible = False
+            '.abort_target.Visible = False
+            '.ta_altitude_label.Visible = False
+            '.ta_altitude.Visible = False
             .range_not_needed = False
         End With
         If Not combat_2.Visible Then
@@ -147,58 +126,60 @@
 
     End Sub
 
-    Public Sub indirect_fire_phase(side_a As String, side_b As String)
+    Public Sub indirect_fire_phase(first As String, second As String)
         combat_2.targets.Items.Clear()
         combat_2.artillery.Items.Clear()
         combat_2.observers.Items.Clear()
-        populate_lists(combat_2.targets, enemy, "Ground Targets", side_b)
-        populate_lists(combat_2.artillery, ph_units, "Indirect Fire", side_a)
-        populate_lists(combat_2.observers, ph_units, "Observers", side_a)
+        populate_lists(combat_2.targets, enemy, "Ground Targets", second)
+        populate_lists(combat_2.artillery, ph_units, "Indirect Fire", first)
+        populate_lists(combat_2.observers, ph_units, "Observers", first)
 
         With combat_2
-            .enable_controls()
-            .observation(True)
             .Tag = "Indirect Fire"
+            .enable_controls(True, combat_2.indirectfirepanel)
+            .enable_controls(True, combat_2.targetpanel)
+            .observation(True)
             .firer = New cunit
             .target = New cunit
             .observer = New cunit
-            .indirectfire.Visible = True
-            .directfire.Visible = False
+            .indirectfirepanel.Visible = True
+            .directfirepanel.Visible = False
             .firesmoke.Visible = False
-            .abort_firer.Visible = False
-            .abort_target.Visible = False
-            .altitude.Visible = False
-            .taltitude.Visible = False
+            '.abort_firer.Visible = False
+            '.abort_target.Visible = False
+            '.ta_altitude_label.Visible = False
+            '.ta_altitude.Visible = False
             .range_not_needed = False
         End With
         If Not combat_2.Visible Then
             With combat_2
                 .Text = "Indirect Fire Sub Phase for " + gameturn
                 .ShowDialog()
-                .indirectfire.Visible = False
-                .directfire.Visible = True
+                .indirectfirepanel.Visible = False
+                .directfirepanel.Visible = True
 
             End With
         End If
 
     End Sub
 
-    Public Sub smoke_barrage_phase(firer As String)
+    Public Sub smoke_barrage_phase(first As String)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
         'populate_lists(combat_2.targets, enemy, "Ground Targets", target)
-        populate_lists(combat_2.firers, ph_units, "Smoke Barrage", firer)
+        populate_lists(combat_2.firers, ph_units, "Smoke Barrage", first)
         With combat_2
-            .enable_controls()
-            .observation(False)
             .Tag = "Smoke Barrage"
+            .enable_controls(True, combat_2.indirectfirepanel)
+            .enable_controls(True, combat_2.targetpanel)
+            .observation(False)
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = True
-            .abort_firer.Visible = False
-            .abort_target.Visible = False
-            .altitude.Visible = False
-            .taltitude.Visible = False
+            '.abort_firer.Visible = False
+            '.abort_target.Visible = False
+            '.ta_altitude_label.Visible = False
+            '.ta_altitude.Visible = False
             .range_not_needed = False
             '.ShowDialog()
         End With
@@ -253,78 +234,82 @@
     Public Sub deploy_air_missions()
         unit_selection.Tag = "Deploy Aircraft"
         populate_lists(unit_selection.units, orbat, "Deploy Aircraft", "")
-        If unit_selection.units.Items.Count > 0 Then
-            unit_selection.ShowDialog()
-            'quality check step
-            For Each ac As cunit In orbat
-                If ac.airborne Then
-                    dice = d10()
-                    'dice = 1
-                    If dice > ac.quality Or dice = 10 Then ac.task = "Abort"
-                End If
-            Next
-            unit_selection.Tag = "Abort Aircraft"
-            populate_lists(unit_selection.units, orbat, "Abort Aircraft", "")
-            If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
-        End If
+        If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
+        '    'quality check step
+        '    For Each ac As cunit In orbat
+        '        If ac.airborne Then
+        '            dice = d10()
+        '            'dice = 1
+        '            If dice > ac.quality Or dice = 10 Then ac.task = "Abort"
+        '        End If
+        '    Next
+        '    unit_selection.Tag = "Abort Aircraft"
+        '    populate_lists(unit_selection.units, orbat, "Abort Aircraft", "")
+        '    If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
+        'End If
     End Sub
 
-    Public Sub air_superiority()
-        For Each cap As cunit In orbat
-            If cap.task = "CAP" Then cap.fires = False : cap.hits = 0
-        Next
-        'CAP vs CAP
-        If cap_deployed(ph_units, enemy, "AS") = "AS battle" Then
-            For i As Integer = 1 To 2
-                unit_selection.Tag = "CAP Missions"
-                populate_lists(unit_selection.units, ph_units, "CAP Missions", "")
-                If unit_selection.units.Items.Count > 0 Then
-                    populate_lists(combat_2.targets, enemy, "CAP Targets", "")
-                    If combat_2.targets.Items.Count > 0 Then unit_selection.ShowDialog()
-                End If
-                swap_phasing_player(True)
-            Next
-        End If
-    End Sub
-
-    Public Sub intercept()
-        Dim cap_result As String = cap_deployed(ph_units, enemy, "Intercept")
+    Public Sub air_air_combat(first As String, second As String)
+        combat_2.targets.Items.Clear()
+        combat_2.firers.Items.Clear()
+        Dim cap_result As String = air_assessment(1, "")
+        Dim adsam As Boolean = IIf(InStr(cap_result, "ADSAM") > 0, True, False)
         If cap_result <> "None" Then
-            If cap_result = "nph intercept" Then swap_phasing_player(True)
-            populate_lists(unit_selection.units, ph_units, "Intercept", "")
-            If unit_selection.units.Items.Count > 0 Then
-                populate_lists(combat_2.targets, enemy, "Air to Air", "")
-                If combat_2.targets.Items.Count > 0 Then
-                    With unit_selection
-                        .Tag = "Intercept"
-                        .ShowDialog()
-                    End With
-                End If
+            If Not adsam Then
+                populate_lists(combat_2.firers, friend_air, "CAP Combat", "firer")
+                populate_lists(combat_2.targets, enemy_air, "CAP Combat", "")
+            Else
+                populate_lists(combat_2.firers, IIf(adsam, ph_units, enemy), "ADSAM Fire", IIf(adsam, first, second))
+                populate_lists(combat_2.targets, IIf(adsam, enemy_air, friend_air), "CAP Combat", IIf(adsam, second, first))
             End If
-            If cap_result = "nph intercept" Then swap_phasing_player(True)
+            With combat_2
+                .Tag = "Air to Air"
+                .enable_controls(False, combat_2.directfirepanel)
+                .enable_controls(False, combat_2.targetpanel)
+                .observation(False)
+                .interceptor = cap_result
+                .firer = New cunit
+                .target = New cunit
+                .firesmoke.Visible = False
+                .range_not_needed = True
+            End With
+            If Not combat_2.Visible Then
+                With combat_2
+                    .Text = "Air to Air Fire Sub Phase for " + gameturn
+                    .ShowDialog()
+                End With
+            End If
         End If
 
-        For Each u As cunit In orbat
-            If u.aircraft And Not u.heli And u.airborne And Not u.fires Then
-                u.tacticalpts = u.tacticalpts - 1
-            End If
-        Next
 
     End Sub
+
 
     Public Sub ground_to_air()
-        Dim cap_result As String = cap_deployed(ph_units, enemy, "Ground Air")
-        If cap_result <> "None" Then
-            If cap_result = "nph ground air" Then swap_phasing_player(True)
-            populate_lists(airground.units, enemy, "CAP AD Targets", "")
-            airground.Tag = "CAP AD Targets"
-            populate_lists(groundair.units, ph_units, "Air Defence", "")
-            If groundair.units.Items.Count > 0 Then airground.ShowDialog()
-            If cap_result = "nph ground air" Then swap_phasing_player(True)
-            airground.Tag = "airground"
-        End If
+        combat_2.targets.Items.Clear()
+        combat_2.firers.Items.Clear()
+        populate_lists(combat_2.firers, ph_units, "Ground to Air", "")
+        populate_lists(combat_2.targets, enemy_air, "Air to Ground", "")
+        With combat_2
+            .Tag = "Ground to Air"
+            .enable_controls(True, combat_2.directfirepanel)
+            .enable_controls(False, combat_2.targetpanel)
+                .observation(False)
+            .firer = New cunit
+            .target = New cunit
+                .firesmoke.Visible = False
+            .range_not_needed = False
+        End With
+            If Not combat_2.Visible Then
+                With combat_2
+                .Text = "Ground to Air Fire Sub Phase for " + gameturn
+                .ShowDialog()
+                End With
+            End If
+
 
     End Sub
+
 
     Public Sub conduct_sead()
         airground.Tag = "SEAD"

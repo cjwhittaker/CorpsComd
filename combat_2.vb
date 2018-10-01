@@ -1,68 +1,31 @@
 ﻿Public Class combat_2
 
     Public firer As cunit, target As cunit, observer As cunit, combatmode As String, target_fires As Boolean = False, range_not_needed As Boolean
-    Public weapon As String, fired_this_turn As Integer = 0, nt As Integer, nf As Integer, no As Integer
+    Public weapon As String, fired_this_turn As Integer = 0, nt As Integer, nf As Integer, no As Integer, interceptor As String
     Dim currentrange As Integer, tn As Integer
-    Public Sub enable_controls()
-        For Each c As Control In Me.Controls
-            c.Enabled = True
-            c.Visible = True
+    Public Sub enable_controls(groundfire As Boolean, panel As Object)
+        Dim gf As Boolean = False, af As Boolean = False
+        For Each c As Control In panel.controls
+            If Mid(c.Name, 2, 1) = "_" Then gf = True Else gf = False
+            If Mid(c.Name, 3, 1) = "_" Then af = True Else af = False
+            'If groundfire Then
+            If gf And TypeOf c Is Label Then
+                    With c
+                        .Enabled = groundfire
+                        .Visible = groundfire
+                    End With
+                ElseIf af And TypeOf c Is Label Then
+                    With c
+                        .Enabled = Not groundfire
+                        .Visible = Not groundfire
+                    End With
+                Else
+                End If
+            'Else
+            'End If
             If c.BackColor = golden Then c.BackColor = defa : c.Text = c.Tag
             reset_range()
         Next
-    End Sub
-    Private Sub calc_factors(c As Object)
-        If c.Name = "taltitude" And c.Enabled Then
-            target.mode = c.Text
-        ElseIf InStr(c.Name, "cover") > 0 Then
-            If InStr(c.Name, "firer") > 0 Then firer.Cover = Val(c.Text) Else target.Cover = Val(c.Text)
-        ElseIf InStr(c.Name, "aspect") > 0 And c.Text = "Front" Then
-            If InStr(c.Name, "firer") > 0 Then target.flanked = False : target.rear = False
-            If InStr(c.Name, "target") > 0 Then firer.flanked = False : firer.rear = False
-        ElseIf InStr(c.Name, "aspect") > 0 And c.Text = "Flank" Then
-            If InStr(c.Name, "firer") > 0 Then target.flanked = True Else firer.flanked = True
-        ElseIf InStr(c.Name, "aspect") > 0 And c.Text = "Rear" Then
-            If InStr(c.Name, "firer") > 0 Then target.rear = True Else firer.rear = True
-        ElseIf InStr(c.Name, "elevation") > 0 And c.Text = "Elevated" Then
-            If InStr(c.Name, "firer") > 0 Then firer.elevated = True Else target.elevated = True
-        ElseIf InStr(c.Name, "elevation") > 0 And c.Text <> "Elevated" Then
-            If InStr(c.Name, "firer") > 0 Then firer.elevated = False Else target.elevated = False
-            'ElseIf InStr(c.Name, "dismounted") > 0 And c.Text = "Dismounted" And c.enabled Then
-            '    If InStr(c.Name, "firer") > 0 Then target.dismounted = True Else firer.dismounted = True
-            'ElseIf InStr(c.Name, "dismounted") > 0 And (c.Text <> "Dismounted" Or Not c.enabled) Then
-            '    If InStr(c.Name, "firer") > 0 Then target.dismounted = False Else firer.dismounted = False
-        ElseIf InStr(c.Name, "mode") > 0 Then
-            If InStr(c.Name, "firer") > 0 Then firer.mode = c.Text Else target.mode = c.Text
-        ElseIf InStr(c.Name, "roadmove") > 0 And c.Text = "Road Move" Then
-            If c.Name = "froadmove" Then firer.roadmove = True Else target.roadmove = True
-        ElseIf InStr(c.Name, "roadmove") > 0 And c.Text <> "Road Move" Then
-            If c.Name = "froadmove" Then firer.roadmove = False Else target.roadmove = False
-        ElseIf InStr(c.Name, "plains") > 0 And c.Text = "Open Terrain" Then
-            If c.Name = "fplains" Then firer.plains = False Else target.plains = False
-        ElseIf InStr(c.Name, "plains") > 0 And c.Text <> "Open Terrain" Then
-            If c.Name = "fplains" Then firer.plains = True Else target.plains = True
-        ElseIf InStr(c.Name, "insmoke") > 0 And c.Text = "No Smoke" Then
-            If c.Name = "finsmoke" Then firer.insmoke = False Else target.insmoke = False
-        ElseIf InStr(c.Name, "insmoke") > 0 And c.Text <> "No Smoke" Then
-            If c.Name = "finsmoke" Then firer.insmoke = True Else target.insmoke = True
-        ElseIf InStr(c.Name, "fired") > 0 And c.Text = "Not Fired" Then
-            If c.Name = "firerfired" Then firer.fired = False Else target.fired = False
-        ElseIf InStr(c.Name, "fired") > 0 And c.Text <> "Not Fired" Then
-            If c.Name = "firerfired" Then firer.fired = True Else target.fired = True
-        ElseIf InStr(c.Name, "moving") > 0 And c.Text = "Static" Then
-            If c.Name = "firermoving" Then firer.moved = False Else target.moved = False
-        ElseIf InStr(c.Name, "moving") > 0 And c.Text <> "Static" Then
-            If c.Name = "firermoving" Then firer.moved = True Else target.moved = True
-        ElseIf InStr(c.Name, "fatigued") > 0 And c.Text = "Unfatigued" Then
-            If c.Name = "firerfatigued" Then firer.fatigue = 0 Else target.fatigue = 0
-        ElseIf InStr(c.Name, "fatigued") > 0 And c.Text = "Fatigued" Then
-            If c.Name = "firerfatigued" Then firer.fatigue = -1 Else target.fatigue = -1
-        ElseIf InStr(c.Name, "fatigued") > 0 And c.Text = "Exhausted" Then
-            If c.Name = "firerfatigued" Then firer.fatigue = -2 Else target.fatigue = -2
-
-        Else
-        End If
-
     End Sub
     Private Sub combat_Load(sender As Object, e As EventArgs) Handles Me.Load
 
@@ -70,48 +33,48 @@
         'test message
         'return_fire.Enabled = False
         fire.Enabled = False
-        directfire.Visible = True
-        If Tag = "Direct Fire" Then return_fire.Visible = True Else return_fire.Visible = False
+        directfirepanel.Visible = True
+        If Tag = "Direct Fire" Or Tag = "Air to Air" Then return_fire.Visible = True Else return_fire.Visible = False
         If Tag = "Smoke Barrage" Then
-            Panel2.Enabled = False
-            For Each c As Control In directfire.Controls
+            targetpanel.Enabled = False
+            For Each c As Control In directfirepanel.Controls
                 If TypeOf c Is Label Then c.Enabled = False
             Next
-            For Each c As Control In Panel2.Controls
-                c.Enabled = False
-            Next
+            'For Each c As Control In Panel2.Controls
+            '    c.Enabled = False
+            'Next
             firesmoke.Enabled = False
             fire.Visible = False
             return_fire.Visible = False
         End If
         If Tag = "Indirect Fire" Then
-            directfire.Visible = False
-            indirectfire.Visible = True
+            directfirepanel.Visible = False
+            indirectfirepanel.Visible = True
         End If
         If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
-            directfire.Visible = True
-            indirectfire.Visible = False
+            directfirepanel.Visible = True
+            indirectfirepanel.Visible = False
         End If
         If Tag = "Opportunity Fire" Then swap.Visible = False Else swap.Visible = True
         If Me.Tag = "Air Ground" Or Me.Tag = "SEAD" Then
             targets.Visible = True
-            fireraspect.Enabled = True
-            firercover.Enabled = False
-            fplains.Enabled = False
-            firercover.Enabled = False
-            froadmove.Enabled = False
-            finsmoke.Enabled = False
-            tplains.Enabled = True
-            targetcover.Enabled = True
-            troadmove.Enabled = True
+            f_aspect.Enabled = True
+            f_cover.Enabled = False
+            f_plains.Enabled = False
+            f_cover.Enabled = False
+            f_roadmove.Enabled = False
+            f_insmoke.Enabled = False
+            t_plains.Enabled = True
+            t_cover.Enabled = True
+            t_move.Enabled = True
         ElseIf Me.Tag = "Air Defence" Then
             target = New cunit
             'selectedtarget.Text = target.title
             targets.Visible = False
-            altitude.Visible = True
-            taltitude.Visible = True
+            ta_altitude_label.Visible = True
+            ta_altitude.Visible = True
 
-            For Each c As Control In Panel2.Controls
+            For Each c As Control In targetpanel.Controls
                 If c.Tag = "2" Then c.Enabled = False
             Next
             If combatmode = "Air Defence against CAP Missions" Then
@@ -119,7 +82,7 @@
                 tgt_range_select.Enabled = False
                 tgt_range.Text = "30000"
                 range_not_needed = True
-                With taltitude
+                With ta_altitude
                     .Text = "Medium"
                     .BackColor = golden
                     .Enabled = False
@@ -129,15 +92,15 @@
 
         ElseIf Me.Tag = "CAP" Or Me.Tag = "Intercept" Then
             targets.Visible = True
-            fireraspect.Enabled = False
-            firercover.Enabled = False
-            finsmoke.Enabled = False
-            fplains.Enabled = False
-            froadmove.Enabled = False
-            firerelevation.Enabled = False
-            altitude.Visible = True
-            taltitude.Visible = True
-            taltitude.Enabled = True
+            f_aspect.Enabled = False
+            f_cover.Enabled = False
+            f_insmoke.Enabled = False
+            f_plains.Enabled = False
+            f_roadmove.Enabled = False
+            f_elevation.Enabled = False
+            ta_altitude_label.Visible = True
+            ta_altitude.Visible = True
+            ta_altitude.Enabled = True
             observation(False)
             tgt_range.Enabled = False
             tgt_range_select.Enabled = False
@@ -156,7 +119,7 @@
         vis_range_select.Visible = enable
     End Sub
 
-    Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles f_wpn.Click, t_wpn.Click
+    Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles fwpn.Click, twpn.Click
         If Tag = "Smoke Barrage" Then Exit Sub
         'If selectedtarget.Text = "" Then Exit Sub
         If sender.name = "f_wpn" Then
@@ -170,9 +133,9 @@
 
     End Sub
 
-    Private Sub select_altitude(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles taltitude.Click
-        If target.title Is Nothing Then Exit Sub
-        If target.equipment = "" Then Exit Sub
+    Private Sub select_altitude(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ta_altitude.Click, fa_altitude.Click
+        If sender.name = "ta_altitude" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "fa_altitude" Then If firer.title Is Nothing Then Exit Sub
         If sender.Text = "Low" Then
             sender.Text = "Medium" : sender.BackColor = golden
         ElseIf sender.Text = "Medium" Then
@@ -184,14 +147,20 @@
             sender.BackColor = defa
         Else
         End If
-
+        If sender.name = "fa_altitude" Then
+            firer.mode = sender.text
+            eligible_to_fire(firer)
+        Else
+            target.mode = sender.text
+            eligible_to_fire(target)
+        End If
     End Sub
 
-    Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firercover.Click, targetcover.Click
+    Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles f_cover.Click, t_cover.Click
         Dim cover As Object
-        If sender.name = "targetcover" And target.title Is Nothing Then Exit Sub
-        If sender.name = "firercover" And firer.title Is Nothing Then Exit Sub
-        If InStr(sender.name, "firer") > 0 Then cover = firercover Else cover = targetcover
+        If sender.name = "targetcover" Then If target.title Is Nothing Then Exit Sub
+        If sender.name = "firercover" Then If firer.title Is Nothing Then Exit Sub
+        If InStr(sender.name, "firer") > 0 Then cover = f_cover Else cover = t_cover
         If cover.Text = "None" Then
             cover.Text = "+1" : cover.BackColor = golden
         ElseIf cover.Text = "+1" Then
@@ -210,7 +179,7 @@
 
     End Sub
 
-    Private Sub Flank_and_rear(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles fireraspect.Click, targetaspect.Click
+    Private Sub Flank_and_rear(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles f_aspect.Click, t_aspect.Click
         If sender.name = "targetaspect" And target.title Is Nothing Then Exit Sub
         If sender.name = "fireraspect" And firer.title Is Nothing Then Exit Sub
         If sender.text = "Front" Then
@@ -248,7 +217,7 @@
 
     End Sub
 
-    Public Sub firer_strength(f1 As Object, f2 As Object, f3 As Object, strength As Integer)
+    Public Sub firer_strength(f1 As Object, f2 As Object, f3 As Object, strength As Integer, airunit As Boolean)
         reset_strength(f1, f2, f3)
         If strength <= 5 Then
             f1.Enabled = True
@@ -263,9 +232,11 @@
             f2.Enabled = True
             f3.Enabled = True
         End If
+        Dim air_strength As Integer = 0
+        If airunit Then air_strength = strength : strength = 5
         Select Case strength
             Case 1, 2, 3, 4, 5
-                f1.Text = strength : f2.Text = "" : f3.Text = ""
+                f1.Text = IIf(airunit, air_strength, strength) : f2.Text = "" : f3.Text = ""
             Case 6
                 f1.Text = "3" : f2.Text = "3" : f3.Text = ""
             Case 7
@@ -287,15 +258,18 @@
             Case 15
                 f1.Text = "5" : f2.Text = "5" : f3.Text = "5"
         End Select
-        If Strings.Left(f1.name, 1) = "s" Or Me.Tag = "CAP" Or Me.Tag = "Intercept" Then
+        If Tag = "Air to Air" Then
+            select_strength_firing(f1, Nothing)
+        ElseIf Strings.Left(f1.name, 1) = "s" Then
             firer.firers = 0
             select_strength_firing(s1, Nothing)
-        End If
-        If Strings.Left(f1.name, 1) = "t" Then target.firers = 0
-        If Tag = "Smoke Barrage" Then
+        ElseIf Strings.Left(f1.name, 1) = "t" Then
+            target.firers = 0
+        ElseIf Tag = "Smoke Barrage" Then
             f1.Enabled = False
             f2.Enabled = False
             f3.Enabled = False
+        Else
         End If
     End Sub
 
@@ -320,38 +294,38 @@
 
     Public Sub update_parameters(opt As String)
         If opt = "firers" Then
-            reset_unit_options(directfire)
-            If firer.Cover > 0 Then select_cover(firercover, Nothing)
-            If firer.elevated Then elevation(firerelevation, Nothing)
-            If firer.roadmove Then roadmove(froadmove, Nothing)
-            If firer.plains Then plains(fplains, Nothing)
-            If firer.insmoke Then in_smoke(finsmoke, Nothing)
+            reset_unit_options(directfirepanel)
+            If firer.Cover > 0 Then select_cover(f_cover, Nothing)
+            If firer.elevated Then elevation(f_elevation, Nothing)
+            If firer.roadmove Then roadmove(f_roadmove, Nothing)
+            If firer.plains Then plains(f_plains, Nothing)
+            If firer.insmoke Then in_smoke(f_insmoke, Nothing)
             'If gt - firer.moved <= 1 Then firer.moving = True Else firer.moving = False
-            If firer.has_moved Then moved(firermoving, Nothing)
-            If firer.mode <> conc Then mode(firermode, Nothing)
-            f_wpn.Text = firer.equipment
-            If firer.w2 = "" Then f_wpn.Enabled = False Else f_wpn.Enabled = True
-            If firer.troopcarrier And firer.embussed Then firerdismounted.Enabled = True Else firerdismounted.Enabled = False
+            If firer.has_moved Then moved(f_moving, Nothing)
+            If firer.mode <> conc Then mode(f_mode, Nothing)
+            fwpn.Text = firer.equipment
+            If firer.w2 = "" Then fwpn.Enabled = False Else fwpn.Enabled = True
+            If firer.troopcarrier And firer.embussed Then f_dismounted.Enabled = True Else f_dismounted.Enabled = False
             If firer.Inf And firer.dismounted Then
-                With firerdismounted
+                With f_dismounted
                     .Enabled = True
                     .Text = "Mount"
                     .BackColor = golden
                 End With
             End If
         ElseIf opt = "targets" Then
-            reset_unit_options(Panel2)
-            If target.Cover > 0 Then select_cover(targetcover, Nothing)
-            If target.elevated Then elevation(targetelevation, Nothing)
-            If target.roadmove Then roadmove(troadmove, Nothing)
-            If target.plains Then plains(tplains, Nothing)
-            If target.insmoke Then in_smoke(tinsmoke, Nothing)
+            reset_unit_options(targetpanel)
+            If target.Cover > 0 Then select_cover(t_cover, Nothing)
+            If target.elevated Then elevation(t_elevation, Nothing)
+            If target.roadmove Then roadmove(t_move, Nothing)
+            If target.plains Then plains(t_plains, Nothing)
+            If target.insmoke Then in_smoke(t_insmoke, Nothing)
             'If gt - target.moved <= 1 Then target.moving = True Else target.moving = False
-            If target.has_moved Then moved(targetmoving, Nothing)
-            If target.mode <> conc Then mode(targetmode, Nothing)
-            t_wpn.Text = target.equipment
-            If target.w2 = "" Then t_wpn.Enabled = False Else t_wpn.Enabled = True
-            If Not target.troopcarrier Then targetdismounted.Enabled = False Else targetdismounted.Enabled = True
+            If target.has_moved Then moved(t_moving, Nothing)
+            If target.mode <> conc Then mode(t_mode, Nothing)
+            twpn.Text = target.equipment
+            If target.w2 = "" Then twpn.Enabled = False Else twpn.Enabled = True
+            If Not target.troopcarrier Then t_dismounted.Enabled = False Else t_dismounted.Enabled = True
         Else
         End If
     End Sub
@@ -362,16 +336,18 @@
             target = orbat(sender.FocusedItem.Text)
             nt = targets.FocusedItem.Index
             set_sel_color(sender.items, True)
-            If Tag <> "Smoke Barrage" And Tag <> "Indirect Fire" Then firer_strength(t1, t2, t3, target.firers_available)
+            If Tag <> "Smoke Barrage" And Tag <> "Indirect Fire" Then firer_strength(t1, t2, t3, target.firers_available, target.airborne)
+            If Tag = "Air to Air" Then If Not firer.title Is Nothing Then abort_target.Visible = abort_option(target, firer, 0)
         ElseIf sender.name = "firers" Then
             firer = orbat(sender.FocusedItem.Text)
             nf = firers.FocusedItem.Index
             set_sel_color(sender.items, True)
-            firer_strength(s1, s2, s3, firer.firers_available)
+            firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
+            If Tag = "Air to Air" Then If Not target.title Is Nothing Then abort_firer.Visible = abort_option(firer, target, 0)
         ElseIf sender.name = "artillery" And Not observer.title Is Nothing Then
             If orbat(sender.FocusedItem.Text).parent = observer.parent Or (orbat(sender.FocusedItem.Text).primary = observer.parent And orbat(sender.FocusedItem.Text).task = "DS") Then
                 firer = orbat(sender.FocusedItem.Text)
-                firer_strength(a1, a2, a3, firer.firers_available)
+                firer_strength(a1, a2, a3, firer.firers_available, False)
                 nf = artillery.FocusedItem.Index
                 set_sel_color(sender.items, True)
             Else
@@ -429,7 +405,7 @@
     End Sub
 
 
-    Private Sub dismounted(sender As Object, e As EventArgs) Handles firerdismounted.Click, targetdismounted.Click
+    Private Sub dismounted(sender As Object, e As EventArgs) Handles f_dismounted.Click, t_dismounted.Click
         If sender.name = "targetdismounted" Then
             If target.title Is Nothing Then Exit Sub
             If (sender.backcolor = golden And Not target.Inf) Then Exit Sub
@@ -461,7 +437,7 @@
 
     End Sub
 
-    Private Sub mode(sender As Object, e As EventArgs) Handles firermode.Click, targetmode.Click, obs_mode.Click
+    Private Sub mode(sender As Object, e As EventArgs) Handles f_mode.Click, t_mode.Click, obs_mode.Click
         If target.title Is Nothing Then If sender.name = "targetmode" Then Exit Sub
         If firer.title Is Nothing Then If sender.name = "firermode" Then Exit Sub
         If Tag = "Indirect Fire" Then If observer.title Is Nothing Then If sender.name = "obs_mode" Then Exit Sub
@@ -504,7 +480,7 @@
 
     End Sub
 
-    Private Sub roadmove(sender As Object, e As EventArgs) Handles troadmove.Click, froadmove.Click
+    Private Sub roadmove(sender As Object, e As EventArgs) Handles t_move.Click, f_roadmove.Click
         If sender.name = "troadmove" Then If target.title Is Nothing Then Exit Sub
         If sender.name = "froadmove" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
@@ -520,7 +496,7 @@
 
     End Sub
 
-    Private Sub plains(sender As Object, e As EventArgs) Handles tplains.Click, fplains.Click
+    Private Sub plains(sender As Object, e As EventArgs) Handles t_plains.Click, f_plains.Click
         If sender.name = "tplains" Then If target.title Is Nothing Then Exit Sub
         If sender.name = "fplains" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
@@ -536,7 +512,7 @@
 
     End Sub
 
-    Private Sub in_smoke(sender As Object, e As EventArgs) Handles finsmoke.Click, tinsmoke.Click
+    Private Sub in_smoke(sender As Object, e As EventArgs) Handles f_insmoke.Click, t_insmoke.Click
         If sender.name = "tinsmoke" Then If target.title Is Nothing Then Exit Sub
         If sender.name = "finsmoke" Then If firer.title Is Nothing Then Exit Sub
         If sender.backcolor = defa Then
@@ -566,33 +542,6 @@
         End If
     End Sub
 
-    'Private Sub reset_mode(sender As Object, e As EventArgs)
-    '    If sender.name = "selectedtarget" Then
-    '        If (target.mode = disp And target.not_conc) Or target.mode = conc Then
-    '            targetmode.Text = travel
-    '            target.mode = travel
-    '        ElseIf target.mode = travel Then
-    '            targetmode.Text = disp
-    '            target.mode = disp
-    '        ElseIf target.mode = disp And Not target.not_conc Then
-    '            targetmode.Text = conc
-    '            target.mode = conc
-    '        End If
-    '    Else
-    '        If (firer.mode = disp And firer.not_conc) Or firer.mode = conc Then
-    '            firermode.Text = travel
-    '            firer.mode = travel
-    '        ElseIf firer.mode = travel Then
-    '            firermode.Text = disp
-    '            firer.mode = disp
-    '        ElseIf firer.mode = disp And Not firer.not_conc Then
-    '            firermode.Text = conc
-    '            firer.mode = conc
-    '        End If
-    '    End If
-    '    eligible_to_fire()
-    'End Sub
-
     Private Sub set_selected(sender As Object, e As EventArgs) Handles scoot.Click
         If sender.backcolor = defa Then
             sender.backcolor = golden
@@ -601,7 +550,7 @@
         End If
     End Sub
 
-    Private Sub moved(sender As Object, e As EventArgs) Handles firermoving.Click, targetmoving.Click, obs_moving.Click
+    Private Sub moved(sender As Object, e As EventArgs) Handles f_moving.Click, t_moving.Click, obs_moving.Click
         If sender.name = "targetmoving" Then If target.title Is Nothing Then Exit Sub
         If sender.name = "firermoving" Then If firer.title Is Nothing Then Exit Sub
         If sender.name = "obs_moving" Then If observer.title Is Nothing Then Exit Sub
@@ -631,7 +580,7 @@
 
     End Sub
 
-    Private Sub elevation(sender As Object, e As EventArgs) Handles firerelevation.Click, targetelevation.Click, obs_elevation.Click
+    Private Sub elevation(sender As Object, e As EventArgs) Handles f_elevation.Click, t_elevation.Click, obs_elevation.Click
         If sender.name = "targetelevation" Then If target.title Is Nothing Then Exit Sub
         If sender.name = "firerelevation" Then If firer.title Is Nothing Then Exit Sub
         If sender.name = "obs_elevation" Then If observer.title Is Nothing Then Exit Sub
@@ -662,15 +611,13 @@
     End Sub
 
     Private Sub return_fire_available()
-        If Me.Tag <> "Direct Fire" Or firer.firers = 0 Then
+        If (Tag <> "Direct Fire" And Tag<>"Air to Air") Or firer.firers = 0 Then
             return_fire.BackColor = defa
-            'return_fire.Enabled = False
             Exit Sub
         End If
         Dim rge As Integer = Val(tgt_range_select.SelectedItem)
-        'return_fire.BackColor = defa
-        'reset_target_strength()
         If firer.title Is Nothing Or target.title Is Nothing Then return_fire_disable() : Exit Sub
+        If Tag = "Air to Air" Then Exit Sub
         'If firer.firers = 0 Or target.firers = 0 Then Exit Sub
         If range_not_needed Or tgt_range_select.SelectedIndex = -1 Then return_fire_disable() : Exit Sub
         If target.secondary <> "" Then
@@ -752,25 +699,47 @@
             smoke_barrage_phase(ph)
         ElseIf Tag = "Indirect Fire" Then
             indirect_fire_phase(ph, nph)
+        ElseIf Tag = "Air to Air" Then
+            populate_lists(firers, friend_air, "CAP Combat", "firer")
+            populate_lists(targets, enemy_air, "CAP Combat", "")
+        ElseIf Tag = "Ground to Air" Then
+            ground_to_air()
+        ElseIf Tag = "Air to Ground" Then
+            populate_lists(firers, friend_air, "Air to Ground", "")
+            populate_lists(targets, enemy, "Ground Targets", "")
         Else
+
         End If
-        'populate_lists(Me.targets, enemy, "Ground Targets", nph)
-        'populate_lists(Me.firers, ph_units, "Direct Fire", ph)
-        'With Me
-        '    .observation(False)
-        '    .Tag = "Direct Fire"
-        '    .firer = New cunit
-        '    .target = New cunit
-        '    .firesmoke.Visible = False
-        '    .abort_firer.Visible = False
-        '    .abort_target.Visible = False
-        '    .altitude.Visible = False
-        '    .taltitude.Visible = False
-        '    .range_not_needed = False
-        'End With
+        fire.Enabled = False
 
     End Sub
 
+    Private Sub abort_firer_Click(sender As Object, e As EventArgs) Handles abort_firer.Click, abort_target.Click
+        If sender.tag = "Firer" Then
+            firer.lands(True)
+            reset_aircraft(firer, True, 0, False)
+        Else
+            target.lands(True)
+            reset_aircraft(target, True, 0, False)
+        End If
+
+    End Sub
+
+    Private Sub ta_ecm_gs_Click(sender As Object, e As EventArgs) Handles ta_ecm_gs.Click, ta_ecm_ds.Click
+        Dim no_ecm As Boolean = True
+        For Each ac As cunit In enemy_air
+            If (ac.task = "ECM GS" And sender.name = "ta_ecm_gs") Or (ac.task = "ECM DS" And sender.name = "ta_ecm_ds") Then
+                sender.text = ac.title
+                sender.backcolor = golden
+                no_ecm = False
+                Exit Sub
+            End If
+        Next
+        If no_ecm Then
+            sender.text = "None"
+            sender.backcolor = golden
+        End If
+    End Sub
 
     Private Sub observer_Click(sender As Object, e As EventArgs)
         If sender.text = "Observer" Then
@@ -783,82 +752,94 @@
     End Sub
 
     Private Sub eligible_to_fire(sender As Object)
-        If Not range_not_needed And tgt_range_select.SelectedIndex = -1 and Tag<>"Indirect Fire" Then Exit Sub
+        fire.Enabled = False
+        firesmoke.Enabled = False
+        firer.spotted = False
+        target.spotted = False
+        If Not range_not_needed And tgt_range_select.SelectedIndex = -1 And Tag <> "Indirect Fire" Then return_fire_disable() : Exit Sub
+        If target.title Is Nothing Or firer.title Is Nothing Then return_fire_disable() : Exit Sub
         tgt_range.Text = tgt_range_select.SelectedItem
         Dim rge As Integer = Val(tgt_range.Text), out_of_range As Boolean = False
-        If Not firer.equipment Is Nothing Then If (rge > eq_list(firer.equipment).maxrange) Or (Tag = "Opportunity Fire" And rge > eq_list(firer.equipment).opr) Then out_of_range = True
-        If out_of_range Or (firer.firers = 0 And Tag = "Direct Fire") Then
+        If (rge > eq_list(firer.equipment).maxrange) Or (Tag = "Opportunity Fire" And rge > eq_list(firer.equipment).opr) Or (Tag = "Air to Ground" And rge > 1000) Then out_of_range = True
+
+
+        If out_of_range And Not range_not_needed Then
             fire.Enabled = False
-            'firesmoke.Enabled = False
-            target.spotted = fire.Enabled
-            'return_fire.Enabled = fire.Enabled
             tgt_range.ForeColor = Color.Red
             Exit Sub
-        End If
-        If Tag = "Smoke Barrage" Then
+        ElseIf Tag = "Smoke Barrage" Then
             tgt_range.ForeColor = Color.Green
             firesmoke.Enabled = True
             Exit Sub
-        End If
-        'If Tag <> "Direct Fire" Then return_fire.Enabled = False
-        fire.Enabled = False
-        firesmoke.Enabled = False
-        firesmoke.Visible = False
-        If target.title Is Nothing Then Exit Sub
-        'calc_factors(sender)
-        return_fire_available()
-
-        firer.spotted = False
-        'firer.task = ""
-        target.spotted = False
-        If range_not_needed Then
+        ElseIf firer.firers = 0 Then
+            return_fire_disable()
+            Exit Sub
+        ElseIf Tag = "Air to Air" Then
+            If firers.Items.Count = 0 Or targets.Items.Count = 0 Then Exit Sub
+            If firer.task = "CAP" And target.task = "CAP" And target.tacticalpts = 1 Then return_fire_disable()
+            If firer.task = "CAP" And target.task = "CAP" And firer.tacticalpts = 1 Then Exit Sub
+            firer.spotted = True
+            target.spotted = True
+            fire.Enabled = True
+        ElseIf range_not_needed Then
             firer.spotted = True
             target.spotted = True
             fire.Enabled = True
             Exit Sub
-        End If
-
-        If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
+        ElseIf Tag = "Direct Fire" Or Tag = "Opportunity Fire" Or (Tag = "Air to Ground" And firer.task <> "PGM") Then
+            If firers.Items.Count = 0 Or targets.Items.Count = 0 Then Exit Sub
             fire.Enabled = spotting(Val(tgt_range.Text), firer, target)
             target.spotted = fire.Enabled
             If Not fire.Enabled Then return_fire_disable()
             If target.spotted Then tgt_range.ForeColor = Color.Green Else tgt_range.ForeColor = Color.Red
-
-        ElseIf Tag = "Air Defence" Or (firer.sead And target.eligibleCB And target.airdefence) Then
-            fire.Enabled = True
-            target.spotted = True
-            tgt_range.ForeColor = Color.Green
+            If Tag = "Direct Fire" And fire.Enabled Then
+                If Not spotting(rge, target, firer) Then return_fire_disable()
+                If target.secondary <> "" Then
+                    If rge > eq_list(target.secondary).maxrange Then return_fire_disable()
+                Else
+                    If rge > eq_list(target.equipment).maxrange Then return_fire_disable()
+                End If
+            End If
+        ElseIf Tag = "Ground to Air" Then
+            If firer.valid_air_defence(rge, ta_altitude.Text) And Not (firer.eligibleCB And target.disrupted_gt) Then
+                fire.Enabled = True
+                target.spotted = True
+                tgt_range.ForeColor = Color.Green
+            Else
+                tgt_range.ForeColor = Color.Red
+            End If
 
         ElseIf Tag = "Indirect Fire" Then
-            Dim tmp As String = ""
-            tgt_range.ForeColor = Color.Green
-            visrange.Text = vis_range_select.SelectedItem
-            Dim observed As Boolean, identified As Boolean
-            identified = spotting(Val(visrange.Text), observer, target)
-            observed = spotting(Val(visrange.Text), observer, target)
-            If Not observed Then observer.task = "FFE"
-            identified = spotting(Val(visrange.Text), observer, target)
-            observer.task = ""
-            If observed Then
-                visrange.ForeColor = Color.Green
-            ElseIf identified And Not observed Then
-                visrange.ForeColor = Color.Blue
+                If observers.Items.Count Or artillery.Items.Count = 0 Or targets.Items.Count = 0 Then Exit Sub
+                Dim tmp As String = ""
+                tgt_range.ForeColor = Color.Green
+                visrange.Text = vis_range_select.SelectedItem
+                Dim observed As Boolean, identified As Boolean
+                identified = spotting(Val(visrange.Text), observer, target)
+                observed = spotting(Val(visrange.Text), observer, target)
+                If Not observed Then observer.task = "FFE"
+                identified = spotting(Val(visrange.Text), observer, target)
+                observer.task = ""
+                If observed Then
+                    visrange.ForeColor = Color.Green
+                ElseIf identified And Not observed Then
+                    visrange.ForeColor = Color.Blue
+                Else
+                    visrange.ForeColor = Color.Red
+                End If
+                fire.Enabled = (observed Or (identified Or Not observed)) And tgt_range_select.SelectedIndex <> -1 And Not out_of_range And firer.firers > 0
+                target.spotted = fire.Enabled
+                'If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "Observer" Then orbat(observer.Text).task = tmp
+                If firer.task = "CB" And Not observed Then
+                    With resultform_2
+                        .result.Text = "Failed to locate " + target.equipment
+                        .ShowDialog()
+                    End With
+                    targets.Items(tn).Remove()
+                    If targets.Items.Count = 0 Then Me.Close()
+                End If
             Else
-                visrange.ForeColor = Color.Red
             End If
-            fire.Enabled = (observed Or (identified Or Not observed)) And tgt_range_select.SelectedIndex <> -1 And Not out_of_range And firer.firers > 0
-            target.spotted = fire.Enabled
-            'If (firer.task = "IN" Or firer.task = "AF") And observer.Text <> "Observer" Then orbat(observer.Text).task = tmp
-            If firer.task = "CB" And Not observed Then
-                With resultform_2
-                    .result.Text = "Failed to locate " + target.equipment
-                    .ShowDialog()
-                End With
-                targets.Items(tn).Remove()
-                If targets.Items.Count = 0 Then Me.Close()
-            End If
-        Else
-        End If
 
     End Sub
 
@@ -867,7 +848,7 @@
         If Tag = "Indirect Fire" And visrange.Text = "Vis Range" Then Exit Sub
         If target.title Is Nothing Then Exit Sub
         firer.firers = 0 : target.firers = 0
-        If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
+        If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Or Tag = "Air to Air" Or Tag = "Ground to Air" Or Tag = "Air to Ground" Then
             firer.firers = IIf(s1.BackColor = golden, Val(s1.Text), 0) + IIf(s2.BackColor = golden, Val(s2.Text), 0) + IIf(s3.BackColor = golden, Val(s3.Text), 0)
         ElseIf Tag = "Indirect Fire" Then
             firer.firers = IIf(a1.BackColor = golden, Val(a1.Text), 0) + IIf(a2.BackColor = golden, Val(a2.Text), 0) + IIf(a3.BackColor = golden, Val(a3.Text), 0)
@@ -879,32 +860,55 @@
 
         If firer.airborne And firer.ordnance And Val(tgt_range.Text) > 1000 Then firer.ordnance = False
 
-        If Me.Tag = "Air Defence" Or target.heli Then target.mode = taltitude.Text
-        'If firer.indirect And Not firer.has_moved Then oppfire = False
-        resolvefire(firer, target)
-        'target = New cunit
-        'Select_units(targets, Nothing)
-        'firer = New cunit
-        'Select_units(firers, Nothing)
-        firer.fires = True
-        target.update_after_firing(ph, t_wpn.Text, True)
-        firer.update_after_firing(ph, f_wpn.Text, False)
-        If Tag = "Opportunity Fire" Then
-            reset_strength(s1, s2, s3)
-            reset_unit_options(directfire)
-            reset_range()
-            firers.FindItemWithText(firer.title).Remove()
-            firer = New cunit
-            If target.strength = 0 Then Exit Sub
-            targets.FindItemWithText(target.title).SubItems(1).Text = target.strength
-        ElseIf InStr(Text, "Moving Fire") > 0 And firer.firers_available > 0 Then
-            reset_target()
-            firer_strength(s1, s2, s3, firer.firers_available)
-            reset_range()
+        If Me.Tag = "Ground to Air" Or target.heli Then target.mode = ta_altitude.Text
+        Dim stages As Integer, stage As Integer
+        If Tag = "Air to Air" Then
+            If firer.tacticalpts = 3 And firer.task = "CAP" Then stage = 1 Else stage = 2
+            stages = 3
         Else
-            reset_target()
-            reset_firer()
+            stage = 1 : stages = 1
         End If
+        For i As Integer = stage To stages
+            resolvefire(firer, target, i)
+            firer.fires = True
+            target.update_after_firing(False)
+            firer.update_after_firing(IIf(oppfire, True, False))
+            'update_parameters("firers")
+            'update_parameters("targets")
+            If Tag = "Opportunity Fire" And target.strength <= 0 Then
+                Close()
+            ElseIf Tag = "Opportunity Fire" And target.strength > 0 Then
+                reset_strength(s1, s2, s3)
+                reset_unit_options(directfirepanel)
+                reset_range()
+                If firer.firers_available = 0 Then
+                    firers.FindItemWithText(firer.title).Remove()
+                    fwpn.Text = ""
+                    firer = New cunit
+                End If
+                targets.FindItemWithText(target.title).SubItems(1).Text = target.strength
+            ElseIf InStr(Text, "Moving Fire") > 0 And firer.firers_available > 0 Then
+                reset_target()
+                firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
+                reset_range()
+            ElseIf InStr(Text, "Moving Fire") > 0 And firer.firers_available <= 0 Then
+                Close()
+            ElseIf Tag = "Ground to Air" Then
+                reset_aircraft(firer, True, i, IIf(target.strength = 0, True, False))
+                If ta_ecm_ds.BackColor = golden Then enemy_air(ta_ecm_ds.Text).lands(False)
+
+            ElseIf Tag = "Air to Air" Then
+                reset_aircraft(firer, True, i, IIf(target.strength = 0, True, False))
+                reset_aircraft(target, False, i, IIf(firer.strength = 0, True, False))
+                If interceptor = "Parity" Then interceptor = air_assessment(3, "")
+                If Not firer.airborne Or Not target.airborne Or firer.strength = 0 Or target.strength = 0 Then Exit For
+            Else
+                reset_target()
+                reset_firer()
+            End If
+        Next
+
+        eligible_to_fire(firers)
 
     End Sub
 
@@ -919,33 +923,60 @@
         reset_range()
     End Sub
 
-    Private Sub combat_Closed(sender As Object, e As EventArgs) Handles Me.Closed
-        taltitude.Visible = False
-        altitude.Visible = False
-        'If firer.fires Then firer.update_after_firing(ph, firerprimary.Text, True)
+    Private Sub combat_Closed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.Closing
+        If Tag = "Air to Air" And air_assessment(4, interceptor) <> "None" Then
+            e.Cancel = True
+            For Each ac As cunit In friend_air
+                If ac.airborne And ac.tacticalpts >= 2 And ac.task = "CAP" Then ac.tacticalpts = 1
+            Next
+            For Each ac As cunit In enemy_air
+                If ac.airborne And ac.tacticalpts >= 2 And ac.task = "CAP" Then ac.tacticalpts = 1
+            Next
+            firers.Items.Clear()
+            targets.Items.Clear()
+            populate_lists(firers, IIf(interceptor = ph, friend_air, enemy_air), "Intercept", "")
+            populate_lists(targets, IIf(interceptor = ph, enemy_air, friend_air), "Intercept Targets", "")
+            swap.Visible = False
+            interceptor = "None"
+            Exit Sub
+        ElseIf Tag = "Ground to Air" Then
+            e.Cancel = True
+            Tag = "Air to Ground"
+            firers.Items.Clear()
+            targets.Items.Clear()
+            enable_controls(False, directfirepanel)
+            enable_controls(True, targetpanel)
+
+            populate_lists(firers, friend_air, "Air to Ground", "")
+            populate_lists(targets, enemy, "Ground Targets", "")
+            swap.Visible = True
+        Else
+        End If
 
     End Sub
     Private Sub reset_target()
-        If target.strength = 0 Or (target.aircraft And Not target.airborne) Or Me.Tag = "CAP" Then
+        If target.strength = 0 Then
             targets.Items(nt).Remove()
-        ElseIf target.airborne And Me.Tag = "Intercept" And target.fires Then
-            targets.Items(nt).Remove()
-            target.lands(False)
-            'targets.Items(tn).BackColor = target.status(Me.Name)
+            twpn.Text = ""
         Else
             targets.Items(nt).Selected = False
         End If
-        targets.Items(targets.FocusedItem.Index).SubItems(1).Text = IIf(target.aircraft, target.strength - target.aborts, target.strength)
+        targets.Items(targets.FocusedItem.Index).SubItems(1).Text = target.strength
         targets.Refresh()
         return_fire_disable()
         reset_strength(t1, t2, t3)
-        reset_unit_options(Panel2)
+        reset_unit_options(targetpanel)
     End Sub
     Private Sub reset_firer()
         If firer.firers_available <= 0 Or Tag = "Indirect Fire" Then
             If Tag = "indirect" And scoot.BackColor = golden And Not firer.moving Then firer.moving = True Else firer.moving = False
             If firer.firers_available <= 0 Then
-                If Tag = "Indirect Fire" Then artillery.Items(nf).Remove() Else firers.Items(nf).Remove()
+                If Tag = "Indirect Fire" Then
+                    artillery.Items(nf).Remove()
+                Else
+                    firers.Items(nf).Remove()
+                    fwpn.Text = ""
+                End If
             Else
                 If Tag = "Indirect Fire" Then artillery.Items(nf).Selected = False Else firers.Items(nf).Selected = False
             End If
@@ -953,11 +984,43 @@
                 reset_strength(a1, a2, a3)
             Else
                 reset_strength(s1, s2, s3)
-                reset_unit_options(directfire)
+                reset_unit_options(directfirepanel)
                 reset_range()
             End If
         Else
-            If Tag = "Indirect Fire" Then firer_strength(a1, a2, a3, firer.firers_available) Else firer_strength(s1, s2, s3, firer.firers_available)
+            If Tag = "Indirect Fire" Then firer_strength(a1, a2, a3, firer.firers_available, False) Else firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
+        End If
+    End Sub
+    Private Sub reset_aircraft(airunit As cunit, f As Boolean, stage As Integer, tgt_destroyed As Boolean)
+        If airunit.airborne Then
+            With airunit
+                .firers_available = .strength
+                .firers = IIf((f And s1.BackColor = golden) Or (Not f And t1.BackColor = golden), .strength, 0)
+            End With
+            If f Then
+                s1.Text = airunit.strength
+                firers.FindItemWithText(firer.title).SubItems(1).Text = firer.strength
+            Else
+                t1.Text = airunit.strength
+                targets.FindItemWithText(target.title).SubItems(1).Text = target.strength
+                'targets.Refresh()
+            End If
+        End If
+        If (stage = 3 And airunit.airborne) Or tgt_destroyed Then
+            If airunit.fires Then airunit.tacticalpts = airunit.tacticalpts - 1
+            If f Then firers.FindItemWithText(airunit.title).BackColor = nostatus Else targets.FindItemWithText(airunit.title).BackColor = nostatus
+            reset_strength(s1, s2, s3)
+            reset_strength(t1, t2, t3)
+            return_fire_disable()
+        End If
+        If airunit.strength = 0 Or Not airunit.airborne Or airunit.tacticalpts = 0 Then
+            If f Then
+                firers.FindItemWithText(airunit.title).Remove()
+                fwpn.Text = ""
+            Else
+                targets.FindItemWithText(airunit.title).Remove()
+                twpn.Text = ""
+            End If
         End If
     End Sub
     Private Sub reset_strength(f1 As Object, f2 As Object, f3 As Object)

@@ -26,7 +26,6 @@ Partial Class orbatmanager
         Me.comdtree = New System.Windows.Forms.TreeView()
         Me.orbattitle = New System.Windows.Forms.Label()
         Me.printorbat = New System.Windows.Forms.Button()
-        Me.debusvehicles = New System.Windows.Forms.Button()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
@@ -50,7 +49,19 @@ Partial Class orbatmanager
         Me.clone_formation = New System.Windows.Forms.Button()
         Me.generate_sub_units = New System.Windows.Forms.Button()
         Me.edit_selected_units = New System.Windows.Forms.Button()
+        Me.select_unit_template = New System.Windows.Forms.Panel()
+        Me.reject_sub = New System.Windows.Forms.Button()
+        Me.sub_1 = New System.Windows.Forms.Label()
+        Me.sub_a = New System.Windows.Forms.Label()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.generate = New System.Windows.Forms.Button()
+        Me.sub_unit_quality = New System.Windows.Forms.ComboBox()
+        Me.unittype = New System.Windows.Forms.ComboBox()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.Label8 = New System.Windows.Forms.Label()
+        Me.delete_unit = New System.Windows.Forms.Button()
         Me.selectedunit.SuspendLayout()
+        Me.select_unit_template.SuspendLayout()
         Me.SuspendLayout()
         '
         'comdtree
@@ -72,7 +83,7 @@ Partial Class orbatmanager
         Me.orbattitle.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.orbattitle.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.orbattitle.ForeColor = System.Drawing.Color.White
-        Me.orbattitle.Location = New System.Drawing.Point(134, 24)
+        Me.orbattitle.Location = New System.Drawing.Point(337, 25)
         Me.orbattitle.Name = "orbattitle"
         Me.orbattitle.Size = New System.Drawing.Size(614, 36)
         Me.orbattitle.TabIndex = 16
@@ -82,29 +93,19 @@ Partial Class orbatmanager
         'printorbat
         '
         Me.printorbat.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.printorbat.Location = New System.Drawing.Point(489, 590)
+        Me.printorbat.Location = New System.Drawing.Point(462, 585)
         Me.printorbat.Name = "printorbat"
-        Me.printorbat.Size = New System.Drawing.Size(309, 45)
+        Me.printorbat.Size = New System.Drawing.Size(181, 45)
         Me.printorbat.TabIndex = 23
         Me.printorbat.Text = "Print Orbat to File"
         Me.printorbat.UseVisualStyleBackColor = True
-        '
-        'debusvehicles
-        '
-        Me.debusvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.debusvehicles.Location = New System.Drawing.Point(594, 542)
-        Me.debusvehicles.Name = "debusvehicles"
-        Me.debusvehicles.Size = New System.Drawing.Size(99, 42)
-        Me.debusvehicles.TabIndex = 18
-        Me.debusvehicles.Text = "Debus"
-        Me.debusvehicles.UseVisualStyleBackColor = True
         '
         'Label3
         '
         Me.Label3.AutoSize = True
         Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(34, 76)
+        Me.Label3.Location = New System.Drawing.Point(33, 48)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(82, 24)
         Me.Label3.TabIndex = 11
@@ -116,7 +117,7 @@ Partial Class orbatmanager
         Me.Label1.AutoSize = True
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(5, 124)
+        Me.Label1.Location = New System.Drawing.Point(4, 83)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(111, 24)
         Me.Label1.TabIndex = 11
@@ -128,7 +129,7 @@ Partial Class orbatmanager
         Me.Label4.AutoSize = True
         Me.Label4.BackColor = System.Drawing.Color.Transparent
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(36, 225)
+        Me.Label4.Location = New System.Drawing.Point(35, 159)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(80, 24)
         Me.Label4.TabIndex = 11
@@ -140,7 +141,7 @@ Partial Class orbatmanager
         Me.Label5.AutoSize = True
         Me.Label5.BackColor = System.Drawing.Color.Transparent
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(14, 271)
+        Me.Label5.Location = New System.Drawing.Point(13, 194)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(102, 24)
         Me.Label5.TabIndex = 11
@@ -152,7 +153,7 @@ Partial Class orbatmanager
         Me.Label2.AutoSize = True
         Me.Label2.BackColor = System.Drawing.Color.Transparent
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(49, 174)
+        Me.Label2.Location = New System.Drawing.Point(48, 121)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(67, 24)
         Me.Label2.TabIndex = 11
@@ -162,7 +163,7 @@ Partial Class orbatmanager
         'title
         '
         Me.title.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.title.Location = New System.Drawing.Point(122, 73)
+        Me.title.Location = New System.Drawing.Point(121, 45)
         Me.title.Name = "title"
         Me.title.Size = New System.Drawing.Size(215, 29)
         Me.title.TabIndex = 12
@@ -170,7 +171,7 @@ Partial Class orbatmanager
         'strength
         '
         Me.strength.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.strength.Location = New System.Drawing.Point(123, 222)
+        Me.strength.Location = New System.Drawing.Point(122, 156)
         Me.strength.Name = "strength"
         Me.strength.Size = New System.Drawing.Size(215, 29)
         Me.strength.TabIndex = 12
@@ -179,7 +180,7 @@ Partial Class orbatmanager
         '
         Me.equip.Enabled = False
         Me.equip.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.equip.Location = New System.Drawing.Point(124, 268)
+        Me.equip.Location = New System.Drawing.Point(122, 191)
         Me.equip.Name = "equip"
         Me.equip.Size = New System.Drawing.Size(215, 29)
         Me.equip.TabIndex = 12
@@ -189,7 +190,7 @@ Partial Class orbatmanager
         Me.comd.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.comd.FormattingEnabled = True
         Me.comd.Items.AddRange(New Object() {"Army", "Corps", "Division", "Brigade", "Regiment", "Battalion/Battlegroup/Combat Team", "Bty/Sqn/Coy/Platoon/Troop"})
-        Me.comd.Location = New System.Drawing.Point(122, 121)
+        Me.comd.Location = New System.Drawing.Point(121, 80)
         Me.comd.Name = "comd"
         Me.comd.Size = New System.Drawing.Size(214, 32)
         Me.comd.TabIndex = 13
@@ -199,7 +200,7 @@ Partial Class orbatmanager
         Me.quality.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.quality.FormattingEnabled = True
         Me.quality.Items.AddRange(New Object() {"9", "8", "7", "6", "5", "4", "3", "2", "1"})
-        Me.quality.Location = New System.Drawing.Point(123, 171)
+        Me.quality.Location = New System.Drawing.Point(121, 118)
         Me.quality.Name = "quality"
         Me.quality.Size = New System.Drawing.Size(214, 32)
         Me.quality.TabIndex = 14
@@ -207,7 +208,7 @@ Partial Class orbatmanager
         'confirm
         '
         Me.confirm.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.confirm.Location = New System.Drawing.Point(31, 313)
+        Me.confirm.Location = New System.Drawing.Point(37, 237)
         Me.confirm.Name = "confirm"
         Me.confirm.Size = New System.Drawing.Size(139, 42)
         Me.confirm.TabIndex = 18
@@ -217,7 +218,7 @@ Partial Class orbatmanager
         'reject
         '
         Me.reject.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.reject.Location = New System.Drawing.Point(198, 313)
+        Me.reject.Location = New System.Drawing.Point(196, 237)
         Me.reject.Name = "reject"
         Me.reject.Size = New System.Drawing.Size(139, 42)
         Me.reject.TabIndex = 18
@@ -244,7 +245,7 @@ Partial Class orbatmanager
         Me.selectedunit.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.selectedunit.Location = New System.Drawing.Point(763, 85)
         Me.selectedunit.Name = "selectedunit"
-        Me.selectedunit.Size = New System.Drawing.Size(372, 382)
+        Me.selectedunit.Size = New System.Drawing.Size(372, 292)
         Me.selectedunit.TabIndex = 15
         Me.selectedunit.TabStop = False
         '
@@ -252,7 +253,7 @@ Partial Class orbatmanager
         '
         Me.purpose.BackColor = System.Drawing.Color.Transparent
         Me.purpose.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.purpose.Location = New System.Drawing.Point(38, 20)
+        Me.purpose.Location = New System.Drawing.Point(37, 13)
         Me.purpose.Name = "purpose"
         Me.purpose.Size = New System.Drawing.Size(300, 29)
         Me.purpose.TabIndex = 19
@@ -262,51 +263,51 @@ Partial Class orbatmanager
         'dispmode
         '
         Me.dispmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dispmode.Location = New System.Drawing.Point(489, 494)
+        Me.dispmode.Location = New System.Drawing.Point(462, 335)
         Me.dispmode.Name = "dispmode"
-        Me.dispmode.Size = New System.Drawing.Size(99, 42)
+        Me.dispmode.Size = New System.Drawing.Size(181, 42)
         Me.dispmode.TabIndex = 24
-        Me.dispmode.Text = "Disp"
+        Me.dispmode.Text = "Disperse all Units"
         Me.dispmode.UseVisualStyleBackColor = True
         '
         'concmode
         '
         Me.concmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.concmode.Location = New System.Drawing.Point(594, 494)
+        Me.concmode.Location = New System.Drawing.Point(462, 385)
         Me.concmode.Name = "concmode"
-        Me.concmode.Size = New System.Drawing.Size(99, 42)
+        Me.concmode.Size = New System.Drawing.Size(181, 42)
         Me.concmode.TabIndex = 25
-        Me.concmode.Text = "Conc"
+        Me.concmode.Text = "Concentrate all Units"
         Me.concmode.UseVisualStyleBackColor = True
         '
         'travelmode
         '
         Me.travelmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.travelmode.Location = New System.Drawing.Point(699, 494)
+        Me.travelmode.Location = New System.Drawing.Point(462, 435)
         Me.travelmode.Name = "travelmode"
-        Me.travelmode.Size = New System.Drawing.Size(99, 42)
+        Me.travelmode.Size = New System.Drawing.Size(181, 42)
         Me.travelmode.TabIndex = 26
-        Me.travelmode.Text = "Travel"
+        Me.travelmode.Text = "Travel mode all Units"
         Me.travelmode.UseVisualStyleBackColor = True
         '
         'embusvehicles
         '
         Me.embusvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.embusvehicles.Location = New System.Drawing.Point(699, 542)
+        Me.embusvehicles.Location = New System.Drawing.Point(462, 535)
         Me.embusvehicles.Name = "embusvehicles"
-        Me.embusvehicles.Size = New System.Drawing.Size(99, 42)
+        Me.embusvehicles.Size = New System.Drawing.Size(181, 42)
         Me.embusvehicles.TabIndex = 27
-        Me.embusvehicles.Text = "Embus"
+        Me.embusvehicles.Text = "Embus Passengers"
         Me.embusvehicles.UseVisualStyleBackColor = True
         '
         'dismountvehicles
         '
         Me.dismountvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dismountvehicles.Location = New System.Drawing.Point(489, 542)
+        Me.dismountvehicles.Location = New System.Drawing.Point(462, 485)
         Me.dismountvehicles.Name = "dismountvehicles"
-        Me.dismountvehicles.Size = New System.Drawing.Size(99, 42)
+        Me.dismountvehicles.Size = New System.Drawing.Size(181, 42)
         Me.dismountvehicles.TabIndex = 28
-        Me.dismountvehicles.Text = "Dismount"
+        Me.dismountvehicles.Text = "Dismount Passengers"
         Me.dismountvehicles.UseVisualStyleBackColor = True
         '
         'insert_formation
@@ -322,7 +323,7 @@ Partial Class orbatmanager
         'clone_formation
         '
         Me.clone_formation.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.clone_formation.Location = New System.Drawing.Point(462, 153)
+        Me.clone_formation.Location = New System.Drawing.Point(462, 135)
         Me.clone_formation.Name = "clone_formation"
         Me.clone_formation.Size = New System.Drawing.Size(181, 42)
         Me.clone_formation.TabIndex = 30
@@ -332,7 +333,7 @@ Partial Class orbatmanager
         'generate_sub_units
         '
         Me.generate_sub_units.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.generate_sub_units.Location = New System.Drawing.Point(462, 223)
+        Me.generate_sub_units.Location = New System.Drawing.Point(462, 185)
         Me.generate_sub_units.Name = "generate_sub_units"
         Me.generate_sub_units.Size = New System.Drawing.Size(181, 42)
         Me.generate_sub_units.TabIndex = 31
@@ -342,12 +343,138 @@ Partial Class orbatmanager
         'edit_selected_units
         '
         Me.edit_selected_units.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.edit_selected_units.Location = New System.Drawing.Point(462, 302)
+        Me.edit_selected_units.Location = New System.Drawing.Point(462, 235)
         Me.edit_selected_units.Name = "edit_selected_units"
         Me.edit_selected_units.Size = New System.Drawing.Size(181, 42)
         Me.edit_selected_units.TabIndex = 32
         Me.edit_selected_units.Text = "Edit Selected Units"
         Me.edit_selected_units.UseVisualStyleBackColor = True
+        '
+        'select_unit_template
+        '
+        Me.select_unit_template.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.select_unit_template.Controls.Add(Me.reject_sub)
+        Me.select_unit_template.Controls.Add(Me.sub_1)
+        Me.select_unit_template.Controls.Add(Me.sub_a)
+        Me.select_unit_template.Controls.Add(Me.Label6)
+        Me.select_unit_template.Controls.Add(Me.generate)
+        Me.select_unit_template.Controls.Add(Me.sub_unit_quality)
+        Me.select_unit_template.Controls.Add(Me.unittype)
+        Me.select_unit_template.Controls.Add(Me.Label7)
+        Me.select_unit_template.Controls.Add(Me.Label8)
+        Me.select_unit_template.Enabled = False
+        Me.select_unit_template.Location = New System.Drawing.Point(762, 408)
+        Me.select_unit_template.Name = "select_unit_template"
+        Me.select_unit_template.Size = New System.Drawing.Size(373, 230)
+        Me.select_unit_template.TabIndex = 33
+        '
+        'reject_sub
+        '
+        Me.reject_sub.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.reject_sub.Location = New System.Drawing.Point(197, 160)
+        Me.reject_sub.Name = "reject_sub"
+        Me.reject_sub.Size = New System.Drawing.Size(139, 42)
+        Me.reject_sub.TabIndex = 38
+        Me.reject_sub.Text = "Reject Edit"
+        Me.reject_sub.UseVisualStyleBackColor = True
+        '
+        'sub_1
+        '
+        Me.sub_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.sub_1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.sub_1.Location = New System.Drawing.Point(241, 110)
+        Me.sub_1.Name = "sub_1"
+        Me.sub_1.Size = New System.Drawing.Size(47, 38)
+        Me.sub_1.TabIndex = 37
+        Me.sub_1.Text = """1"""
+        Me.sub_1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'sub_a
+        '
+        Me.sub_a.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.sub_a.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.sub_a.Location = New System.Drawing.Point(303, 110)
+        Me.sub_a.Name = "sub_a"
+        Me.sub_a.Size = New System.Drawing.Size(45, 38)
+        Me.sub_a.TabIndex = 36
+        Me.sub_a.Text = """A"""
+        Me.sub_a.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.BackColor = System.Drawing.Color.Transparent
+        Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.Location = New System.Drawing.Point(21, 117)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(213, 24)
+        Me.Label6.TabIndex = 35
+        Me.Label6.Text = "Sub Unit Identifer Range"
+        Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'generate
+        '
+        Me.generate.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.generate.Location = New System.Drawing.Point(25, 160)
+        Me.generate.Name = "generate"
+        Me.generate.Size = New System.Drawing.Size(139, 42)
+        Me.generate.TabIndex = 34
+        Me.generate.Text = "Generate"
+        Me.generate.UseVisualStyleBackColor = True
+        '
+        'sub_unit_quality
+        '
+        Me.sub_unit_quality.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.sub_unit_quality.FormattingEnabled = True
+        Me.sub_unit_quality.Items.AddRange(New Object() {"9", "8", "7", "6", "5", "4", "3", "2", "1"})
+        Me.sub_unit_quality.Location = New System.Drawing.Point(137, 63)
+        Me.sub_unit_quality.Name = "sub_unit_quality"
+        Me.sub_unit_quality.Size = New System.Drawing.Size(214, 32)
+        Me.sub_unit_quality.TabIndex = 33
+        '
+        'unittype
+        '
+        Me.unittype.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.unittype.FormattingEnabled = True
+        Me.unittype.Items.AddRange(New Object() {"Army", "Corps", "Division", "Brigade", "Regiment", "Battalion/Battlegroup", "Bty/Sqn/Coy/Platoon/Troop"})
+        Me.unittype.Location = New System.Drawing.Point(137, 20)
+        Me.unittype.Name = "unittype"
+        Me.unittype.Size = New System.Drawing.Size(214, 32)
+        Me.unittype.TabIndex = 32
+        '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.BackColor = System.Drawing.Color.Transparent
+        Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label7.Location = New System.Drawing.Point(64, 66)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(67, 24)
+        Me.Label7.TabIndex = 30
+        Me.Label7.Text = "Quality"
+        Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'Label8
+        '
+        Me.Label8.AutoSize = True
+        Me.Label8.BackColor = System.Drawing.Color.Transparent
+        Me.Label8.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label8.Location = New System.Drawing.Point(21, 23)
+        Me.Label8.Name = "Label8"
+        Me.Label8.Size = New System.Drawing.Size(110, 24)
+        Me.Label8.TabIndex = 31
+        Me.Label8.Text = "Type of Unit"
+        Me.Label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'delete_unit
+        '
+        Me.delete_unit.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.delete_unit.Location = New System.Drawing.Point(462, 285)
+        Me.delete_unit.Name = "delete_unit"
+        Me.delete_unit.Size = New System.Drawing.Size(181, 42)
+        Me.delete_unit.TabIndex = 34
+        Me.delete_unit.Text = "Delete Selected Unit"
+        Me.delete_unit.UseVisualStyleBackColor = True
         '
         'orbatmanager
         '
@@ -356,6 +483,8 @@ Partial Class orbatmanager
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(1284, 662)
+        Me.Controls.Add(Me.delete_unit)
+        Me.Controls.Add(Me.select_unit_template)
         Me.Controls.Add(Me.edit_selected_units)
         Me.Controls.Add(Me.generate_sub_units)
         Me.Controls.Add(Me.clone_formation)
@@ -366,7 +495,6 @@ Partial Class orbatmanager
         Me.Controls.Add(Me.concmode)
         Me.Controls.Add(Me.dispmode)
         Me.Controls.Add(Me.printorbat)
-        Me.Controls.Add(Me.debusvehicles)
         Me.Controls.Add(Me.orbattitle)
         Me.Controls.Add(Me.comdtree)
         Me.Controls.Add(Me.selectedunit)
@@ -379,13 +507,14 @@ Partial Class orbatmanager
         Me.Text = "Orbat Manager"
         Me.selectedunit.ResumeLayout(False)
         Me.selectedunit.PerformLayout()
+        Me.select_unit_template.ResumeLayout(False)
+        Me.select_unit_template.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
     Friend WithEvents comdtree As System.Windows.Forms.TreeView
     Friend WithEvents orbattitle As System.Windows.Forms.Label
     Friend WithEvents printorbat As System.Windows.Forms.Button
-    Friend WithEvents debusvehicles As System.Windows.Forms.Button
     Friend WithEvents Label3 As Label
     Friend WithEvents Label1 As Label
     Friend WithEvents Label4 As Label
@@ -409,4 +538,15 @@ Partial Class orbatmanager
     Friend WithEvents clone_formation As Button
     Friend WithEvents generate_sub_units As Button
     Friend WithEvents edit_selected_units As Button
+    Friend WithEvents select_unit_template As Panel
+    Friend WithEvents reject_sub As Button
+    Friend WithEvents sub_1 As Label
+    Friend WithEvents sub_a As Label
+    Friend WithEvents Label6 As Label
+    Friend WithEvents generate As Button
+    Friend WithEvents sub_unit_quality As ComboBox
+    Friend WithEvents unittype As ComboBox
+    Friend WithEvents Label7 As Label
+    Friend WithEvents Label8 As Label
+    Friend WithEvents delete_unit As Button
 End Class

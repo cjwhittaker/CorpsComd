@@ -17,10 +17,10 @@
         ElseIf Control.ModifierKeys = Keys.Control And e.Button = Windows.Forms.MouseButtons.Right And currcomd > 0 Then
             'insert sub units
             generate_sub_units_Click(generate_sub_units, Nothing)
-        ElseIf Control.ModifierKeys = Keys.Alt And e.Button = Windows.Forms.MouseButtons.Left And e.Node.Text <> comdtree.TopNode.Text Then
+        ElseIf Control.ModifierKeys = Keys.Alt And e.Button = Windows.Forms.MouseButtons.Left And e.Node.Text <> comdtree.Nodes(0).Text Then
             'Clone Unit
             clone_formation_Click(clone_formation, Nothing)
-        ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.Left Then
+        ElseIf e.Button = Windows.Forms.MouseButtons.right Then
             'mark to edit
             mgt = "edit"
             purpose.Text = "Editing a Command"
@@ -28,30 +28,34 @@
             n = orbat(e.Node.Text)
             selectunit(n)
             If e.Node.BackColor = golden Then e.Node.BackColor = nostatus Else e.Node.BackColor = golden
-        ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.Right Then
-            'group edit
-            Dim editunit As Boolean = False
-            mgt = "edit"
-            purpose.Text = "Editing a Command"
-            If e.Node.BackColor <> golden Then e.Node.BackColor = golden
-            group_edit()
+        ElseIf Control.ModifierKeys = Keys.Shift And e.Button = Windows.Forms.MouseButtons.left Then
+            comdtree.SelectedNode.Expand()
+            If comdtree.SelectedNode.BackColor = nostatus Then comdtree.SelectedNode.BackColor = golden Else comdtree.SelectedNode.BackColor = nostatus
+            select_all(comdtree.SelectedNode, comdtree.SelectedNode.BackColor)
+            'ElseIf e.Button = Windows.Forms.MouseButtons.Right Then
+            '    'group edit
+            '    edit_selected_units_Click(edit_selected_units, Nothing)
+            '    Dim editunit As Boolean = False
+            '    mgt = "edit"
+            '    purpose.Text = "Editing a Command"
+            '    If e.Node.BackColor <> golden Then e.Node.BackColor = golden
+            '    group_edit()
         ElseIf Control.ModifierKeys = Keys.Shift + Keys.Control Then
             'delete units
-            If comdtree.SelectedNode.Level = 0 Then Exit Sub
-            If e.Node.Nodes.Count = 0 Then
-                orbat.Remove(e.Node.Text)
-                e.Node.Remove()
-            End If
+            delete_unit_Click(delete_unit, Nothing)
         Else
         End If
     End Sub
-    Private Sub comdtree_DoubleClick(sender As Object, e As EventArgs) Handles comdtree.DoubleClick
-        select_all(comdtree.TopNode)
+    Private Sub comdtree_DoubleClick(sender As Object, e As System.Windows.Forms.TreeNodeMouseClickEventArgs)
+        If e.Button = Windows.Forms.MouseButtons.Left Then Exit Sub
+        comdtree.SelectedNode.Expand()
+        If comdtree.SelectedNode.BackColor = nostatus Then comdtree.SelectedNode.BackColor = golden Else comdtree.SelectedNode.BackColor = nostatus
+        select_all(comdtree.SelectedNode, comdtree.SelectedNode.BackColor)
     End Sub
-    Private Sub select_all(no As TreeNode)
+    Private Sub select_all(no As TreeNode, c As Color)
         For Each n As TreeNode In no.Nodes
-            select_all(n)
-            n.BackColor = golden
+            select_all(n, c)
+            n.BackColor = c
         Next
     End Sub
     Private Sub group_edit()
@@ -323,18 +327,21 @@
         For Each x As cunit In orbat
             If InStr(x.title, "/" + u.title) > 0 Then Exit Sub
         Next
-        generate_subunits.unittype.Items.Clear()
+        unittype.Items.Clear()
         For Each t As cunittype In unittypes
-            If t.nation = u.nation And t.comd = u.comd Then generate_subunits.unittype.Items.Add(t.title)
+            If t.nation = u.nation And t.comd = u.comd Then unittype.Items.Add(t.title)
         Next
-        With generate_subunits
-            .orbattitle.Text = u.title
-            '.unittype.SelectedIndex = 0
-            .quality.SelectedIndex = 1
+        If unittype.Items.Count > 0 Then
+            select_unit_template.Enabled = True
+            unittype.SelectedIndex = 0
+            sub_unit_quality.SelectedItem = Trim(Str(orbat(comdtree.SelectedNode.Text).quality))
+            sub_1.BackColor = defa
+            sub_a.BackColor = defa
+        Else
+            select_unit_template.Enabled = False
+            Exit Sub
+        End If
 
-            .ShowDialog()
-        End With
-        generate_subunits.Hide()
     End Sub
 
     Private Sub printorbattofile()
@@ -352,7 +359,7 @@
 
     End Sub
 
-    Private Sub change_mode_click(sender As Object, e As EventArgs) Handles dispmode.Click, concmode.Click, travelmode.Click, dismountvehicles.Click, embusvehicles.Click, debusvehicles.Click
+    Private Sub change_mode_click(sender As Object, e As EventArgs) Handles dispmode.Click, concmode.Click, travelmode.Click, dismountvehicles.Click, embusvehicles.Click
         change_mode(comdtree.Nodes(0), sender.name)
         populate_command_structure(comdtree, orbatside, "Orbat")
 
@@ -398,7 +405,7 @@
         If comdtree.SelectedNode.Text Is Nothing Then Exit Sub
         mgt = "insert-subunits"
         go_generate_subunits(orbat(comdtree.SelectedNode.Text))
-        populate_command_structure(comdtree, orbatside, "Orbat")
+        'populate_command_structure(comdtree, orbatside, "Orbat")
 
     End Sub
 
@@ -421,6 +428,29 @@
 
     End Sub
 
+    Private Sub delete_unit_Click(sender As Object, e As EventArgs) Handles delete_unit.Click
+        If comdtree.SelectedNode.Text = comdtree.Nodes(0).Text Then Exit Sub
+        'If comdtree.SelectedNode.Nodes.Count = 0 Then remove_comd_branches(comdtree.SelectedNode.Text)
+        remove_comd_branches(comdtree.SelectedNode.Text)
+        orbat.Remove(comdtree.SelectedNode.Text)
+        populate_command_structure(comdtree, orbatside, "Orbat")
+    End Sub
+    Private Sub remove_comd_branches(parent As String)
+        Dim x As Integer = 1
+        Do
+            If orbat(x).parent = parent Then
+                If orbat(x).comd > 0 Then
+                    remove_comd_branches(orbat(x).title)
+                    orbat.Remove(x)
+                Else
+                    orbat.Remove(x)
+                End If
+                If x = orbat.Count Then Exit Sub
+            Else
+                x = x + 1
+            End If
+        Loop Until x = orbat.Count
+    End Sub
     Private Sub printunit(ByVal currentcomd As String, ByVal indentlevel As Integer)
         Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
         file.WriteLine(Space(indentlevel * 5) + n) 'Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
@@ -436,17 +466,17 @@
         printorbattofile()
     End Sub
 
-    Private Sub select_type_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
-        For Each x As cunittype In unittypes
-            If u.nation = x.nation And u.comd = x.comd Then
-                generate_subunits.unittype.Items.Add(x.title)
-            End If
-        Next
-        With generate_subunits
-            .orbattitle.Text = u.title
-            .ShowDialog()
-        End With
-    End Sub
+    'Private Sub select_type_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
+    '    For Each x As cunittype In unittypes
+    '        If u.nation = x.nation And u.comd = x.comd Then
+    '            generate_subunits.unittype.Items.Add(x.title)
+    '        End If
+    '    Next
+    '    With generate_subunits
+    '        .orbattitle = u.title
+    '        .ShowDialog()
+    '    End With
+    'End Sub
 
     Private Sub loadvehicles(action As String, no As TreeNode)
         Dim tpt As String = "", title As String = no.Text
@@ -513,5 +543,130 @@
 
     End Function
 
+    Private Sub sub_identifers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles sub_1.Click, sub_a.Click
+        If (sender.name = "sub_a" And sender.backcolor = defa) Or (sender.name = "sub_1" And sender.backcolor = golden) Then
+            sub_1.BackColor = defa
+            sub_a.BackColor = golden
+        ElseIf (sender.name = "sub_1" And sender.backcolor = defa) Or (sender.name = "sub_a" And sender.backcolor = golden) Then
+            sub_a.BackColor = defa
+            sub_1.BackColor = golden
+        Else
+
+        End If
+    End Sub
+
+    Private Sub sub_unit_quality_SelectedIndexChanged(sender As Object, e As EventArgs) Handles sub_unit_quality.SelectedIndexChanged
+        If Val(sub_unit_quality.SelectedItem) > orbat(comdtree.SelectedNode.Text).quality Then sub_unit_quality.SelectedItem = Str(orbat(comdtree.SelectedNode.Text).quality)
+    End Sub
+    Private Sub generate_click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles generate.Click
+        Dim n As New cunit, i As Integer = 0, l As String = "", passengers As Boolean = False, t As String = "", orbattitle As String = comdtree.SelectedNode.Text
+        Dim same_desig As Boolean = False, ch As Integer = 65, pas As String = "*", subunits As Integer = 0, desig As String = ""
+        If Not sub_1.BackColor = golden And Not sub_a.BackColor = golden Then Exit Sub
+        For Each s As csubunit In TOE
+            If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
+                If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
+                passengers = False
+                Try
+                    If eq_list(s.equipment).troopcarrier Then passengers = True
+                Catch ex As Exception
+                End Try
+            End If
+        Next
+        For Each s As csubunit In TOE
+            If s.title = unittype.SelectedItem Then
+                If subunits > 9 Or sub_a.BackColor = golden Then
+                    ch = 65
+                Else
+                    ch = 49
+                End If
+                If s.desig <> desig Then
+                    desig = s.desig
+                    same_desig = False
+                Else
+                    same_desig = True
+                End If
+                If passengers Then
+                    i = i - s.quantity
+                ElseIf same_desig Then
+                    i = i
+                Else
+                    i = 0
+                End If
+                For x As Integer = 0 To s.quantity - 1
+                    If s.desig = "" Then
+                        t = Chr(ch + i)
+                    Else
+                        t = Chr(ch + IIf(same_desig, i, x))
+                    End If
+                    If s.unit_comd > 0 Then
+                        l = IIf(s.desig = "", Chr(49 + x), s.desig) + "-"
+                    ElseIf s.equipment = "ACV" And s.desig = "" Then
+                        l = "HQ/"
+                    ElseIf s.desig <> "" Then
+                        If passengers Then
+                            If s.sub_comd Then
+                                l = Replace(s.desig, "/", pas + "/") + t + "-"
+                            Else
+                                l = IIf(s.quantity > 1 Or same_desig, t + pas + "/", "1/") + s.desig
+                            End If
+                        Else
+                            If s.sub_comd Then
+                                l = s.desig + t + "-"
+                            Else
+                                l = IIf(s.quantity > 1 Or same_desig, t + "/", "") + s.desig
+                            End If
+                        End If
+                    ElseIf s.desig = "" Then
+                        If passengers Then
+                            l = t + pas + "/"
+                        Else
+                            l = t + "/"
+                        End If
+                    Else
+                    End If
+                    'If l = "HQ" And x = 1 Then
+                    '    l = l
+                    'ElseIf l = "HQ" And x > 1 And Not s.sub_comd Then
+                    '    l = l + Trim(Str(x - 1))
+                    'Else
+                    If s.quantity > 1 Or (same_desig And s.unit_comd = 0 And s.equipment <> "ACV") Or (s.desig = "" And s.unit_comd = 0 And s.equipment <> "ACV") Then
+                        i = i + 1
+                    End If
+                    n = New cunit
+                    If InStr(l, pas) > 0 Then
+                        orbat(Replace(Trim(l) + orbattitle, pas, "")).carrying = Replace(Trim(l) + orbattitle, pas, "#")
+                        n.carrying = Replace(Trim(l) + orbattitle, pas, "")
+                        l = Replace(l, pas, "#")
+                    End If
+                    With n
+                        .title = Trim(l) + orbattitle
+                        .comd = s.unit_comd
+                        .nation = s.nation
+                        .initial = IIf(s.unit_comd = 0, s.strength, 0)
+                        .strength = IIf(s.unit_comd = 0, s.strength, 0)
+                        .equipment = IIf(s.unit_comd = 0, s.equipment, "")
+                        .quality = Val(sub_unit_quality.SelectedItem)
+                        .parent = orbattitle
+                    End With
+
+                    Dim j As Integer = 0
+                    Do While orbat.Contains(n.title)
+                        n.title = Trim(Chr(49 + j)) + "/" + Mid(n.title, InStr(n.title, "/"))
+                        j = j + 1
+                    Loop
+                    orbat.Add(n, n.title)
+                Next
+                'i = i + 1
+                If n.troopcarrier Then passengers = True Else passengers = False
+            End If
+        Next
+        select_unit_template.Enabled = False
+        sub_1.BackColor = defa
+        sub_a.BackColor = defa
+        sub_unit_quality.SelectedIndex = -1
+        unittype.SelectedIndex = -1
+        populate_command_structure(comdtree, orbatside, "Orbat")
+
+    End Sub
 
 End Class

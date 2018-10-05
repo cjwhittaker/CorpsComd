@@ -171,6 +171,8 @@
             .comdtree.HideSelection = False
             .ShowDialog()
         End With
+        If scenario Is Nothing Then savescenario_Click(savescenario, Nothing) Else savedata(scenario)
+
     End Sub
 
     Private Sub maintain_player_names(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles player1.Leave, player2.Leave
@@ -224,24 +226,24 @@
                 Case 1 : determineinitiative()
                 'Case 2 : smoke_barrage_phase(ph)
                 'Case 3 : indirect_fire_phase(ph, nph)
-                    'Case 4 : cb_fire()
+                'Case 4 : cb_fire()
                 'Case 5 : deploy_air_missions()
                 'Case 6 : air_air_combat(ph, nph)
                 'Case 7 : ground_to_air()
-                    'Case 8 : intercept()
-                    'Case 9 : ground_to_air("SEAD")
-                    'Case 10 : conduct_sead()
-                    'Case 11 : ground_to_air("Ground Attack")
-                    'Case 12 : conduct_air_to_ground()
-                    'Case 13 : direct_fire_phase(ph, nph)
-                    'player 1
-                Case 15 : command_and_control()
-                    'Case 16 : movement_phase()
-                    'player 2
-                Case 17 : command_and_control()
-                    'Case 18 : movement_phase()
-                    'Case 20 : morale_recovery()
-                    'Case 21 : end_sorties()
+                'Case 8 : intercept()
+                'Case 9 : ground_to_air("SEAD")
+                'Case 10 : conduct_sead()
+                'Case 11 : ground_to_air("Ground Attack")
+                'Case 12 : conduct_air_to_ground()
+                Case 13 : direct_fire_phase(ph, nph)
+                '    'player 1
+                'Case 15 : command_and_control()
+                Case 16 : movement_phase()
+                '    'player 2
+                'Case 17 : command_and_control()
+                Case 18 : movement_phase()
+                Case 20 : morale_recovery()
+                Case 21 : end_sorties()
             End Select
             'If ph <> initiative Then swap_phasing_player(True)
             If phase = 16 Or phase = 20 Then swap_phasing_player(True)
@@ -258,7 +260,7 @@
             '    If MsgBox("Do you wish to quit the program", MsgBoxStyle.YesNo, "Quit Program") = MsgBoxResult.Yes Then Exit Sub
             'End If
 
-        Loop Until phase = 21
+        Loop Until phase = 22
         'Me.Visible = True
         If smokefiredthisturn Then MsgBox("Remove all smoke fired during the last tactical action phase before this one", vbOKOnly + vbInformation, "Remove Smoke")
         smokefiredthisturn = False
@@ -268,7 +270,7 @@
         Current_time.Text = Format(gamedate, "HH:mm")
         phase = 0
         playerphase = 1
-        savedata(scenario)
+        'savedata(scenario)
         If Not Me.Visible Then Me.Show()
 
     End Sub

@@ -12,7 +12,6 @@ C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Deb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.resultform_2.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.SplashScreen1.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.unit_selection.resources
-C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.generate_subunits.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.movement.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.Resources.resources
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.orbatmanager.resources

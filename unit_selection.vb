@@ -10,9 +10,9 @@
             ElseIf units.Items(i).Focused And units.Items(i).BackColor = golden Then
                 units.Items(i).BackColor = nostatus
                 If Me.Tag = "Call for Fire" Then
-                    If orbat(units.FocusedItem.Text).arty_spt = 0 Then
+                    If orbat(units.FocusedItem.Text).rockets = 0 Then
                         units.FocusedItem.BackColor = in_ds
-                    ElseIf orbat(units.FocusedItem.Text).arty_spt = 1 Then
+                    ElseIf orbat(units.FocusedItem.Text).rockets = 1 Then
                         units.FocusedItem.BackColor = can_observe
                     Else
                         units.FocusedItem.BackColor = not_on_net
@@ -235,7 +235,7 @@
 
         ElseIf Me.Tag = "Observer" Then
             Dim dice As Integer = d10()
-            If dice = 10 Or (subject.arty_spt = 2 And dice > subject.quality - 1) Or (subject.arty_spt = 1 And dice > subject.quality) Then
+            If dice = 10 Or (subject.rockets = 2 And dice > subject.quality - 1) Or (subject.rockets = 1 And dice > subject.quality) Then
                 subject.tacticalpts = subject.tacticalpts - 2
                 With resultform_2
                     .result.Text = "The observer failed to communicate fire order to firing battery"
@@ -252,10 +252,10 @@
         ElseIf Me.Tag = "Call for Fire" Then
             For j As Integer = 0 To 2
                 For Each ar As ListViewItem In units.Items
-                    If ar.BackColor = golden And orbat(ar.Text).arty_spt = j Then
+                    If ar.BackColor = golden And orbat(ar.Text).rockets = j Then
                         subject = orbat(ar.Text)
                         Dim dice As Integer = d10()
-                        If dice = 10 Or (subject.arty_spt = 2 And dice > subject.quality - 1) Or (subject.arty_spt = 1 And dice > subject.quality) Then
+                        If dice = 10 Or (subject.rockets = 2 And dice > subject.quality - 1) Or (subject.rockets = 1 And dice > subject.quality) Then
                             With resultform_2
                                 .result.Text = "The observer failed to communicate fire order to firing battery"
                                 .ShowDialog()

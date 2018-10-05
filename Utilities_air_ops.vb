@@ -29,19 +29,37 @@
         Next
         If x + x1 + x2 = 0 And y + y1 + y2 = 0 Then air_assessment = "None" : Exit Function
         If subphase = 1 Then
-            If x = y Then air_assessment = "Parity"
-            If x > y Then air_assessment = p1
-            If x < y Then air_assessment = p2
+            If x = y Then
+                air_assessment = "Parity"
+            ElseIf x > y Then
+                air_assessment = p1
+            Else
+                air_assessment = p2
+            End If
         ElseIf subphase = 2 Then
-            If x = 0 And y > 0 And x_ad > 0 Then air_assessment = p1 + " ADSAM"
-            If y = 0 And x > 0 And y_ad > 0 Then air_assessment = p2 = " ADSAM"
+            If x = 0 And y > 0 And x_ad > 0 Then
+                air_assessment = p1 + " ADSAM"
+            ElseIf y = 0 And x > 0 And y_ad > 0 Then
+                air_assessment = p2 = " ADSAM"
+            Else
+                air_assessment = "None"
+            End If
         ElseIf subphase = 3 Then
-            If x = 0 And y + y1 > 0 And y2 = 0 Then air_assessment = p2
-            If y = 0 And x + x1 > 0 And x2 = 0 Then air_assessment = p1
+            If x + x1 = 0 And y + y1 > 0 And y2 = 0 Then
+                air_assessment = p2
+            ElseIf y + y1 = 0 And x + x1 > 0 And x2 = 0 Then
+                air_assessment = p1
+            Else
+                air_assessment = curr
+            End If
         ElseIf subphase = 4 Then
-            If p1 = curr And x2 + x1 + x = 0 Then air_assessment = "None" : Exit Function
-            If p2 = curr And y2 + y1 + y = 0 Then air_assessment = "None" : Exit Function
-            air_assessment = curr
+            If p1 = curr And x2 + x1 + x = 0 Then
+                air_assessment = "Parity"
+            ElseIf p2 = curr And y2 + y1 + y = 0 Then
+                air_assessment = "Parity"
+            Else
+                air_assessment = curr
+            End If
         Else
         End If
 

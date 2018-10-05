@@ -5,6 +5,7 @@
             For Each u As cunit In orbat
                 u.fired = -1
                 u.moved = -1
+                If u.indirect Then u.smoke = -4
                 If u.comd = 0 Then If Not u.conc Then u.mode = disp Else u.mode = conc
             Next
         End If
@@ -103,6 +104,7 @@
         combat_2.firers.Items.Clear()
         populate_lists(combat_2.targets, enemy, "Ground Targets", second)
         populate_lists(combat_2.firers, ph_units, "Direct Fire", first)
+        populate_lists(combat_2.firers, friend_air, "Direct Fire", first)
         With combat_2
             .Tag = "Direct Fire"
             .enable_controls(True, combat_2.directfirepanel)
@@ -288,25 +290,33 @@
     Public Sub ground_to_air()
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
-        populate_lists(combat_2.firers, ph_units, "Ground to Air", "")
-        populate_lists(combat_2.targets, enemy_air, "Air to Ground", "")
-        With combat_2
-            .Tag = "Ground to Air"
-            .enable_controls(True, combat_2.directfirepanel)
-            .enable_controls(False, combat_2.targetpanel)
+        Dim x As Integer = 0, y As Integer = 0
+        For Each ac As cunit In p1_air
+            If ac.airborne Then ac.tacticalpts = 2 : x = x + 1
+        Next
+        For Each ac As cunit In p2_air
+            If ac.airborne Then ac.tacticalpts = 2 : y = y + 1
+        Next
+        If x > 0 Or y > 0 Then
+            populate_lists(combat_2.firers, ph_units, "Ground to Air", "")
+            populate_lists(combat_2.targets, enemy_air, "Air Defence Targets", "")
+            With combat_2
+                .Tag = "Ground to Air"
+                .enable_controls(True, combat_2.directfirepanel)
+                .enable_controls(False, combat_2.targetpanel)
                 .observation(False)
-            .firer = New cunit
-            .target = New cunit
+                .firer = New cunit
+                .target = New cunit
                 .firesmoke.Visible = False
-            .range_not_needed = False
-        End With
+                .range_not_needed = False
+            End With
             If Not combat_2.Visible Then
                 With combat_2
-                .Text = "Ground to Air Fire Sub Phase for " + gameturn
-                .ShowDialog()
+                    .Text = "Ground to Air Fire Sub Phase for " + gameturn
+                    .ShowDialog()
                 End With
             End If
-
+        End If
 
     End Sub
 
@@ -408,6 +418,9 @@
         For Each u As cunit In ph_units
             If Not u.has_moved Then u.moving = False
         Next
+        For Each ac As cunit In friend_air
+            If ac.helarm And ac.has_fired Then ac.fired = 0
+        Next
         For Each u As cunit In ph_hqs
             u.comdpts = 1
         Next
@@ -421,25 +434,37 @@
     End Sub
 
     Public Sub end_sorties()
-        For i As Integer = 1 To 2
-            Dim endsortie As String = ""
-            For Each subject As cunit In ph_units
-                If subject.airborne Then
-                    subject.lands(False)
-                    endsortie = endsortie + subject.title + ", "
-                ElseIf subject.sorties <= 0 Then
-                    subject.sorties = subject.sorties + 1
+        Dim endsortie As String = ""
+        For j As Integer = 1 To 2
+            For Each ac As cunit In friend_air
+                If ac.sorties > 1 Then
+                    ac.sorties = ac.sorties - 1
+                ElseIf ac.sorties = 1 And Not ac.primary Is Nothing And ac.comd = 0 Then
+                    ac.sorties = -1
+                    friend_air(ac.primary).strength = friend_air(ac.primary).strength + ac.strength
+                    ac.strength = 0
+                ElseIf ac.airborne Then
+                    ac.lands(False)
+                    endsortie = endsortie + ac.title + ", "
                 Else
                 End If
             Next
-            If endsortie <> "" Then
-                With resultform_2
-                    .result.Text = "Sorties end for" + vbNewLine + endsortie
-                    .ShowDialog()
-                End With
-            End If
+            For i As Integer = friend_air.Count To 1 Step -1
+                If friend_air(i).sorties = -1 Then
+                    orbat.Remove(friend_air(i).title)
+                    If p1 = friend_air(i).nation Then p1_air.Remove(friend_air(i).title) Else p2_air.Remove(friend_air(i).title)
+                    'friend_air.Remove(i)
+                    If i > friend_air.Count Then i = friend_air.Count
+                End If
+            Next
             swap_phasing_player(True)
         Next
+        If endsortie <> "" Then
+            With resultform_2
+                .result.Text = "Sorties end for" + vbNewLine + endsortie
+                .ShowDialog()
+            End With
+        End If
     End Sub
 
     Public Sub morale_recovery()
@@ -453,13 +478,13 @@
                 If u.comd = 0 Then u.effective = False
             Next
             With movement
-                    .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
+                .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
                 .options_for("Morale Recovery")
                 .Tag = "Morale Recovery"
-                    .ShowDialog()
-                End With
-                swap_phasing_player(True)
-            Next
+                .ShowDialog()
+            End With
+            swap_phasing_player(True)
+        Next
     End Sub
 
 End Module

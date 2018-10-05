@@ -52,8 +52,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private peffect As Integer
     Private pfires As Boolean
     Private pmsg As String
-    Private party_spt As Integer
-    Private pstatusimpact As Integer
+    Private prockets As Integer
+    Private phel_atgw As Boolean
     Private pmodifier As Integer
     Private presult As Integer
     Private psupport As Boolean
@@ -441,12 +441,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             pmodifier = Value
         End Set
     End Property
-    Property statusimpact() As Integer
+    Property hel_atgw() As Boolean
         Get
-            Return pstatusimpact
+            Return phel_atgw
         End Get
-        Set(ByVal Value As Integer)
-            pstatusimpact = Value
+        Set(ByVal Value As Boolean)
+            phel_atgw = Value
         End Set
     End Property
     Property msg() As String
@@ -473,12 +473,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             ptask = Value
         End Set
     End Property
-    Property arty_spt() As Integer
+    Property rockets() As Integer
         Get
-            Return party_spt
+            Return prockets
         End Get
         Set(ByVal Value As Integer)
-            party_spt = Value
+            prockets = Value
         End Set
     End Property
     Property firers() As Integer
@@ -605,12 +605,18 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function w2()
         w2 = ""
-        Try
-            If Not eq_list(Me.equipment).weapon_2 Is Nothing Then w2 = eq_list(Me.equipment).weapon_2
-        Catch
-        End Try
+        If helarm() Then
+            If eq_list(equipment).ordnance = 0 And eq_list(equipment).cannon = 0 Then
+            ElseIf eq_list(equipment).weapon_2 Is Nothing And eq_list(equipment).cannon = 0 Then
+            ElseIf eq_list(equipment).weapon_2 Is Nothing And eq_list(equipment).ordnance = 0 Then
+            Else
+                w2 = "ATK"
+            End If
+        ElseIf Not eq_list(equipment).weapon_2 Is Nothing Then
+            w2 = eq_list(equipment).weapon_2
+        Else
+        End If
     End Function
-
 
     Public Function observer()
         observer = False
@@ -731,6 +737,52 @@ Imports System.Runtime.Serialization.Formatters.Binary
         aircraft = False
         If InStr("|AC|AS|SO|SEAD|AH|OH|TB|GA|AWACS|EW|", role) > 0 Then aircraft = True
     End Function
+    Public Function helarm()
+        helarm = False
+        If role = "|AH|" And airborne Then helarm = True
+    End Function
+    Public Function helarm_select_wpn(wpn As String)
+        helarm_select_wpn = ""
+        If Not heli() Then Exit Function
+        If wpn = equipment Then
+            If Not hel_atgw And Not eq_list(equipment).weapon_2 Is Nothing Then
+                helarm_select_wpn = eq_list(equipment).weapon_2
+            ElseIf Not ordnance And eq_list(equipment).cannon = 0 Then
+                helarm_select_wpn = "RP"
+            ElseIf Not ordnance Or oppfire Then
+                helarm_select_wpn = "Guns"
+            Else
+
+            End If
+            secondary = helarm_select_wpn
+            Exit Function
+        End If
+        helarm_select_wpn = wpn
+        If wpn = eq_list(equipment).weapon_2 Then
+            If (Not ordnance Or oppfire) And eq_list(equipment).cannon > 0 Then
+                helarm_select_wpn = "Guns"
+            ElseIf Not ordnance And eq_list(equipment).ordnance > 0 Then
+                helarm_select_wpn = "RP"
+            Else
+            End If
+        ElseIf wpn = "Guns" Then
+            If Not ordnance And eq_list(equipment).ordnance > 0 Then
+                helarm_select_wpn = "RP"
+            ElseIf Not hel_atgw And Not eq_list(equipment).weapon_2 Is Nothing Then
+                helarm_select_wpn = eq_list(equipment).weapon_2
+            Else
+            End If
+        ElseIf wpn = "RP" Then
+            If Not hel_atgw And Not eq_list(equipment).weapon_2 Is Nothing Then
+                helarm_select_wpn = eq_list(equipment).weapon_2
+            ElseIf (Not ordnance Or oppfire) And eq_list(equipment).cannon > 0 Then
+                helarm_select_wpn = "Guns"
+            Else
+            End If
+        Else
+        End If
+
+    End Function
     Public Function engr()
         engr = False
         If InStr("|AEV|Eng|", role) > 0 Then engr = True
@@ -739,7 +791,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function Airground()
         Airground = False
-        If InStr("Ground AttackPGMSEADAH MissionObservation", task) > 0 Then Airground = True
+        If task Is Nothing Then Exit Function
+        If InStr("Ground AttackPGMSEAD", task) > 0 Then Airground = True
 
     End Function
     Public Function Inf()
@@ -836,159 +889,182 @@ Imports System.Runtime.Serialization.Formatters.Binary
             abbrev_air_mission = task
         ElseIf task = "SEAD" And role = "|SEAD|" Then
             abbrev_air_mission = task
-        ElseIf task = "AH Mission" And role = "|AH|" Then
+        ElseIf instr(task, "AH ") > 0 And role = "|AH|" Then
             abbrev_air_mission = "AH"
         ElseIf task = "Observation" And role = "|OH|" Then
             abbrev_air_mission = "OBS"
         Else
+            abbrev_air_mission = "ERR"
         End If
     End Function
+    Public Function set_altitude()
+        If task Is Nothing Then
+            set_altitude = "Medium"
+        ElseIf task = "CAP" And role = "|AS|" Then
+            set_altitude = "Medium"
+        ElseIf task = "Escort" And role = "|AS|" Then
+            set_altitude = "Low"
+        ElseIf task = "Ground Attack" And (role = "|GA|" Or role = "|TB|") Then
+            set_altitude = "Low"
+        ElseIf task = "PGM" And role = "|SO|" Then
+            set_altitude = "Medium"
+        ElseIf task = "SEAD" And role = "|SEAD|" Then
+            set_altitude = "Medium"
+        ElseIf InStr(task, "AH ") > 0 And role = "|AH|" Then
+            set_altitude = "Very Low"
+        ElseIf task = "Observation" And role = "|OH|" Then
+            set_altitude = "Very Low"
+        Else
+            set_altitude = "ERR"
+        End If
 
-    Public Function getmaxrange(ByVal secondary As String)
-        Dim maxrange As Integer
+    End Function
+
+    Public Function getmaxrange()
+        Dim maxrange As Integer = 0
         If Not equipment Is Nothing Then
-            If airborne And Airground() And InStr(UCase(equipment), "GA") > 0 Then
-                getmaxrange = 5000
-            ElseIf secondary.Equals(equipment) Then
-                maxrange = eq_list(equipment).maxrange
-            ElseIf Not secondary.Equals(equipment) Then
-                getmaxrange = eq_list(equipment + w2()).maxrange
+            If airborne Then
+                If InStr(UCase(equipment), "GA") > 0 Or (heli() And secondary = "RP") Then
+                    getmaxrange = 2000
+                ElseIf InStr(UCase(equipment), "SEAD") > 0 Then
+                    getmaxrange = 20000
+                ElseIf heli() And secondary = eq_list(equipment).weapon_2 Then
+                    getmaxrange = eq_list(eq_list(equipment).weapon_2).maxrange
+                ElseIf heli() And secondary = "Guns" Then
+                    getmaxrange = eq_list(equipment).maxrange
+                ElseIf InStr(equipment, "SO") > 0 Then
+                    If eq_list(equipment).standoff_range = "s" Then
+                        getmaxrange = 10000
+                    ElseIf eq_list(equipment).standoff_range = "m" Then
+                        getmaxrange = 20000
+                    Else
+                        getmaxrange = 40000
+                    End If
+                Else
+                    getmaxrange = 100000
+                End If
+            ElseIf equipment <> secondary Then
+                getmaxrange = eq_list(equipment).maxrange
             Else
+                getmaxrange = eq_list(equipment + secondary).maxrange
             End If
         End If
-        getmaxrange = maxrange
+        'getmaxrange = maxrange
     End Function
     Public Sub set_fire_effect(target As cunit, r As Integer, stage As Integer)
         If equipment Is Nothing Then effect = 0 : Exit Sub
-        Dim context As String = ""
-        Dim max_range As Integer
-        Dim standoff_range As String = eq_list(target.equipment).standoff_range
-        If secondary = "" Then max_range = eq_list(equipment).maxrange Else max_range = eq_list(secondary).maxrange
-        If airdefence() And target.airborne Then
-            context = "AD"
-        ElseIf airborne And target.airborne Then
-            context = "AS"
-        ElseIf InStr(equipment, "SEAD") > 0 Then
-            context = "SEAD"
-            max_range = 20000
-        ElseIf InStr(equipment, "GA") > 0 Then
-            context = "GA"
-            max_range = 2000
-        ElseIf InStr(equipment, "SO") > 0 Then
-            context = "SO"
-            If standoff_range = "s" Then
-                max_range = 10000
-            ElseIf standoff_range = "m" Then
-                max_range = 20000
+        Dim context As String = IIf(airborne, abbrev_air_mission, "")
+        Dim max_range As Integer = getmaxrange()
+        If r > max_range Then effect = 0 : Exit Sub
+
+        If context = "SEAD" And target.eligibleCB And target.airdefence Then
+            effect = eq_list(equipment).standoff
+            If r > max_range / 2 Then target.modifier = 1
+        ElseIf context = "SEAD" And Not target.eligibleCB And target.airdefence Then
+            effect = eq_list(equipment).ordnance
+        ElseIf context = "CAS" Then
+            If tacticalpts = 2 Then
+                effect = eq_list(equipment).ordnance
             Else
-                max_range = 40000
+                effect = eq_list(equipment).cannon
+            End If
+        ElseIf context = "AS" Or context = "CE" Then
+            'If stage = 0 Then
+            '    effect = eq_list(equipment).air_to_air_effect
+            '    If role = "|TB|" And Not heli() Then effect = Int(effect / 3)
+            'Else
+            If stage = 1 Then
+                effect = eq_list(equipment).aam
+                eq_list(target.equipment).defence = eq_list(target.equipment).miss_def
+            ElseIf stage = 2 Then
+                effect = eq_list(equipment).aam_close
+            Else
+                effect = eq_list(equipment).cannon
+                eq_list(target.equipment).defence = eq_list(target.equipment).gun_def
+                If role = "|TB|" Then effect = Int(effect / 3)
+            End If
+        ElseIf airdefence Then
+            If r / eq_list(equipment).maxrange > 0.67 Or (r / eq_list(equipment).maxrange > 0.5 And role = "|AAA|") Then
+                effect = eq_list(equipment).full
+            ElseIf r / eq_list(equipment).maxrange > 0.34 Or role = "|AAA|" Then
+                effect = eq_list(equipment).twothird
+            Else
+                effect = eq_list(equipment).onethird
+            End If
+            If (target.mode = "Low" Or target.mode = "Very Low") Then
+                modifier = eq_list(equipment).low
+            ElseIf target.mode = "Medium" Then
+                modifier = eq_list(equipment).medium
+            Else
+                modifier = eq_list(equipment).high
+            End If
+
+        ElseIf Not indirect() Or (indirect() And spotted) Then
+            Dim j As Integer = 0, weapon As String = ""
+            effect = 0
+            If heli() And role = "|AH|" Then
+                weapon = secondary
+                If weapon = "RP" Then
+                    effect = eq_list(equipment).ordnance
+                    Exit Sub
+                ElseIf weapon = "Guns" Then
+                    weapon = equipment
+                Else
+                End If
+            ElseIf secondary = "" Then
+                weapon = equipment
+            Else
+                weapon = secondary
+            End If
+            For i As Integer = 1 To 2
+                If Not target.armour() And Not eq_list.Contains(weapon + "soft") Then Exit For
+                If Not target.armour() Then weapon = weapon + "soft"
+                Select Case r
+                    Case 300
+                        j = eq_list(weapon).R300
+                    Case 600
+                        j = eq_list(weapon).R600
+                    Case 1000
+                        j = eq_list(weapon).R1000
+                    Case 1500
+                        j = eq_list(weapon).R1500
+                    Case 2000
+                        j = eq_list(weapon).R2000
+                    Case 2500
+                        j = eq_list(weapon).R2500
+                    Case 3000
+                        j = eq_list(weapon).R3000
+                    Case 4000
+                        j = eq_list(weapon).R4000
+                End Select
+                If carrying = "" Then
+                    Exit For
+                ElseIf Inf() And debussed_gt And i = 1 Then
+                    effect = j
+                    weapon = orbat(carrying).equipment
+                ElseIf Inf() And debussed_gt And i = 2 Then
+                    j = Int(j / 2)
+                    weapon = orbat(carrying).equipment
+                ElseIf troopcarrier() And Not debussed_gt And i = 1 Then
+                    effect = j
+                    If armour() Then Exit For
+                    weapon = orbat(carrying).equipment
+                ElseIf troopcarrier() And Not debussed_gt And i = 2 And r <= 300 Then
+                    j = j / 3
+                Else
+                End If
+            Next
+            effect = effect + j
+        ElseIf indirect() And Not spotted Then
+            If r / eq_list(equipment).maxrange > 0.667 Then
+                effect = eq_list(equipment).indirect_m
+            Else
+                effect = eq_list(equipment).indirect_e
             End If
         Else
-        End If
-
-
-        If equipment Is Nothing Or (Not context = "AS" And r > max_range) Then effect = 0 : Exit Sub
-        Try
-
-            If context = "SEAD" And target.eligibleCB And target.airdefence Then
-                effect = eq_list(equipment).standoff
-                If r > max_range / 2 Then target.modifier = 1
-            ElseIf context = "SEAD" And Not target.eligibleCB And target.airdefence Then
-                effect = eq_list(equipment).ordnance
-
-            ElseIf context = "GA" Then
-                If halfstrength >= 2 Then
-                    effect = eq_list(equipment).ordnance
-                Else
-                    effect = eq_list(equipment).cannon
-                End If
-            ElseIf context = "AS" Then
-                If stage = 0 Then
-                    effect = eq_list(equipment).air_to_air_effect
-                    If role = "|TB|" And Not heli() Then effect = Int(effect / 3)
-                ElseIf stage = 1 Then
-                    effect = eq_list(equipment).aam
-                    eq_list(target.equipment).defence = eq_list(target.equipment).miss_def
-                ElseIf stage = 2 Then
-                    effect = eq_list(equipment).aam_close
-                Else
-                    effect = eq_list(equipment).cannon
-                    eq_list(target.equipment).defence = eq_list(target.equipment).gun_def
-                    If role = "|TB|" And Not heli() Then effect = Int(effect / 3)
-                End If
-            ElseIf context = "AD" Then
-                If r / eq_list(equipment).maxrange > 0.67 Or (r / eq_list(equipment).maxrange > 0.5 And role = "|AAA|") Then
-                    effect = eq_list(equipment).full
-                ElseIf r / eq_list(equipment).maxrange > 0.34 Or role = "|AAA|" Then
-                    effect = eq_list(equipment).twothird
-                Else
-                    effect = eq_list(equipment).onethird
-                End If
-                If (target.mode = "Low" Or target.mode = "Very Low") Then
-                    modifier = eq_list(equipment).low
-                ElseIf target.mode = "Medium" Then
-                    modifier = eq_list(equipment).medium
-                Else
-                    modifier = eq_list(equipment).high
-                End If
-
-            ElseIf Not indirect() Or (indirect() And spotted) Then
-                Dim j As Integer = 0, weapon As String = ""
-                If secondary = "" Then weapon = equipment Else weapon = secondary
-                effect = 0
-                For i As Integer = 1 To 2
-                    If Not armour() And Not eq_list.Contains(weapon + "soft") Then Exit For
-                    If Not armour() Then weapon = weapon + "soft"
-                    Select Case r
-                        Case 300
-                            j = eq_list(weapon).R300
-                        Case 600
-                            j = eq_list(weapon).R600
-                        Case 1000
-                            j = eq_list(weapon).R1000
-                        Case 1500
-                            j = eq_list(weapon).R1500
-                        Case 2000
-                            j = eq_list(weapon).R2000
-                        Case 2500
-                            j = eq_list(weapon).R2500
-                        Case 3000
-                            j = eq_list(weapon).R3000
-                        Case 4000
-                            j = eq_list(weapon).R4000
-                    End Select
-                    If carrying = "" Then
-                        Exit For
-                    ElseIf Inf() And debussed_gt And i = 1 Then
-                        effect = j
-                        weapon = orbat(carrying).equipment
-                    ElseIf Inf() And debussed_gt And i = 2 Then
-                        j = Int(j / 2)
-                        weapon = orbat(carrying).equipment
-                    ElseIf troopcarrier() And Not debussed_gt And i = 1 Then
-                        effect = j
-                        If armour() Then Exit For
-                        weapon = orbat(carrying).equipment
-                    ElseIf troopcarrier() And Not debussed_gt And i = 2 And r <= 300 Then
-                        j = j / 3
-                    Else
-                    End If
-                Next
-                effect = effect + j
-            ElseIf indirect() And Not spotted Then
-                If r / eq_list(equipment).maxrange > 0.667 Then
-                    effect = eq_list(equipment).indirect_m
-                Else
-                    effect = eq_list(equipment).indirect_e
-                End If
-            Else
-                effect = 0
-            End If
-        Catch ex As Exception
             effect = 0
-
-        End Try
-    End Sub
+        End If
+        End Sub
     Public Function composite()
         composite = False
         If Not equipment Is Nothing Then If InStr(UCase(eq_list(equipment).special), "C") > 0 Then composite = True
@@ -1117,8 +1193,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub lands(aborted As Boolean)
         If Not airborne Then Exit Sub
         If equipment Is Nothing Then Exit Sub
-        If aborted Then sorties = eq_list(equipment).sortie + gt + 1 Else sorties = eq_list(equipment).sortie + gt
-        equipment = Strings.Left(equipment, InStr(equipment, "-") - 1)
+        If aborted Then sorties = eq_list(equipment).sortie + 2 Else sorties = eq_list(equipment).sortie + 1
+        If InStr(equipment, "-") > 0 Then equipment = Strings.Left(equipment, InStr(equipment, "-") - 1)
         strength = strength + aborts
         If strength <= 0 Then strength = 0
         casualties = 0
@@ -1143,13 +1219,18 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Sub
     Public Function missile_armed()
         missile_armed = False
-        If Not equipment Is Nothing Then If InStr(eq_list(equipment).special, "1") + InStr(eq_list(equipment).special, "2") + InStr(eq_list(equipment).special, "3") > 0 Then missile_armed = True
+        If Not equipment Is Nothing Then
+            If InStr(eq_list(equipment).special, "1") + InStr(eq_list(equipment).special, "2") + InStr(eq_list(equipment).special, "3") > 0 Then missile_armed = True
+        End If
+
     End Function
     Public Sub reset_unit()
         ooc = False
         lostcomms = False
+        If airborne And arrives = gt Then airborne = True : arrives = 0
         If atgw() Then reset_missiles()
-        Dim x As Integer = IIf(atgw, 1, 2)
+        rockets = IIf(helarm, Val(Mid(task, 6, 1)), 0)
+        Dim x As Integer = IIf(atgw() And Not heli(), 1, 2)
         'fatigue = strength * 2
         opp_ca = strength * x
         opp_mode = strength * x
@@ -1160,19 +1241,43 @@ Imports System.Runtime.Serialization.Formatters.Binary
         hits = 0
         aborts = 0
         casualties = 0
-        sorties = IIf(aircraft() And sorties > 0, sorties - 1, sorties)
+        'sorties = IIf(aircraft() And sorties > 0, sorties - 1, sorties)
         disrupted_gt = False
         debussed_gt = False
-        ordnance = False
+        reset_helarm()
         assault = False
         support = False
-        If airborne And task = "CAP" Then tacticalpts = 3
-        If airborne And task <> "CAP" Then tacticalpts = 1
+        If airborne Then
+            If task = "CAP" Then
+                tacticalpts = 3
+            ElseIf Not heli() Then
+                tacticalpts = 1
+            ElseIf helarm() And InStr(eq_list(equipment).special, "*") > 0 Then
+                tacticalpts = 4
+            ElseIf heli() And role = "|AH|" Then
+                tacticalpts = 2
+            Else
+                tacticalpts = 1
+            End If
+        Else
+            tacticalpts = 0
+        End If
     End Sub
+
+    Public Sub reset_helarm()
+        ordnance = False
+        hel_atgw = False
+        If Not helarm() Then Exit Sub
+        If Val(Mid(task, 6, 1)) = 0 Or rockets = 0 Then ordnance = True
+        If Val(Mid(task, 4, 1)) = 0 Or missiles = 0 Then hel_atgw = True
+    End Sub
+
     Public Sub reset_missiles()
         missiles = 0
         If Not equipment Is Nothing Then
-            If InStr(eq_list(equipment).special, "1") > 0 Then
+            If helarm() Then
+                missiles = Val(Mid(task, 4, 1))
+            ElseIf InStr(eq_list(equipment).special, "1") > 0 Then
                 missiles = 1
             ElseIf InStr(eq_list(equipment).special, "2") > 0 Then
                 missiles = 2
@@ -1186,40 +1291,48 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub update_after_firing(opp_firer As Boolean)
         If fires Then
             firers_available = firers_available - firers
-
+            If indirect() And carrying <> "" Then carrying = ""
+            If missile_armed() Then missiles = missiles - 1
+            If heli() Then
+                If secondary = "RP" Then
+                    rockets = rockets - 1
+                    ordnance = True
+                ElseIf secondary = "Guns" Then
+                    ordnance = True
+                Else
+                    missiles = missiles - 1
+                    hel_atgw = True
+                End If
+            End If
             If opp_firer Then
                 If movement.tactical_option = 1 Then
                     opp_move = opp_move - firers
-                    If opp_move <= strength Then firers_available = opp_move
+                    If opp_move <= strength Then firers_available = opp_move Else firers_available = opp_move - strength
                 ElseIf movement.tactical_option = 2 Then
                     opp_ca = opp_ca - firers
-                    If opp_ca <= strength Then firers_available = opp_ca
+                    If opp_ca <= strength Then firers_available = opp_ca Else firers_available = opp_ca - strength
                 ElseIf movement.tactical_option >= 3 Then
                     opp_mode = opp_mode - firers
-                    If opp_mode <= strength Then firers_available = opp_mode
+                    If opp_mode <= strength Then firers_available = opp_mode Else firers_available = opp_mode - strength
                 Else
                 End If
-            ElseIf airdefence Then
-                If missile_armed() And missiles = 0 Then firers_available = 0 Else firers_available = strength
-            Else
-
             End If
+            If missile_armed() And missiles = 0 Then firers_available = 0
+            If helarm() And Val(Mid(task, 6, 1)) > 0 And rockets = 0 And Not opp_firer Then firers_available = 0
             firers = 0
             If firers_available <= 0 Then firers_available = 0
-            If indirect() And carrying <> "" Then carrying = ""
-            If missile_armed() Then missiles = missiles - 1
         End If
+        msg = ""
         If aircraft() Then
             If hits = 1 And casualties = 0 Then strength = strength - 1
             If hits >= 1 And casualties > 0 Then strength = strength - casualties : casualties = 0
             If strength < 0 Then strength = 0
             If strength = 0 Or (fires And sead()) Then lands(False)
         Else
-            msg = ""
-            strength = strength - hits
+            If hits >= 1 And casualties > 0 Then strength = strength - casualties : casualties = 0
+            If strength < 0 Then strength = 0
             If strength < firers_available Then firers_available = strength
             If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
-            statusimpact = 0
         End If
         If carrying <> "" Then
             With orbat(carrying)
@@ -1231,12 +1344,50 @@ Imports System.Runtime.Serialization.Formatters.Binary
         msg = ""
         hits = 0
     End Sub
+    Public Function opp_fire_available()
+        opp_fire_available = False
+        If movement.tactical_option = 1 Then
+            If opp_move > strength Then opp_fire_available = True
+        ElseIf movement.tactical_option = 2 Then
+            If opp_ca > strength Then opp_fire_available = True
+            ElseIf movement.tactical_option >= 3 Then
+                If opp_mode > strength Then opp_fire_available = True
+            Else
+            End If
+    End Function
+    Public Sub set_opp_fire_available()
+        If firers_available = 0 Then
+            If opp_move = 0 Then
+                If movement.tactical_option = 1 Then
+                ElseIf movement.tactical_option = 2 Then
+                    If opp_ca <= strength Then firers_available = opp_ca Else firers_available = opp_ca - strength
+                Else
+                    If opp_mode <= strength Then firers_available = opp_mode Else firers_available = opp_mode - strength
+                End If
+            ElseIf opp_ca = 0 Then
+                If movement.tactical_option = 1 Then
+                    If opp_move <= strength Then firers_available = opp_move Else firers_available = opp_move - strength
+                ElseIf movement.tactical_option = 2 Then
+                Else
+                    If opp_mode <= strength Then firers_available = opp_mode Else firers_available = opp_mode - strength
+                End If
+            ElseIf opp_mode = 0 Then
+                If movement.tactical_option = 1 Then
+                    If opp_move <= strength Then firers_available = opp_move Else firers_available = opp_move - strength
+                ElseIf movement.tactical_option = 2 Then
+                    If opp_ca <= strength Then firers_available = opp_ca Else firers_available = opp_ca - strength
+                Else
+                End If
+            Else
+            End If
+        End If
 
+    End Sub
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If parent = "231 Recon" Then Stop
-        'If aircraft() Then Stop
+        'If parent = hq Then Stop
+        'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then
                 validunit = True
@@ -1261,118 +1412,122 @@ Imports System.Runtime.Serialization.Formatters.Binary
             Else
                 validunit = False
             End If
-        ElseIf phase = "Select Air Unit" And strength > 0 And Not disrupted And aircraft And Not airborne And sorties = 0 Then
+        ElseIf strength = 0 Then
+            validunit = False
+        ElseIf phase = "Select Air Unit" And Not disrupted And aircraft And Not airborne And sorties = 0 Then
             validunit = True
-        ElseIf phase = "CAP Combat" And task = "CAP" And strength > 0 And airborne Then
+        ElseIf phase = "CAP Combat" And task = "CAP" And airborne And arrives = 0 Then
             If (hq = "firer" And tacticalpts > 1) Or hq = "" Then validunit = True
-        ElseIf phase = "ADSAM Fire" And Not disrupted And area_air_defence() And strength > 0 Then
+        ElseIf phase = "ADSAM Fire" And Not disrupted And area_air_defence() Then
             validunit = True
-        ElseIf phase = "Intercept" Then
-            If airborne And strength > 0 And task = "CAP" And tacticalpts > 0 Then validunit = True
-        ElseIf phase = "Intercept Targets" Then
-            If airborne And strength > 0 And task <> "CAP" Then validunit = True
-        ElseIf phase = "Select Unit" And strength > 0 And Not disrupted Then
+        ElseIf phase = "Intercept" And arrives = 0 And airborne And task = "CAP" And tacticalpts > 0 Then
             validunit = True
-        ElseIf (phase = "Orbat" And hq = parent) Then
+        ElseIf phase = "Intercept Targets" And airborne And task <> "CAP" And arrives = 0 Then
             validunit = True
-        ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not (Inf() And embussed()) Then
-            validunit = True
-        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
-            validunit = True
-        ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not aircraft() And Not (embussed() And Inf()) Then
-            If ((movement.tactical = 0 Or movement.tactical = 1) And opp_move > 0) Or (movement.tactical = 3 And opp_ca > 0) Or (movement.tactical >= 4 And opp_mode > 0) Then
+        ElseIf phase = "Select Unit" And Not disrupted Then
                 validunit = True
-            Else
-                validunit = False
-            End If
-        ElseIf phase = "CA Defenders" And arrives = 0 Then
-            If ground_unit() Then validunit = True
-        ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
-            If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
-        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 Then
-            validunit = True
-        ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
-            If indirect() And emplaced() Then
-                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
-                    validunit = False
-                Else
+            ElseIf (phase = "Orbat" And hq = parent) Then
+                validunit = True
+            ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not (Inf() And embussed()) Then
+                validunit = True
+            ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
+                validunit = True
+            ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
+                If (movement.tactical_option = 1 And opp_move > 0) Or (movement.tactical_option = 2 And opp_ca > 0) Or (movement.tactical_option >= 3 And opp_mode > 0) Then
                     validunit = True
+                    set_opp_fire_available()
+                Else
+                    validunit = False
                 End If
-            End If
-        ElseIf phase = "Artillery Support" And indirect() And emplaced() And Not disrupted And Not support Then
-            If parent = hq Or (primary = hq And task = "DS") Then
+            ElseIf phase = "Opportunity AA Fire" And opp_move > 0 And arrives = 0 And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) And Not demoralised And airdefence() And Not (embussed() And Inf()) Then
+                validunit = True
+            ElseIf phase = "CA Defenders" And arrives = 0 Then
+                If ground_unit() Then validunit = True
+            ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
+                If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
+            ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 Then
+                validunit = True
+            ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
+                If indirect() And emplaced() Then
+                    If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
+                        validunit = False
+                    Else
+                        validunit = True
+                    End If
+                End If
+            ElseIf phase = "Artillery Support" And indirect() And emplaced() And Not disrupted And Not support Then
+                If parent = hq Or (primary = hq And task = "DS") Then
+                    If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
+                End If
+            ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
-            End If
-        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
-            If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
-        ElseIf phase = "Ground to Air" And airdefence And Not disrupted And (Not missile_armed Or (missile_armed And missiles > 0)) Then
-            validunit = True
-        ElseIf phase = "Air to Ground" And airborne And Airground() And Not sead() And tacticalpts = 1 Then
-            validunit = True
-
-        ElseIf phase = "Air Defence Targets" Then
-            If airborne And Not heli() And Airground() Then validunit = True
-            'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
-            '    validunit = False
-        ElseIf phase = "Transport" Then
-            If troopcarrier() And carrying = "" And parent = hq Then validunit = True
-        ElseIf phase = "Movement" And (ground_unit() Or heli()) And Not demoralised And parent = hq And arrives = 0 Then
-            validunit = True
-        ElseIf phase = "Morale Recovery" Then
-            If ground_unit() And coc(hq, Me, comd) And strength > 0 Then validunit = True
-        ElseIf phase = "Area Fire" Then
-            If indirect() And task = "AF" Then validunit = True
-        ElseIf phase = "CB Fire" Then
-            If indirect() And task = "CB" Then validunit = True
-        ElseIf phase = "CB Targets" Then
-            If eligibleCB Then validunit = True
-        ElseIf phase = "Ground Targets" And ground_unit Then
-            validunit = True
-        ElseIf phase = "Transport" Then
-            If parent = hq And carrying = "" And Not disrupted Then validunit = True
-        ElseIf phase = "Air Tasking" Then
-            If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
-        ElseIf phase = "Arty Tasking" Then
-            If indirect() Then
-                If (parent = hq Or primary = hq) And Not disrupted And emplaced() Then validunit = True
-            End If
-        ElseIf phase = "SEAD" Then
-            If sead() Then validunit = True
-        ElseIf phase = "SEAD Targets" Then
-            If airdefence() And Not aircraft() Then validunit = True
-        ElseIf phase = "CAP Missions" Then
-            If airborne And Airsuperiority() And tacticalpts >= 2 Then validunit = True
-        ElseIf phase = "CAP Targets" Then
-            If airborne And task = "CAP" And strength - aborts > 0 And tacticalpts >= 2 Then validunit = True
-        ElseIf phase = "CAP AD Targets" Then
-            If airborne And task = "CAP" And strength - aborts > 0 Then validunit = True
-        ElseIf phase = "Air to Air" Then
-            If airborne And strength - aborts > 0 And task <> "CAP" Then validunit = True
-        ElseIf phase = "Deploy Aircraft" Then
-            If airborne Then validunit = True
-        ElseIf phase = "Abort Aircraft" And task = "Abort" Then
-            validunit = True : task = ""
-        ElseIf phase = "Radar On" Then
-            If airdefence() And radar() Then validunit = True
-        ElseIf phase = "Air Defence" Then
-            If airdefence() Then
-                If missile_armed() And missiles = 0 Then
-                    validunit = False
-                ElseIf CorpsComd.phase = 8 Then
-                    validunit = False
-                    If Not equipment Is Nothing Then If eq_list(equipment).maxrange >= 30000 Then validunit = True
-                Else
-                    validunit = True
+            ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
+                validunit = True
+            ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
+                validunit = True
+            ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne Then
+                validunit = True
+                'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
+                '    validunit = False
+            ElseIf phase = "Transport" Then
+                If troopcarrier() And carrying = "" And parent = hq Then validunit = True
+            ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And has_fired() Then
+                validunit = True
+            ElseIf phase = "Morale Recovery" Then
+                If ground_unit() And coc(hq, Me, comd) Then validunit = True
+            ElseIf phase = "Area Fire" Then
+                If indirect() And task = "AF" Then validunit = True
+            ElseIf phase = "CB Fire" Then
+                If indirect() And task = "CB" Then validunit = True
+            ElseIf phase = "CB Targets" Then
+                If eligibleCB Then validunit = True
+            ElseIf phase = "Ground Targets" And ground_unit() Then
+                validunit = True
+            ElseIf phase = "Transport" Then
+                If parent = hq And carrying = "" And Not disrupted Then validunit = True
+            ElseIf phase = "Air Tasking" Then
+                If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
+            ElseIf phase = "Arty Tasking" Then
+                If indirect() Then
+                    If (parent = hq Or primary = hq) And Not disrupted And emplaced() Then validunit = True
                 End If
+            ElseIf phase = "SEAD" Then
+                If sead() Then validunit = True
+            ElseIf phase = "SEAD Targets" Then
+                If airdefence() And Not aircraft() Then validunit = True
+            ElseIf phase = "CAP Missions" Then
+                If airborne And Airsuperiority() And tacticalpts >= 2 Then validunit = True
+            ElseIf phase = "CAP Targets" Then
+                If airborne And task = "CAP" And strength - aborts > 0 And tacticalpts >= 2 Then validunit = True
+            ElseIf phase = "CAP AD Targets" Then
+                If airborne And task = "CAP" And strength - aborts > 0 Then validunit = True
+            ElseIf phase = "Air to Air" Then
+                If airborne And task <> "CAP" Then validunit = True
+            ElseIf phase = "Deploy Aircraft" Then
+                If airborne Then validunit = True
+            ElseIf phase = "Abort Aircraft" And task = "Abort" Then
+                validunit = True : task = ""
+            ElseIf phase = "Radar On" Then
+                If airdefence() And radar() Then validunit = True
+            ElseIf phase = "Air Defence" Then
+                If airdefence() Then
+                    If missile_armed() And missiles = 0 Then
+                        validunit = False
+                    ElseIf CorpsComd.phase = 8 Then
+                        validunit = False
+                        If Not equipment Is Nothing Then If eq_list(equipment).maxrange >= 30000 Then validunit = True
+                    Else
+                        validunit = True
+                    End If
+                End If
+            ElseIf phase = "SEAD Defence Targets" Then
+                If airborne And Not heli() And task = "SEAD" Then validunit = True
+            ElseIf phase = "Ground Attack Targets" And ground_unit() Then
+                validunit = True
+            ElseIf phase = "Air Targets" Then
+                If aircraft() And airborne And Not heli() And task <> "CAP" Then validunit = True
+            Else
             End If
-        ElseIf phase = "SEAD Defence Targets" Then
-            If airborne And Not heli() And task = "SEAD" Then validunit = True
-        ElseIf phase = "Ground Attack Targets" And ground_unit() Then
-            validunit = True
-        ElseIf phase = "Air Targets" Then
-            If aircraft() And airborne And Not heli() And task <> "CAP" Then validunit = True
-        Else
-        End If
     End Function
     Public Sub set_fire_parameters()
         result = 0
@@ -1414,7 +1569,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function has_fired()
         has_fired = False
-        If gt - fired = 0 Then has_fired = True
+        If helarm() And (Not ordnance Or Not hel_atgw) Then
+        ElseIf gt - fired = 0 Then
+            has_fired = True
+        Else
+        End If
     End Function
     Public Function has_moved_fired()
         has_moved_fired = False

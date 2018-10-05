@@ -2,6 +2,7 @@
     Private ptitle As String
     Private pdefence As Integer
     Private pspecial As String
+    Private ppayload As Integer
     Private pweapon_2 As String
     Private prole As String
     Private pbor As Integer
@@ -85,6 +86,14 @@
         End Get
         Set(ByVal Value As String)
             pspecial = Value
+        End Set
+    End Property
+    Property payload() As Integer
+        Get
+            Return ppayload
+        End Get
+        Set(ByVal Value As Integer)
+            ppayload = Value
         End Set
     End Property
     Property Size() As Integer

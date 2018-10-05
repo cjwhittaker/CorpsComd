@@ -26,7 +26,7 @@
         'For Each i As ListViewItem In l.Items
         '    i.Remove()
         'Next
-        l.Items.Clear()
+        ' l.Items.Clear()
         l.BackColor = nostatus
         If purpose = "Opportunity Fire" Then
             listitem = New ListViewItem
@@ -35,7 +35,6 @@
         End If
         If c Is Nothing Then Exit Sub
         For Each u As cunit In c
-            u.arty_spt = 0
             If u.validunit(purpose, hq) Then
                 listitem = New ListViewItem
                 listitem.Text = u.title
@@ -53,7 +52,8 @@
                     listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
                     If purpose = "Command" Then listitem.BackColor = u.status(purpose)
-                ElseIf InStr("Air to AirGround to AirAir to GroundADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
+                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
+                    'listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
@@ -72,9 +72,9 @@
         'For Each li As ListViewItem In l.Items
         '    If orbat.Contains(li.Text) Then
         '        If purpose = "Observer" Or purpose = "Artillery Support" Then
-        '            'If orbat(li.Text).arty_spt = 0 Then
+        '            'If orbat(li.Text).rockets = 0 Then
         '            '    li.BackColor = in_ds
-        '            'ElseIf orbat(li.Text).arty_spt = 1 Then
+        '            'ElseIf orbat(li.Text).rockets = 1 Then
         '            '    li.BackColor = can_observe
         '            'Else
         '            '    li.BackColor = not_on_net

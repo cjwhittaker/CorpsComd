@@ -160,12 +160,6 @@
     <Compile Include="unit_selection.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="generate_subunits.Designer.vb">
-      <DependentUpon>generate_subunits.vb</DependentUpon>
-    </Compile>
-    <Compile Include="generate_subunits.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="movement.Designer.vb">
       <DependentUpon>movement.vb</DependentUpon>
     </Compile>
@@ -231,9 +225,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="unit_selection.resx">
       <DependentUpon>unit_selection.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="generate_subunits.resx">
-      <DependentUpon>generate_subunits.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="movement.resx">
       <DependentUpon>movement.vb</DependentUpon>

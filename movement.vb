@@ -6,7 +6,7 @@
     Private Sub allocate_Click(sender As Object, e As EventArgs) Handles allocate.Click
         If supportee <> "" Then
             For Each l As ListViewItem In undercommand.Items
-                If l.BackColor = golden And orbat(l.Text).indirect Then
+                If l.BackColor = golden And (orbat(l.Text).indirect Or orbat(l.Text).task = "Observation" Or orbat(l.Text).task = "DS") Then
                     orbat(l.Text).primary = supportee
                     orbat(l.Text).task = "DS"
                     l.BackColor = in_ds
@@ -14,22 +14,9 @@
             Next
             units.FindItemWithText(supportee).BackColor = defa
         End If
-        movement_actions.Visible = True
-        arty_allocation.Visible = False
-        executeorders.Enabled = True
+        set_allocation(False)
     End Sub
 
-    Private Sub select_unit_to_support(sender As Object, e As EventArgs) Handles units.Click
-        If units.FocusedItem.BackColor = golden Then
-            units.FocusedItem.BackColor = nostatus
-            supportee = ""
-        Else
-            units.FocusedItem.BackColor = golden
-            If supportee <> "" Then units.FindItemWithText(supportee).BackColor = nostatus
-            supportee = units.FocusedItem.Text
-        End If
-        units.SelectedItems.Clear()
-    End Sub
 
 
     Private Sub comdtree_NodeMouseClick(sender As Object, e As TreeNodeMouseClickEventArgs) Handles comdtree.NodeMouseClick
@@ -38,7 +25,8 @@
         If comdtree.SelectedNode Is Nothing Then Exit Sub
         'selectunit(orbat(e.Node.Text))
         'If commanders.Items.Count <> 1 And commander.title = e.Item.Text Then Exit Sub
-        If tactical_actions.Text = "Air Tasking" Then end_air_tasking(o9, Nothing)
+        If tactical_actions.Text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking" Then o9.Text = "Return to Command" : end_air_tasking(o9, Nothing)
+        If arty_allocation.Visible Then set_allocation(False)
         mark_ooc(comdtree.Nodes)
         commander = orbat(e.Node.Text)
         undercommand.Items.Clear()
@@ -48,7 +36,8 @@
             Exit Sub
         End If
         If e.Node.BackColor <> golden Then e.Node.BackColor = golden
-        undercommand.Focus()
+
+        Me.Focus()
         update_title(commander.title)
         populate_lists(undercommand, ph_units, Tag, commander.title)
         If Tag = "Command" Then
@@ -58,6 +47,7 @@
             Else
                 undercommand.Columns(3).Text = "Cover"
             End If
+            If arty_allocation.Visible Then arty_allocation.Visible = False
         ElseIf Tag = "Movement" Then
             populate_lists(undercommand, friend_air, Tag, commander.title)
         Else
@@ -84,37 +74,41 @@
                 If orbat(tn.Text).ooc Then tn.BackColor = no_action_pts Else tn.BackColor = nostatus
             End If
         Next
-
     End Sub
 
     Private Sub select_unit() Handles undercommand.Click
-
-        'If undercommand.SelectedItems.Count = 0 And selected_units > 0 Then Exit Sub
-        'If list_cleared Then list_cleared = False : Exit Sub
-        'If (Tag = "Air Tasking" And undercommand.FocusedItem.BackColor = Color.Pink) Or
-        '(Tag <> "Morale Recovery" And undercommand.FocusedItem.BackColor = no_action_pts) Or
-        '(Tag <> "Morale Recovery" And undercommand.FocusedItem.BackColor = disruptedstatus) Or
-        ' undercommand.FocusedItem.BackColor = dead Then
-        '    undercommand.SelectedItems.Clear()
-        '    Exit Sub
-        'End If
         k = undercommand.FocusedItem.Index
         subject = orbat(undercommand.FocusedItem.Text)
-
+        If arty_allocation.Visible Then set_allocation(False)
         If Tag = "Movement" Then
-            commander.comdpts = 0
+            If Tag = "Movement" Then commander.comdpts = 0
             If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = nostatus Else undercommand.FocusedItem.BackColor = golden
-        ElseIf Tag = "Command" Then
-            If subject.aircraft And Not subject.validunit("Select Air Unit", subject.parent) Then
-            ElseIf subject.aircraft And undercommand.FocusedItem.BackColor <> golden And select_count = 1 Then
+        ElseIf Tag = "Command" And subject.aircraft Then
+            If undercommand.FocusedItem.BackColor <> golden And select_count = 1 Then
                 For Each l As ListViewItem In undercommand.Items
-                    l.BackColor = nostatus
+                    l.BackColor = friend_air(l.Text).status(Tag)
                 Next
+            End If
+            If subject.validunit("Select Air Unit", subject.parent) Then
                 undercommand.FocusedItem.BackColor = golden
-            ElseIf Not subject.validunit("Select Unit", subject.parent) Then
+                If Not subject.role = "|AH|" And tactical_actions.Text = "Helarm Tasking" Then options_for("Air Tasking")
+                If subject.role = "|AH|" And tactical_actions.Text <> "Helarm Tasking" Then options_for("Helarm Tasking")
+                If subject.heli And (subject.task = "Observation" Or subject.task = "DS") Then set_allocation(True)
+            End If
+            For Each c As RadioButton In flight_strength.Controls
+                If c.Checked Then c.Checked = False
+            Next
+        ElseIf Tag = "Command" Then
+            If Not subject.validunit("Select Unit", subject.parent) Then
             Else
                 If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = nostatus Else undercommand.FocusedItem.BackColor = golden
             End If
+        ElseIf Tag = "Morale Recovery" Then
+            If subject.strength = 0 Then
+            Else
+                If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = subject.status("") Else undercommand.FocusedItem.BackColor = golden
+            End If
+
         Else
         End If
         count_selected_units()
@@ -129,10 +123,11 @@
 
     Private Sub set_actions()
         If select_count > 0 Then
-            executeorders.Enabled = True
+            If tactical_actions.Visible = True Then executeorders.Enabled = True
             opp_fire.Enabled = True
             unitcover.Enabled = True
             tactical_actions.Enabled = True
+            flight_strength.Enabled = True
             If Tag = "Movement" Then
                 If subject.Cover > 0 Then
                     cover.Text = "+" + Trim(Str(subject.Cover))
@@ -151,8 +146,11 @@
             executeorders.Enabled = False
             opp_fire.Enabled = False
             unitcover.Enabled = False
+            flight_strength.Enabled = False
             tactical_actions.Enabled = False
-
+            For Each c As RadioButton In flight_strength.Controls
+                If c.Checked Then c.Checked = False
+            Next
         End If
     End Sub
 
@@ -160,13 +158,25 @@
         selected_hq.Text = "Units under comd of " + x
     End Sub
 
+    Private Sub units_SelectedIndexChanged(sender As Object, e As EventArgs) Handles units.SelectedIndexChanged
+
+        For Each l As ListViewItem In units.Items
+            l.BackColor = nostatus
+        Next
+        supportee = units.FocusedItem.Text
+        units.FocusedItem.BackColor = golden
+        units.FocusedItem.Selected = False
+    End Sub
+
     Public Sub options_for(ByVal purpose As String)
         populate_command_structure(comdtree, ph, "Command")
+        set_allocation(False)
+
         If purpose = "Movement" Then
+            form_function.Text = "Movement Orders"
             tactical_actions.Focus()
             undercommand.MultiSelect = True
             undercommand.Items.Clear()
-            tactical_actions.Visible = True
             load_orders(purpose)
             tactical_actions.Text = purpose
             executeorders.Text = "Execute Tactical Orders"
@@ -175,38 +185,17 @@
             opp_fire.BackColor = golden
             flight_strength.Visible = False
         ElseIf purpose = "Morale Recovery" Then
+            form_function.Text = "Morale Tests"
             load_orders(purpose)
             tactical_actions.Focus()
             undercommand.MultiSelect = False
             tactical_actions.Text = "Morale Factors"
-            tactical_actions.Visible = True
-            executeorders.Text = "Recover Morale"
-            unitcover.Visible = False
-            opp_fire.Visible = False
-            flight_strength.Visible = False
-        ElseIf purpose = "Area Fire" Or purpose = "CB Fire" Then
-            tactical_actions.Focus()
-            undercommand.MultiSelect = False
-            undercommand.Items.Clear()
-            tactical_actions.Visible = True
-            load_orders(purpose)
-            tactical_actions.Text = purpose
-            executeorders.Text = "Execute Artillery Fire"
-            unitcover.Visible = True
-            opp_fire.Visible = True
-            flight_strength.Visible = False
-        ElseIf purpose = "Morale Recovery" Then
-            load_orders(purpose)
-            tactical_actions.Focus()
-            undercommand.MultiSelect = False
-            tactical_actions.Visible = True
-            executeorders.Text = "Recover Morale"
+            executeorders.Text = "Test Morale"
             unitcover.Visible = False
             opp_fire.Visible = False
             flight_strength.Visible = False
         ElseIf purpose = "Air Tasking" Or purpose = "Helarm Tasking" Then
             undercommand.MultiSelect = False
-            tactical_actions.Visible = True
             load_orders(purpose)
             tactical_actions.Text = purpose
             executeorders.Text = "Deploy Sortie"
@@ -214,19 +203,12 @@
             opp_fire.Visible = False
             flight_strength.Visible = True
             flight_strength.Enabled = True
-        ElseIf purpose = "Arty Tasking" Then
-            undercommand.MultiSelect = True
-            tactical_actions.Visible = True
-            load_orders(purpose)
-            tactical_actions.Text = purpose
-            executeorders.Text = "Send Orders"
-            unitcover.Visible = False
-            opp_fire.Visible = False
         ElseIf purpose = "Command" Then
+            form_function.Text = "Command Orders"
             movement_actions.Visible = True
+            arty_allocation.Visible = False
             form_function.Tag = form_function.Text
             form_function.Text = "Command Tasks"
-            tactical_actions.Visible = True
             load_orders("Command")
             tactical_actions.Text = "Commands"
             executeorders.Text = "Execute Commands"
@@ -240,7 +222,7 @@
 
     End Sub
 
-    Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs)
+    Private Sub select_cover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cover.Click
         If select_count <= 0 Then Exit Sub
         cover_selected = True
         If cover.Text = "None" Then
@@ -265,19 +247,56 @@
     Private Sub Execute_orders() Handles executeorders.Click
         If Tag = "Movement" Then
             movement_orders()
-        ElseIf Tag = "Command" And tactical_actions.text <> "Air Tasking" Then
-            command_orders()
-        ElseIf Tag = "Command" And tactical_actions.text = "Air Tasking" Then
+        ElseIf Tag = "Morale Recovery" Then
+            morale_tests
+        ElseIf Tag = "Command" And (tactical_actions.text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking") Then
             air_tasks()
+        ElseIf Tag = "Command" Then
+            command_orders()
         Else
         End If
     End Sub
+    Private Sub morale_tests()
+        For Each l As ListViewItem In undercommand.Items
+            mover = New cunit
+            mover = orbat(l.SubItems(0).Text)
+            If l.BackColor = golden Then
+                If o9.BackColor = golden Then
+                    mover.disrupted = True
+                    mover.disrupted_gt = True
+                Else
+                    Dim modifier As Integer = 0, r As String = ""
+                    For Each ctrl In Me.Controls
+                        If ctrl.name = "disrupted_friends" Then
+                            modifier = modifier + Val(Strings.Left(ctrl.text, 1))
+                        ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
+                            modifier = modifier + Val(ctrl.tag)
+                        Else
+                        End If
+                    Next
+                    r = test_morale(mover, modifier, IIf(mover.disrupted, True, False))
+                    With resultform_2
+                        .result.Text = r
+                        .ShowDialog()
+                    End With
+                    l.SubItems(1).Text = mover.strength
+                    l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 3))
+                End If
+                l.BackColor = mover.status("")
+            End If
+        Next
+        'If ca And spt Then conduct_assault()
+        update_title(commander.title)
+        reset_unit_options()
+        tactical_option = 0
+        cover_selected = False
 
+    End Sub
     Private Sub command_orders()
         Dim comdcost As Integer = 0
         For Each a As Control In tactical_actions.Controls
             If a.BackColor = golden Then
-                tactical_option = Val(a.Tag)
+                tactical_option = Val(Strings.Right(a.Name, 1))
                 Select Case tac
 
                     Case 0
@@ -294,21 +313,33 @@
                       'line of supply broken
                     Case 2
                       'out of supply
-                    Case 3
-                        'Artillery Missions
+                    Case 3, 5
+                        'Artillery Missions and observer
                         'If Not mover.indirect Then Exit Select
-                        movement_actions.Visible = False
-                        arty_allocation.Visible = True
-                        executeorders.Enabled = False
-                        allocate.Enabled = True
+                        set_allocation(True)
                 End Select
             End If
         Next
 
     End Sub
+    Private Sub set_allocation(setting As Boolean)
+        If setting Then
+            For Each l As ListViewItem In units.Items
+                l.BackColor = nostatus
+                If l.Text = subject.primary Then l.BackColor = golden
+            Next
+        End If
+        movement_actions.Visible = Not setting
+        arty_allocation.Visible = setting
+        executeorders.Enabled = Not setting
+        allocate.Enabled = setting
+
+    End Sub
     Private Sub select_air_tasking(sender As Object, e As EventArgs) Handles o4.Click
-        If sender.text <> "Air Mission Planning" Or commander.primary <> "Air Units" Then Exit Sub
-        If subject.heli And subject.role = "|AH|" Then options_for("Helarm Tasking") Else options_for("Air Tasking")
+        If (sender.text = "Air Mission Planning" And commander.primary = "Air Units") Then
+            If subject.helarm Then options_for("Helarm Tasking") Else options_for("Air Tasking")
+
+        End If
     End Sub
     Private Sub end_air_tasking(sender As Object, e As EventArgs) Handles o9.Click
         If sender.text <> "Return to Command" Then Exit Sub
@@ -325,8 +356,9 @@
         Dim ac As New cunit
         ac = subject.Clone
         With ac
-            .primary = ac.title
-            .title = air_task_order(ac.parent)
+            .parent = subject.parent
+            .airbase = subject.title
+            .title = air_task_order(subject.parent)
             .task = tac_opt_txt
             .equipment = .equipment + .air_package
             .role = "|" + eq_list(ac.equipment).role + "|"
@@ -338,13 +370,14 @@
             .rockets = IIf(ac.helarm, Val(Mid(tac_opt_txt, 6, 1)), 0)
         End With
         subject.strength = subject.strength - ac.strength
+        undercommand.FindItemWithText(subject.title).SubItems(1).Text = subject.strength
         orbat.Add(ac, ac.title)
         If ac.nation = p1 Then p1_air.Add(ac, ac.title) Else p2_air.Add(ac, ac.title)
         Dim l As New ListViewItem
         With l
             .Text = ac.title
             .SubItems.Add(ac.strength)
-            .SubItems.Add(ac.mode)
+            .SubItems.Add(strings.Left(ac.mode,1))
             .SubItems.Add(ac.abbrev_air_mission)
             .SubItems.Add(ac.equipment)
             .BackColor = take_off
@@ -368,7 +401,7 @@
             If l.BackColor = golden Then
                 For Each a As Control In tactical_actions.Controls
                     If a.BackColor = golden Then
-                        tactical_option = Val(a.Tag)
+                        tactical_option = Val(Strings.Right(a.Name, 1))
                         Select Case tactical_option
                             Case 0
                                 'half fire
@@ -377,9 +410,18 @@
                             Case 1
                                 'move
                                 If mover.has_moved Or mover.has_moved_fired Then Exit Select
-                                mover.moved = gt
-                                If mover.indirect Then mover.eligibleCB = False
-                                If oppfire Then conduct_fire(tactical_option)
+                                If mover.ooc Then
+                                    If d10() < 6 Then
+                                        With resultform_2
+                                            .result.Text = mover.title + " is out of command and has failed to move"
+                                            .ShowDialog()
+                                        End With
+                                    Else
+                                        mover.moved = gt
+                                        If mover.indirect Then mover.eligibleCB = False
+                                        If oppfire Then conduct_fire(tactical_option)
+                                    End If
+                                End If
                             Case 2
                                 'conduct close assault
                                 If mover.assault Or mover.support Then Exit Select
@@ -597,7 +639,7 @@
         'End If
     End Sub
 
-    Private Sub opp_fire_clicked(ByVal sender As System.Object, ByVal e As System.EventArgs)
+    Private Sub opp_fire_clicked(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles opp_fire.Click
         If opp_fire.BackColor = defa Then
             opp_fire.BackColor = golden
             oppfire = True
@@ -632,9 +674,7 @@
     End Sub
 
     Private Sub movement_closed(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Closed
-        For Each i As ListViewItem In undercommand.Items
-            i.Remove()
-        Next
+        undercommand.Items.Clear()
         If Tag = "Movement" Then mov_rates.Hide()
         selected_hq.Text = "Units"
     End Sub
@@ -664,16 +704,14 @@
             o9.Text = "Return to Command"
         ElseIf purpose = "Helarm Tasking" Then
             Dim lo As String = "", pay As Integer = eq_list(subject.equipment).payload
-            For i As Integer = 0 To pay
-                If i > 8 Then Exit For
-                lo = "AH " + Trim(Str(pay - i)) + "/" + Trim(Str(i))
+            For i As Integer = 0 To 8
+                If pay - i >= 0 And (eq_list(subject.equipment).ordnance > 0 Or i = 0) Then lo = "AH " + Trim(Str(pay - i)) + "/" + Trim(Str(i)) Else lo = ""
                 For Each c As Label In tactical_actions.Controls
-                    If Val(Mid(c.Name, 1)) = i Then
+                    If Val(Mid(c.Name, 2)) = i Then
                         c.Text = lo
                         Exit For
                     End If
                 Next
-                If eq_list(subject.equipment).ordnance = 0 Then Exit For
             Next
             o9.Text = "Return to Command"
         ElseIf purpose = "Arty Tasking" Then
@@ -688,16 +726,16 @@
             o8.Text = ""
             o9.Text = ""
         ElseIf purpose = "Morale Recovery" Then
-            o0.Text = "In contact with undisrupted comd HQ (-2)"
-            o1.Text = "< 600m of undisrupted comd HQ (-2)"
-            o2.Text = "Undisrupted unit from own Bn < 600m (-1)"
-            o3.Text = "Under Chemical Attack (2)"
-            o4.Text = "Under Nuclear Attack (3)"
-            o5.Text = "Disrupted fnds <600m (0)"
+            o0.Text = "Undisrupted HQ within 1000m"
+            o1.Text = "Undisrupted friends within 1500m"
+            o2.Text = "0 disrupted friends within 1000m"
+            o3.Text = "Inf or AFV Threatened"
+            o4.Text = "Under Chemical Attack"
+            o5.Text = "Under Nuclear Attack"
             o6.Text = ""
             o7.Text = ""
             o8.Text = ""
-            o9.Text = ""
+            o9.Text = "Voluntarily Disrupt"
         ElseIf purpose = "Area Fire" Or purpose = "CB Fire" Then
             o0.Text = ""
             o1.Text = "Fire (2)"
@@ -715,7 +753,7 @@
             o2.Text = "Out of Supply"
             o3.Text = "Artillery Mission Planning"
             o4.Text = "Air Mission Planning"
-            o5.Text = ""
+            o5.Text = "Allocate Observers"
             o6.Text = ""
             o7.Text = ""
             o8.Text = ""
@@ -738,18 +776,29 @@
 
         If Tag = "Morale Recovery" Then
             tac_opt_txt = ""
-            If sender.BackColor = golden Then
+            If sender.name = "o2" Then
+                change_disrupted_friends(sender)
+            ElseIf sender.BackColor = golden Then
                 sender.backcolor = defa
-                tac = tac - t
             Else
                 sender.backcolor = golden
-                tac = tac + t
+            End If
+            If sender.name <> "o9" Then
+                o9.BackColor = defa
+            Else
+                For Each c As Control In tactical_actions.Controls
+                    c.BackColor = defa
+                    If c.Name = "o2" Then c.Text = "0 disrupted friends within 1000m"
+                Next
+                o9.BackColor = golden
             End If
         ElseIf Tag = "Command" Then
             For Each c As Control In tactical_actions.Controls
                 If c.BackColor = golden And sender.name <> c.Name Then c.BackColor = defa
             Next
+            If t = 3 And Not subject.indirect Then Exit Sub
             If t = 4 Or t = 9 Then Exit Sub
+            If t = 5 And subject.task <> "Observation" Then Exit Sub
             If sender.backcolor = golden Then
                 sender.backcolor = defa
                 tac_opt_txt = ""

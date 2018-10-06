@@ -22,7 +22,7 @@
             Else
             End If
             'takeaction.Focus()
-        ElseIf Not (Me.Tag = "Deploy Aircraft" Or Me.Tag = "Abort Aircraft") Then
+        ElseIf Not (Me.Tag = "Deploy Aircraft" Or Me.Tag = "Recover Aircraft") Then
             If units.Items(i).BackColor = golden Then
                 units.Items(i).BackColor = nostatus
             Else
@@ -365,10 +365,10 @@
                 .units.Columns(1).Text = "Strength"
                 .units.Columns(2).Text = "Equipment"
             End With
-        ElseIf Me.Tag = "Deploy Aircraft" Then
+        ElseIf Me.Tag = "Deploy Aircraft" Or Tag = "Recover Aircraft" Then
             With Me
-                .Text = "Deploy Aircraft Phase for " + side
-                .title.Text = "Deploy the following aircraft to table"
+                .Text = Tag + " Phase for " + side
+                .title.Text = IIf(Tag = "Deploy Aircraft", "Deploy the following aircraft to table", "Recover and Land the following aircraft from table")
                 .takeaction.Text = "Completed"
                 .units.Columns(1).Text = "Task"
                 .units.Columns(2).Text = "Equipment"

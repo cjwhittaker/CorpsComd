@@ -13,7 +13,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private prole As String
     Private pinitial As Integer
     Private paborts As Integer
-    Private pphase As String
+    Private pcas_gt As Integer
     Private phalfstrength As Boolean
     Private pstrength As Integer
     Private pmode As String
@@ -28,6 +28,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pfired As Integer
     Private phit As Boolean
     Private pparent As String
+    Private pairbase As String
     Private pfirers_available As Integer
     Private psorties As Integer
     Private pflanked As Boolean
@@ -65,7 +66,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private popp_mode As Integer
     Private popp_ca As Integer
     Private popp_return As Integer
-    Private pspare1 As Boolean
+    Private pscoot As Boolean
     Private pdebussed_gt As Boolean
     Private party_int As Integer
     Private pooc As Boolean
@@ -199,6 +200,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
             pparent = Value
         End Set
     End Property
+    Property airbase() As String
+        Get
+            Return pairbase
+        End Get
+        Set(ByVal Value As String)
+            pairbase = Value
+        End Set
+    End Property
     Property carrying() As String
         Get
             Return pcarrying
@@ -223,12 +232,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             pprimary = Value
         End Set
     End Property
-    Property spare1() As Boolean
+    Property scoot() As Boolean
         Get
-            Return pspare1
+            Return pscoot
         End Get
         Set(ByVal Value As Boolean)
-            pspare1 = Value
+            pscoot = Value
         End Set
     End Property
     Property debussed_gt() As Boolean
@@ -545,12 +554,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             phalfstrength = Value
         End Set
     End Property
-    Property phase() As String
+    Property cas_gt() As Integer
         Get
-            Return pphase
+            Return pcas_gt
         End Get
-        Set(ByVal Value As String)
-            pphase = Value
+        Set(ByVal Value As Integer)
+            pcas_gt = Value
         End Set
     End Property
     Property fatigue() As Integer
@@ -620,7 +629,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function observer()
         observer = False
-        If heli() Then observer = True
+        If heli() And task = "DS" Then observer = True
         If ground_unit() And Not (indirect() And mode <> disp And Not conc()) Then observer = True
     End Function
     Public Function indirect()
@@ -853,7 +862,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             x = "-SEAD"
         Else
         End If
-        If mission = "AH Mission" And role = "|AH|" Then
+        If Strings.Left(mission, 2) = "AH" And role = "|AH|" Then
             valid_air_mission = True
         ElseIf mission = "Observation" And role = "|OH|" Then
             valid_air_mission = True
@@ -891,7 +900,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             abbrev_air_mission = task
         ElseIf instr(task, "AH ") > 0 And role = "|AH|" Then
             abbrev_air_mission = "AH"
-        ElseIf task = "Observation" And role = "|OH|" Then
+        ElseIf (task = "Observation" Or task = "DS") And role = "|OH|" Then
             abbrev_air_mission = "OBS"
         Else
             abbrev_air_mission = "ERR"
@@ -912,7 +921,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             set_altitude = "Medium"
         ElseIf InStr(task, "AH ") > 0 And role = "|AH|" Then
             set_altitude = "Very Low"
-        ElseIf task = "Observation" And role = "|OH|" Then
+        ElseIf (task = "DS" Or task = "Observation") And role = "|OH|" Then
             set_altitude = "Very Low"
         Else
             set_altitude = "ERR"
@@ -1167,7 +1176,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 status = dead
             ElseIf disrupted Then
                 status = disruptedstatus
-            ElseIf airborne Then
+            ElseIf airborne Or arrives = gt + 1 Then
                 status = take_off
             ElseIf sorties > 0 Then
                 status = no_action_pts
@@ -1227,7 +1236,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub reset_unit()
         ooc = False
         lostcomms = False
-        If airborne And arrives = gt Then airborne = True : arrives = 0
+        If aircraft() And arrives = gt Then airborne = True : arrives = 0
         If atgw() Then reset_missiles()
         rockets = IIf(helarm, Val(Mid(task, 6, 1)), 0)
         Dim x As Integer = IIf(atgw() And Not heli(), 1, 2)
@@ -1240,6 +1249,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         fires = False
         hits = 0
         aborts = 0
+        scoot = False
         casualties = 0
         'sorties = IIf(aircraft() And sorties > 0, sorties - 1, sorties)
         disrupted_gt = False
@@ -1324,12 +1334,18 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End If
         msg = ""
         If aircraft() Then
-            If hits = 1 And casualties = 0 Then strength = strength - 1
-            If hits >= 1 And casualties > 0 Then strength = strength - casualties : casualties = 0
+            If hits = 1 And casualties = 0 Then
+                strength = strength - 1
+                aborts = aborts + 1
+            ElseIf hits >= 1 And casualties > 0 Then
+                strength = strength - casualties
+                casualties = 0
+            Else
+            End If
             If strength < 0 Then strength = 0
             If strength = 0 Or (fires And sead()) Then lands(False)
         Else
-            If hits >= 1 And casualties > 0 Then strength = strength - casualties : casualties = 0
+            If hits >= 1 And casualties > 0 Then strength = strength - casualties : cas_gt = cas_gt + casualties : casualties = 0
             If strength < 0 Then strength = 0
             If strength < firers_available Then firers_available = strength
             If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
@@ -1383,10 +1399,34 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End If
 
     End Sub
+    Public Function valid_arty_observer(obs As cunit)
+        valid_arty_observer = False
+        If obs.indirect Then
+            If parent = obs.primary Then
+                valid_arty_observer = True
+            ElseIf primary = obs.primary And task = "DS" Then
+                valid_arty_observer = True
+            ElseIf primary = obs.parent And task = "DS" Then
+                valid_arty_observer = True
+            Else
+            End If
+        Else
+            If parent = obs.parent Then
+                valid_arty_observer = True
+            ElseIf primary = obs.parent And task = "DS" Then
+                valid_arty_observer = True
+            ElseIf primary = obs.primary And obs.task = "DS" Then
+                valid_arty_observer = True
+            ElseIf parent = obs.primary And obs.task = "DS" Then
+                valid_arty_observer = True
+            Else
+            End If
+        End If
+    End Function
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If parent = hq Then Stop
+        'If Strings.Left(title, 3) = "003" Then Stop
         'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then
@@ -1414,7 +1454,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf strength = 0 Then
             validunit = False
-        ElseIf phase = "Select Air Unit" And Not disrupted And aircraft And Not airborne And sorties = 0 Then
+        ElseIf phase = "Select Air Unit" And Not disrupted And aircraft And Not airborne And sorties = 0 And (arrives = 0 Or (arrives = gt + 1 And (task = "Observation" Or task = "DS"))) Then
             validunit = True
         ElseIf phase = "CAP Combat" And task = "CAP" And airborne And arrives = 0 Then
             If (hq = "firer" And tacticalpts > 1) Or hq = "" Then validunit = True
@@ -1425,57 +1465,57 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf phase = "Intercept Targets" And airborne And task <> "CAP" And arrives = 0 Then
             validunit = True
         ElseIf phase = "Select Unit" And Not disrupted Then
+            validunit = True
+        ElseIf (phase = "Orbat" And hq = parent) Then
+            validunit = True
+        ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not (Inf() And embussed()) Then
+            validunit = True
+        ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
+            validunit = True
+        ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
+            If (movement.tactical_option = 1 And opp_move > 0) Or (movement.tactical_option = 2 And opp_ca > 0) Or (movement.tactical_option >= 3 And opp_mode > 0) Then
                 validunit = True
-            ElseIf (phase = "Orbat" And hq = parent) Then
-                validunit = True
-            ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not (Inf() And embussed()) Then
-                validunit = True
-            ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
-                validunit = True
-            ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
-                If (movement.tactical_option = 1 And opp_move > 0) Or (movement.tactical_option = 2 And opp_ca > 0) Or (movement.tactical_option >= 3 And opp_mode > 0) Then
-                    validunit = True
-                    set_opp_fire_available()
-                Else
+                set_opp_fire_available()
+            Else
+                validunit = False
+            End If
+        ElseIf phase = "Opportunity AA Fire" And opp_move > 0 And arrives = 0 And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) And Not demoralised And airdefence() And Not (embussed() And Inf()) Then
+            validunit = True
+        ElseIf phase = "CA Defenders" And arrives = 0 Then
+            If ground_unit() Then validunit = True
+        ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
+            If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
+        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 Then
+            validunit = True
+        ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
+            If indirect() And emplaced() Then
+                If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
                     validunit = False
+                Else
+                    validunit = True
                 End If
-            ElseIf phase = "Opportunity AA Fire" And opp_move > 0 And arrives = 0 And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) And Not demoralised And airdefence() And Not (embussed() And Inf()) Then
-                validunit = True
-            ElseIf phase = "CA Defenders" And arrives = 0 Then
-                If ground_unit() Then validunit = True
-            ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
-                If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
-            ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 Then
-                validunit = True
-            ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
-                If indirect() And emplaced() Then
-                    If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then
-                        validunit = False
-                    Else
-                        validunit = True
-                    End If
-                End If
-            ElseIf phase = "Artillery Support" And indirect() And emplaced() And Not disrupted And Not support Then
-                If parent = hq Or (primary = hq And task = "DS") Then
-                    If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
-                End If
-            ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
+            End If
+        ElseIf phase = "Artillery Support" And indirect() And emplaced() And Not disrupted And Not support Then
+            If parent = hq Or (primary = hq And task = "DS") Then
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
-            ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
-                validunit = True
-            ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
-                validunit = True
-            ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne Then
-                validunit = True
-                'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
-                '    validunit = False
-            ElseIf phase = "Transport" Then
-                If troopcarrier() And carrying = "" And parent = hq Then validunit = True
-            ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And has_fired() Then
-                validunit = True
-            ElseIf phase = "Morale Recovery" Then
-                If ground_unit() And coc(hq, Me, comd) Then validunit = True
-            ElseIf phase = "Area Fire" Then
+            End If
+        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
+            If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
+        ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
+            validunit = True
+        ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
+            validunit = True
+        ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne Then
+            validunit = True
+            'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
+            '    validunit = False
+        ElseIf phase = "Transport" Then
+            If troopcarrier() And carrying = "" And parent = hq Then validunit = True
+        ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And (Not has_fired() Or (has_fired And scoot)) Then
+            validunit = True
+        ElseIf phase = "Morale Recovery" And ground_unit() And parent = hq Then
+            validunit = True
+        ElseIf phase = "Area Fire" Then
                 If indirect() And task = "AF" Then validunit = True
             ElseIf phase = "CB Fire" Then
                 If indirect() And task = "CB" Then validunit = True

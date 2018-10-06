@@ -20,7 +20,59 @@
     Function d20()
         d20 = Int(20 * Rnd + 1)
     End Function
+    Public Sub change_disrupted_friends(sender As Object)
+        If Strings.Left(sender.text, 1) = "0" Then
+            sender.text = "1 disrupted friends within 1000m"
+            sender.backcolor = golden
+        ElseIf Strings.Left(sender.text, 1) = "1" Then
+            sender.text = "2 disrupted friends within 1000m"
+        ElseIf Strings.Left(sender.text, 1) = "2" Then
+            sender.text = "3 disrupted friends within 1000m"
+        ElseIf Strings.Left(sender.text, 1) = "3" Then
+            sender.text = "0 disrupted friends within 1000m"
+            sender.backcolor = defa
+        Else
+        End If
 
+    End Sub
+    Public Function test_morale(subject As cunit, modifier As Integer, rallying As Boolean)
+        test_morale = ""
+        Dim dice As Integer = d10(), r As String = "", result As Integer
+        If subject.disrupted Then modifier = modifier + 2
+        If subject.disrupted_gt Then modifier = modifier + 2
+        If subject.halfstrength Then modifier = modifier + 1
+        If rallying And subject.halfstrength And rallying Then modifier = modifier + 2
+        If subject.cas_gt > 3 Then modifier = modifier + 2
+        r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "X" + Trim(Str(subject.quality)) + "] "
+        result = dice + modifier - subject.quality
+        If result < 0 Then
+            r = Replace(r, "X", "<")
+            test_morale = subject.title + " has passed its Morale Test" + r
+            If rallying And subject.disrupted Then
+                test_morale = test_morale + " and has rallied from being disrupted"
+                subject.disrupted = False
+                subject.mode = disp
+            End If
+        ElseIf result < 4 And subject.disrupted Then
+            r = Replace(r, "X", ">=")
+            test_morale = subject.title + IIf(rallying, " has failed its Morale Test to rally and ", "") + " remains disrupted" + r
+        ElseIf result >= 5 Then
+            r = Replace(r, "X", "<")
+            test_morale = subject.title + " has failed its Morale Test and surrenders. Remove the unit from the table. " + r
+            subject.strength = 0
+        ElseIf result = 0 Then
+            r = Replace(r, "X", "=")
+            test_morale = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
+            subject.mode = disp
+        ElseIf result <= 4 Then
+            r = Replace(r, "X", "<")
+            test_morale = subject.title + " has failed its Morale Test and is now disrupted" + r
+            subject.disrupted = True
+            subject.disrupted_gt = True
+        Else
+        End If
+
+    End Function
     Public Sub populate_lists(ByVal l As ListView, ByVal c As Collection, ByVal purpose As String, ByVal hq As String)
         Dim listitem As ListViewItem, j As Integer = 0, info As String = ""
         'For Each i As ListViewItem In l.Items
@@ -41,21 +93,24 @@
                 If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
                     'listitem.SubItems.Add(u.comdpts)
                 ElseIf l.Name = "undercommand" Then
-                    If InStr("Arty Tasking", purpose) > 0 Then
-                        info = u.task
-                    ElseIf purpose = "Movement" Or purpose = "Command" Then
+                    If purpose = "Movement" Or purpose = "Command" Or purpose = "Morale Recovery" Then
                         info = UCase(Strings.Left(u.mode, 1))
-                    Else
+                        listitem.BackColor = u.status(purpose)
                     End If
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
-                    If purpose = "Command" Then listitem.BackColor = u.status(purpose)
                 ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
                     'listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
+                    If purpose = "CAP Combat" Then
+                        listitem.SubItems.Add(4 - u.tacticalpts)
+                        If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")
+                    Else
+                        If l.Columns.ContainsKey("RD") Then l.Columns.RemoveByKey("RD")
+                    End If
                 ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
                     listitem.SubItems.Add(u.task)
                     listitem.SubItems.Add(u.equipment)
@@ -65,6 +120,7 @@
                     listitem.SubItems.Add(u.equipment)
                 Else
                 End If
+
                 l.Items.Add(listitem)
                 j = j + 1
             End If

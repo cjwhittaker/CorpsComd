@@ -55,6 +55,9 @@
             Case Is >= 12
                 defender.casualties = 3
         End Select
+        attacker.cas_gt = attacker.cas_gt + attacker.casualties
+        defender.cas_gt = defender.cas_gt + defender.casualties
+
         If modi <= 5 Then
             attacker.disrupted = True
             supporter.disrupted = True

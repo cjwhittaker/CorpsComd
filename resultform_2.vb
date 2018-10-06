@@ -18,7 +18,7 @@
     Private Sub yb_Click(sender As Object, e As EventArgs) Handles yb.Click, nb.Click, hvy1.Click, hvy2.Click
         button_press = ""
         If InStr(Me.result.Text, "Initiative Phase") > 0 Then
-            If sender.name = "nb" Then swap_phasing_player(True)
+            If sender.name = "yb" Then first_player = ph Else first_player = nph
             button_press = sender.text
             Me.Close()
         ElseIf Me.Tag = "firing" And (sender.name = "yb" Or sender.name = "nb") Then

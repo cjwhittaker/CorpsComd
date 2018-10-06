@@ -4,7 +4,7 @@
     Public TOE As Collection, subunit As csubunit
     Public unittypes As Collection, unittype As cunittype
     Public scenario As String, gt As Integer, dice As Integer
-    Public ph As String, nph As String, initiative As String, p1 As String, p2 As String
+    Public ph As String, nph As String, initiative As String, p1 As String, p2 As String, first_player As String
     Public ph_hqs As Collection, recovered As Collection
     Public p1_hqs As Collection, p2_HQs As Collection
     Public p1_units As Collection, p2_Units As Collection

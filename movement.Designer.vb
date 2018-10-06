@@ -37,6 +37,13 @@ Partial Class movement
         Me.ColumnHeader5 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.movement_actions = New System.Windows.Forms.Panel()
         Me.form_function = New System.Windows.Forms.Label()
+        Me.flight_strength = New System.Windows.Forms.GroupBox()
+        Me.RadioButton6 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton5 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton4 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton3 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton2 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton1 = New System.Windows.Forms.RadioButton()
         Me.opp_fire = New System.Windows.Forms.Label()
         Me.tactical_actions = New System.Windows.Forms.GroupBox()
         Me.o0 = New System.Windows.Forms.Label()
@@ -56,20 +63,13 @@ Partial Class movement
         Me.units = New System.Windows.Forms.ListView()
         Me.ColumnHeader2 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.flight_strength = New System.Windows.Forms.GroupBox()
-        Me.RadioButton1 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton2 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton3 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton4 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton5 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton6 = New System.Windows.Forms.RadioButton()
         Me.Panel1.SuspendLayout()
         Me.Panel2.SuspendLayout()
         Me.movement_actions.SuspendLayout()
+        Me.flight_strength.SuspendLayout()
         Me.tactical_actions.SuspendLayout()
         Me.unitcover.SuspendLayout()
         Me.arty_allocation.SuspendLayout()
-        Me.flight_strength.SuspendLayout()
         Me.SuspendLayout()
         '
         'executeorders
@@ -202,6 +202,95 @@ Partial Class movement
         Me.form_function.Text = "Movement Actions"
         Me.form_function.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'flight_strength
+        '
+        Me.flight_strength.Controls.Add(Me.RadioButton6)
+        Me.flight_strength.Controls.Add(Me.RadioButton5)
+        Me.flight_strength.Controls.Add(Me.RadioButton4)
+        Me.flight_strength.Controls.Add(Me.RadioButton3)
+        Me.flight_strength.Controls.Add(Me.RadioButton2)
+        Me.flight_strength.Controls.Add(Me.RadioButton1)
+        Me.flight_strength.Enabled = False
+        Me.flight_strength.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.flight_strength.Location = New System.Drawing.Point(44, 77)
+        Me.flight_strength.Name = "flight_strength"
+        Me.flight_strength.Size = New System.Drawing.Size(297, 65)
+        Me.flight_strength.TabIndex = 71
+        Me.flight_strength.TabStop = False
+        Me.flight_strength.Text = "Flight Strength"
+        '
+        'RadioButton6
+        '
+        Me.RadioButton6.Appearance = System.Windows.Forms.Appearance.Button
+        Me.RadioButton6.AutoSize = True
+        Me.RadioButton6.Location = New System.Drawing.Point(208, 25)
+        Me.RadioButton6.Name = "RadioButton6"
+        Me.RadioButton6.Size = New System.Drawing.Size(26, 27)
+        Me.RadioButton6.TabIndex = 5
+        Me.RadioButton6.TabStop = True
+        Me.RadioButton6.Text = "6"
+        Me.RadioButton6.UseVisualStyleBackColor = True
+        '
+        'RadioButton5
+        '
+        Me.RadioButton5.Appearance = System.Windows.Forms.Appearance.Button
+        Me.RadioButton5.AutoSize = True
+        Me.RadioButton5.Location = New System.Drawing.Point(174, 25)
+        Me.RadioButton5.Name = "RadioButton5"
+        Me.RadioButton5.Size = New System.Drawing.Size(26, 27)
+        Me.RadioButton5.TabIndex = 4
+        Me.RadioButton5.TabStop = True
+        Me.RadioButton5.Text = "5"
+        Me.RadioButton5.UseVisualStyleBackColor = True
+        '
+        'RadioButton4
+        '
+        Me.RadioButton4.Appearance = System.Windows.Forms.Appearance.Button
+        Me.RadioButton4.AutoSize = True
+        Me.RadioButton4.Location = New System.Drawing.Point(140, 25)
+        Me.RadioButton4.Name = "RadioButton4"
+        Me.RadioButton4.Size = New System.Drawing.Size(26, 27)
+        Me.RadioButton4.TabIndex = 3
+        Me.RadioButton4.TabStop = True
+        Me.RadioButton4.Text = "4"
+        Me.RadioButton4.UseVisualStyleBackColor = True
+        '
+        'RadioButton3
+        '
+        Me.RadioButton3.Appearance = System.Windows.Forms.Appearance.Button
+        Me.RadioButton3.AutoSize = True
+        Me.RadioButton3.Location = New System.Drawing.Point(106, 25)
+        Me.RadioButton3.Name = "RadioButton3"
+        Me.RadioButton3.Size = New System.Drawing.Size(26, 27)
+        Me.RadioButton3.TabIndex = 2
+        Me.RadioButton3.TabStop = True
+        Me.RadioButton3.Text = "3"
+        Me.RadioButton3.UseVisualStyleBackColor = True
+        '
+        'RadioButton2
+        '
+        Me.RadioButton2.Appearance = System.Windows.Forms.Appearance.Button
+        Me.RadioButton2.AutoSize = True
+        Me.RadioButton2.Location = New System.Drawing.Point(72, 25)
+        Me.RadioButton2.Name = "RadioButton2"
+        Me.RadioButton2.Size = New System.Drawing.Size(26, 27)
+        Me.RadioButton2.TabIndex = 1
+        Me.RadioButton2.TabStop = True
+        Me.RadioButton2.Text = "2"
+        Me.RadioButton2.UseVisualStyleBackColor = True
+        '
+        'RadioButton1
+        '
+        Me.RadioButton1.Appearance = System.Windows.Forms.Appearance.Button
+        Me.RadioButton1.AutoSize = True
+        Me.RadioButton1.Location = New System.Drawing.Point(38, 25)
+        Me.RadioButton1.Name = "RadioButton1"
+        Me.RadioButton1.Size = New System.Drawing.Size(26, 27)
+        Me.RadioButton1.TabIndex = 0
+        Me.RadioButton1.TabStop = True
+        Me.RadioButton1.Text = "1"
+        Me.RadioButton1.UseVisualStyleBackColor = True
+        '
         'opp_fire
         '
         Me.opp_fire.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
@@ -242,7 +331,7 @@ Partial Class movement
         Me.o0.Name = "o0"
         Me.o0.Size = New System.Drawing.Size(258, 28)
         Me.o0.TabIndex = 67
-        Me.o0.Tag = "0"
+        Me.o0.Tag = "-2"
         Me.o0.Text = "Option (1)"
         Me.o0.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -270,7 +359,7 @@ Partial Class movement
         Me.o1.Name = "o1"
         Me.o1.Size = New System.Drawing.Size(258, 28)
         Me.o1.TabIndex = 58
-        Me.o1.Tag = "1"
+        Me.o1.Tag = "-1"
         Me.o1.Text = "Option (1)"
         Me.o1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -312,7 +401,7 @@ Partial Class movement
         Me.o5.Name = "o5"
         Me.o5.Size = New System.Drawing.Size(258, 28)
         Me.o5.TabIndex = 62
-        Me.o5.Tag = "5"
+        Me.o5.Tag = "3"
         Me.o5.Text = "Option (1)"
         Me.o5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -326,7 +415,7 @@ Partial Class movement
         Me.o4.Name = "o4"
         Me.o4.Size = New System.Drawing.Size(258, 28)
         Me.o4.TabIndex = 61
-        Me.o4.Tag = "4"
+        Me.o4.Tag = "2"
         Me.o4.Text = "Option (1)"
         Me.o4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -340,7 +429,7 @@ Partial Class movement
         Me.o2.Name = "o2"
         Me.o2.Size = New System.Drawing.Size(258, 28)
         Me.o2.TabIndex = 59
-        Me.o2.Tag = "2"
+        Me.o2.Tag = ""
         Me.o2.Text = "Option (1)"
         Me.o2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -368,7 +457,7 @@ Partial Class movement
         Me.o3.Name = "o3"
         Me.o3.Size = New System.Drawing.Size(258, 28)
         Me.o3.TabIndex = 60
-        Me.o3.Tag = "3"
+        Me.o3.Tag = "1"
         Me.o3.Text = "Option (1)"
         Me.o3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -449,95 +538,6 @@ Partial Class movement
         Me.Label2.Text = "Units to Support"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'flight_strength
-        '
-        Me.flight_strength.Controls.Add(Me.RadioButton6)
-        Me.flight_strength.Controls.Add(Me.RadioButton5)
-        Me.flight_strength.Controls.Add(Me.RadioButton4)
-        Me.flight_strength.Controls.Add(Me.RadioButton3)
-        Me.flight_strength.Controls.Add(Me.RadioButton2)
-        Me.flight_strength.Controls.Add(Me.RadioButton1)
-        Me.flight_strength.Enabled = False
-        Me.flight_strength.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.flight_strength.Location = New System.Drawing.Point(44, 77)
-        Me.flight_strength.Name = "flight_strength"
-        Me.flight_strength.Size = New System.Drawing.Size(297, 65)
-        Me.flight_strength.TabIndex = 71
-        Me.flight_strength.TabStop = False
-        Me.flight_strength.Text = "Flight Strength"
-        '
-        'RadioButton1
-        '
-        Me.RadioButton1.Appearance = System.Windows.Forms.Appearance.Button
-        Me.RadioButton1.AutoSize = True
-        Me.RadioButton1.Location = New System.Drawing.Point(38, 25)
-        Me.RadioButton1.Name = "RadioButton1"
-        Me.RadioButton1.Size = New System.Drawing.Size(26, 27)
-        Me.RadioButton1.TabIndex = 0
-        Me.RadioButton1.TabStop = True
-        Me.RadioButton1.Text = "1"
-        Me.RadioButton1.UseVisualStyleBackColor = True
-        '
-        'RadioButton2
-        '
-        Me.RadioButton2.Appearance = System.Windows.Forms.Appearance.Button
-        Me.RadioButton2.AutoSize = True
-        Me.RadioButton2.Location = New System.Drawing.Point(72, 25)
-        Me.RadioButton2.Name = "RadioButton2"
-        Me.RadioButton2.Size = New System.Drawing.Size(26, 27)
-        Me.RadioButton2.TabIndex = 1
-        Me.RadioButton2.TabStop = True
-        Me.RadioButton2.Text = "2"
-        Me.RadioButton2.UseVisualStyleBackColor = True
-        '
-        'RadioButton3
-        '
-        Me.RadioButton3.Appearance = System.Windows.Forms.Appearance.Button
-        Me.RadioButton3.AutoSize = True
-        Me.RadioButton3.Location = New System.Drawing.Point(106, 25)
-        Me.RadioButton3.Name = "RadioButton3"
-        Me.RadioButton3.Size = New System.Drawing.Size(26, 27)
-        Me.RadioButton3.TabIndex = 2
-        Me.RadioButton3.TabStop = True
-        Me.RadioButton3.Text = "3"
-        Me.RadioButton3.UseVisualStyleBackColor = True
-        '
-        'RadioButton4
-        '
-        Me.RadioButton4.Appearance = System.Windows.Forms.Appearance.Button
-        Me.RadioButton4.AutoSize = True
-        Me.RadioButton4.Location = New System.Drawing.Point(140, 25)
-        Me.RadioButton4.Name = "RadioButton4"
-        Me.RadioButton4.Size = New System.Drawing.Size(26, 27)
-        Me.RadioButton4.TabIndex = 3
-        Me.RadioButton4.TabStop = True
-        Me.RadioButton4.Text = "4"
-        Me.RadioButton4.UseVisualStyleBackColor = True
-        '
-        'RadioButton5
-        '
-        Me.RadioButton5.Appearance = System.Windows.Forms.Appearance.Button
-        Me.RadioButton5.AutoSize = True
-        Me.RadioButton5.Location = New System.Drawing.Point(174, 25)
-        Me.RadioButton5.Name = "RadioButton5"
-        Me.RadioButton5.Size = New System.Drawing.Size(26, 27)
-        Me.RadioButton5.TabIndex = 4
-        Me.RadioButton5.TabStop = True
-        Me.RadioButton5.Text = "5"
-        Me.RadioButton5.UseVisualStyleBackColor = True
-        '
-        'RadioButton6
-        '
-        Me.RadioButton6.Appearance = System.Windows.Forms.Appearance.Button
-        Me.RadioButton6.AutoSize = True
-        Me.RadioButton6.Location = New System.Drawing.Point(208, 25)
-        Me.RadioButton6.Name = "RadioButton6"
-        Me.RadioButton6.Size = New System.Drawing.Size(26, 27)
-        Me.RadioButton6.TabIndex = 5
-        Me.RadioButton6.TabStop = True
-        Me.RadioButton6.Text = "6"
-        Me.RadioButton6.UseVisualStyleBackColor = True
-        '
         'movement
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -558,11 +558,11 @@ Partial Class movement
         Me.Panel1.ResumeLayout(False)
         Me.Panel2.ResumeLayout(False)
         Me.movement_actions.ResumeLayout(False)
+        Me.flight_strength.ResumeLayout(False)
+        Me.flight_strength.PerformLayout()
         Me.tactical_actions.ResumeLayout(False)
         Me.unitcover.ResumeLayout(False)
         Me.arty_allocation.ResumeLayout(False)
-        Me.flight_strength.ResumeLayout(False)
-        Me.flight_strength.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub

@@ -947,8 +947,8 @@ Partial Class combat_2
         Me.scoot.Name = "scoot"
         Me.scoot.Size = New System.Drawing.Size(132, 30)
         Me.scoot.TabIndex = 110
-        Me.scoot.Tag = "Same Level"
-        Me.scoot.Text = "Shoot and Scoot"
+        Me.scoot.Tag = "Stay and Shoot "
+        Me.scoot.Text = "Stay and Shoot "
         Me.scoot.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'obs_moving
@@ -1101,10 +1101,10 @@ Partial Class combat_2
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(1284, 662)
-        Me.Controls.Add(Me.directfirepanel)
         Me.Controls.Add(Me.centrepanel)
         Me.Controls.Add(Me.targetpanel)
         Me.Controls.Add(Me.indirectfirepanel)
+        Me.Controls.Add(Me.directfirepanel)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "combat_2"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide

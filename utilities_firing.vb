@@ -1,6 +1,6 @@
 ﻿Module utilities_firing
     Public Sub resolvefire(ByVal firer As cunit, ByVal target As cunit, stage As Integer)
-        Dim unobserved As Boolean = False, abort_firer As Boolean = False, abort_target As Boolean = False
+        Dim unobserved As Boolean = Not target.spotted, abort_firer As Boolean = False, abort_target As Boolean = False
         Dim airtoair As Boolean = IIf(combat_2.Tag = "Air to Air", True, False)
         firer.set_fire_parameters()
         target.set_fire_parameters()
@@ -25,7 +25,6 @@
 
         If firer.effect > 0 And Not target.spotted And (firer.indirect Or firer.Airground) Then
             firer.effective = True
-            If firer.role = "|RL|" Then unobserved = False Else unobserved = True
         ElseIf stage = 1 And target.airborne And firer.airborne And target.tacticalpts = 3 And firer.tacticalpts = 2 Then
             firer.effective = False
             firer.msg = IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing")
@@ -44,25 +43,6 @@
             target.effective = True
         Else
         End If
-
-        'If combat_2.Tag = "Air Defence" Or target.heli Then
-        '    If firer.effect = -1 Then
-        '        resultform_2.result.Text = "Air Defence unit cannot engage - Radar off"
-        '    ElseIf firer.effect = -2 Then
-        '        resultform_2.result.Text = "Air unit is too high to engage"
-        '    Else
-        '        resultform_2.result.Text = "Air Defence unit cannot engage - Radar off" + vbNewLine + "and air unit is too high to engage"
-        '    End If
-        'ElseIf Not target.fires Then
-        '    resultform_2.result.Text = "Firer has no effect"
-        'ElseIf target.fires Then
-        '    resultform_2.result.Text = "Neither Firer or target has any effect on each other"
-        'Else
-        'End If
-        'resultform_2.ShowDialog()
-        'combat_2.Hide()
-        'Exit Sub
-        'End If
 
         Dim init_msg As String = ""
         'firer.fired = gt

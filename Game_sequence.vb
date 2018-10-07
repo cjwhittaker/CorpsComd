@@ -3,10 +3,13 @@
         If gt = 1 And phase = 0 Then
             scenariodefaults.enable_data_entry(False)
             For Each u As cunit In orbat
-                u.fired = -1
-                u.moved = -1
-                If u.indirect Then u.smoke = -4
-                If u.comd = 0 Then If Not u.conc Then u.mode = disp Else u.mode = conc
+                If u.comd = 0 Then
+                    If Not u.conc Then u.mode = disp Else u.mode = conc
+                    u.fired = -1
+                    u.moved = -1
+                    If u.indirect Then u.smoke = -4
+                    If u.airdefence Or u.indirect Then u.emplaced = True
+                End If
             Next
         End If
         Randomize(3600 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
@@ -50,6 +53,9 @@
     Public Sub command_and_control()
         'populate_lists(unit_selection.units, ph_hqs, "Command", "commanders")
         'populate_command_structure(unit_selection.comdtree, ph, "Command")
+        For Each u As cunit In ph_units
+            u.emplace()
+        Next
         With movement
             .Tag = "Command"
             .Text = "Command and Control Phase " + gameturn

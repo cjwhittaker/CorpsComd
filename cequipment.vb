@@ -7,6 +7,7 @@
     Private prole As String
     Private pbor As Integer
     Private pSize As Integer
+    Private pe_time As Integer
     Private pindirect_e As Integer
     Private pindirect_m As Integer
     Private pCAE As Integer
@@ -102,6 +103,14 @@
         End Get
         Set(ByVal Value As Integer)
             pSize = Value
+        End Set
+    End Property
+    Property e_time() As Integer
+        Get
+            Return pe_time
+        End Get
+        Set(ByVal Value As Integer)
+            pe_time = Value
         End Set
     End Property
     Property CAE() As Integer

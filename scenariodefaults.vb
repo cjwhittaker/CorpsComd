@@ -240,7 +240,7 @@
                 Case 21 : end_sorties()
             End Select
             'If ph <> initiative Then swap_phasing_player(True)
-            If phase = 2 Or phase = 3 Or phase = 7 Or phase = 13 Or phase = 16 Or phase = 18 Then
+            If phase = 2 Or phase = 10 Or phase = 7 Or phase = 13 Or phase = 16 Or phase = 18 Then
                 For Each u As cunit In orbat
                     If u.comd = 0 And u.fires And u.fired <> gt Then u.fired = gt
                 Next

@@ -105,22 +105,26 @@
                     'listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
-                    If purpose = "Ground Targets" And u.indirect And u.eligibleCB Then l.BackColor = can_observe
-                    If purpose = "CAP Combat" Then
-                            listitem.SubItems.Add(4 - u.tacticalpts)
-                            If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")
-                        Else
-                            If l.Columns.ContainsKey("RD") Then l.Columns.RemoveByKey("RD")
-                        End If
-                    ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
-                        listitem.SubItems.Add(u.task)
-                        listitem.SubItems.Add(u.equipment)
-                    ElseIf InStr("DemoralisationMorale Recovery", purpose) > 0 Then
-                        listitem.SubItems.Add(u.comdpts)
-                    ElseIf InStr("TransportCAP TargetsAir TargetsSEAD TargetsSEAD Defence TargetsObserver", purpose) > 0 Then
-                        listitem.SubItems.Add(u.equipment)
+                    If purpose = "Ground Targets" And u.indirect And u.eligibleCB Then
+                        listitem.BackColor = can_observe
                     Else
+                        listitem.BackColor = nostatus
                     End If
+                    If purpose = "CAP Combat" Then
+                        listitem.SubItems.Add(4 - u.tacticalpts)
+                        If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")
+                    Else
+                        If l.Columns.ContainsKey("RD") Then l.Columns.RemoveByKey("RD")
+                    End If
+                ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
+                    listitem.SubItems.Add(u.task)
+                    listitem.SubItems.Add(u.equipment)
+                ElseIf InStr("DemoralisationMorale Recovery", purpose) > 0 Then
+                    listitem.SubItems.Add(u.comdpts)
+                ElseIf InStr("TransportCAP TargetsAir TargetsSEAD TargetsSEAD Defence TargetsObserver", purpose) > 0 Then
+                    listitem.SubItems.Add(u.equipment)
+                Else
+                End If
 
                 l.Items.Add(listitem)
                 j = j + 1

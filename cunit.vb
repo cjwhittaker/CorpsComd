@@ -70,6 +70,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private pdebussed_gt As Boolean
     Private party_int As Integer
     Private pooc As Boolean
+    Private pemplaced As Boolean
 
 
     Property nation() As String
@@ -238,6 +239,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Get
         Set(ByVal Value As Boolean)
             pscoot = Value
+        End Set
+    End Property
+    Property emplaced() As Boolean
+        Get
+            Return pemplaced
+        End Get
+        Set(ByVal Value As Boolean)
+            pemplaced = Value
         End Set
     End Property
     Property debussed_gt() As Boolean
@@ -661,6 +670,10 @@ Imports System.Runtime.Serialization.Formatters.Binary
         Else
             arty_type = 2
         End If
+    End Function
+    Public Function cb()
+        cb = False
+        If indirect() And task = "DS" And (orbat(parent).arty_int > 0 Or orbat(primary).arty_int > 0) Then cb = True
     End Function
     Public Sub embus()
         If debussed_gt Or Not Inf() Or Not dismounted() Then Exit Sub
@@ -1143,24 +1156,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
         Else
         End If
     End Function
-    Public Function emplaced()
+    Public Sub emplace()
         Dim x As Integer
-        emplaced = False
-        If Not equipment Is Nothing And indirect() And mode = disp Then
-            If moved = -1 Then emplaced = True : Exit Function
-            sorties = 0
-            If InStr(eq_list(equipment).special, "2") > 0 Then
-                sorties = 2
-            ElseIf InStr(eq_list(equipment).special, "1") > 0 Then
-                sorties = 1
-            Else
-            End If
-            If InStr(UCase(eq_list(equipment).special), "L") = 0 Then sorties = sorties - 1
-            x = Val(scenariodefaults.gameturn.Text) - moved + sorties
-            If (orbat(parent).comd - 2) - x <= 0 Then emplaced = True
+        If Not equipment Is Nothing And (indirect() Or airdefence()) And mode = disp And Not emplaced Then
+            If orbat(parent).comd < 3 Then x = 1 Else x = orbat(parent).comd - 2
+            If d10() > 3 Then tacticalpts = tacticalpts - 1
+            If x + tacticalpts <= 0 Then emplaced = True : Exit Sub
         End If
-
-    End Function
+    End Sub
     Public Function ground_unit()
         ground_unit = False
         If aircraft() Or comd > 0 Then Exit Function
@@ -1276,15 +1279,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
         If airborne Then
             If task = "CAP" Then
                 tacticalpts = 3
-            ElseIf Not heli() Then
-                tacticalpts = 1
-            ElseIf helarm() And InStr(eq_list(equipment).special, "*") > 0 Then
-                tacticalpts = 4
-            ElseIf heli() And role = "|AH|" Then
-                tacticalpts = 2
             Else
                 tacticalpts = 1
             End If
+        ElseIf (indirect Or airdefence) Then
+            If has_moved() Then tacticalpts = eq_list(equipment).e_time Else tacticalpts = 0
         Else
             tacticalpts = 0
         End If
@@ -1478,7 +1477,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf phase = "CAP Combat" And task = "CAP" And airborne And arrives = 0 Then
             If (hq = "firer" And tacticalpts > 1) Or hq = "" Then validunit = True
-        ElseIf phase = "ADSAM Fire" And Not disrupted And area_air_defence() Then
+        ElseIf phase = "ADSAM Fire" And Not disrupted And emplaced And area_air_defence() Then
             validunit = True
         ElseIf phase = "Intercept" And arrives = 0 And airborne And task = "CAP" And tacticalpts > 0 Then
             validunit = True
@@ -1521,7 +1520,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
             If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
-        ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
+        ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And emplaced And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
             validunit = True
         ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
             validunit = True

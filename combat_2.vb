@@ -442,8 +442,12 @@
                 If l.Focused Then l.Selected = False : l.BackColor = golden
             ElseIf Not set_color And l.BackColor = golden Then
                 l.BackColor = nostatus
+                If Tag = "Indirect Fire" And obj.name = "Targets" Then
+                    If enemy(l.Text).indirect And enemy(l.Text).eligibleCB Then l.BackColor = can_observe
+                End If
             Else
             End If
+
         Next
 
     End Sub

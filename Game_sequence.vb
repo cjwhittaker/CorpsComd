@@ -50,7 +50,6 @@
     Public Sub command_and_control()
         'populate_lists(unit_selection.units, ph_hqs, "Command", "commanders")
         'populate_command_structure(unit_selection.comdtree, ph, "Command")
-        populate_lists(movement.units, ph_hqs, "Command", "")
         With movement
             .Tag = "Command"
             .Text = "Command and Control Phase " + gameturn

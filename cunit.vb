@@ -651,6 +651,17 @@ Imports System.Runtime.Serialization.Formatters.Binary
         dismounted = False
         If (InStr(title, "#") > 0 And carrying = "") Then dismounted = True
     End Function
+    Public Function arty_type()
+        arty_type = ""
+        If Not indirect() Then Exit Function
+        If role = "|MOR|" Then
+            arty_type = 0
+        ElseIf role = "|ARTY|" Then
+            arty_type = 1
+        Else
+            arty_type = 2
+        End If
+    End Function
     Public Sub embus()
         If debussed_gt Or Not Inf() Or Not dismounted() Then Exit Sub
         Dim tmp As String = Replace(title, "#", "")
@@ -1169,17 +1180,22 @@ Imports System.Runtime.Serialization.Formatters.Binary
         If comd > 0 And ooc Then
             status = no_action_pts
         ElseIf fm <> "Orbat" And demoralised Then
-            status = demoralisedstatus
+            status = emcon
         ElseIf comd = 0 Then
             If Not conc() And mode = "conc" Then mode = disp
             If strength <= 0 Then
                 status = dead
             ElseIf disrupted Then
                 status = disruptedstatus
-            ElseIf airborne Or arrives = gt + 1 Then
+            ElseIf airborne Or (aircraft And arrives = gt + 1) Then
                 status = take_off
-            ElseIf sorties > 0 Then
-                status = no_action_pts
+            ElseIf Not eligibleCB And instr(UCase(eq_list(equipment)), "E") > 0 Then
+                status = emcon
+            ElseIf eligibleCB And instr(UCase(eq_list(equipment)), "E") > 0 Then
+                status = can_observe
+
+                'ElseIf sorties > 0 Then
+                '    status = no_action_pts
             ElseIf mode = travel And fm = "Orbat" Then
                 status = Color.DeepSkyBlue
             ElseIf mode = disp And fm = "Orbat" Then
@@ -1301,7 +1317,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub update_after_firing(opp_firer As Boolean)
         If fires Then
             firers_available = firers_available - firers
-            If indirect() And carrying <> "" Then carrying = ""
+            If indirect() Then
+                If carrying <> "" Then carrying = ""
+                sorties = sorties + 1
+            End If
+
             If missile_armed() Then missiles = missiles - 1
             If heli() Then
                 If secondary = "RP" Then
@@ -1516,12 +1536,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf phase = "Morale Recovery" And ground_unit() And parent = hq Then
             validunit = True
         ElseIf phase = "Area Fire" Then
-                If indirect() And task = "AF" Then validunit = True
-            ElseIf phase = "CB Fire" Then
-                If indirect() And task = "CB" Then validunit = True
-            ElseIf phase = "CB Targets" Then
-                If eligibleCB Then validunit = True
-            ElseIf phase = "Ground Targets" And ground_unit() Then
+            If indirect() And task = "AF" Then validunit = True
+        ElseIf phase = "CB Fire" Then
+            If indirect() And task = "CB" Then validunit = True
+        ElseIf phase = "CB Targets" And indirect And sorties > 0 Then
+            validunit = True
+        ElseIf phase = "Ground Targets" And ground_unit() Then
                 validunit = True
             ElseIf phase = "Transport" Then
                 If parent = hq And carrying = "" And Not disrupted Then validunit = True

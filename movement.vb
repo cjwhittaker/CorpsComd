@@ -4,7 +4,7 @@
     Dim comdpoints As Integer = 0, ca As Boolean = False, spt As Boolean = False, select_all As Boolean = False, stabilised As Boolean = False, not_conc As Boolean = False
 
     Private Sub allocate_Click(sender As Object, e As EventArgs) Handles allocate.Click
-        If supportee <> "" Then
+        If (tactical_option = 3 Or tactical_option = 5) And supportee <> "" Then
             For Each l As ListViewItem In undercommand.Items
                 If l.BackColor = golden And (orbat(l.Text).indirect Or orbat(l.Text).task = "Observation" Or orbat(l.Text).task = "DS") Then
                     orbat(l.Text).primary = supportee
@@ -13,8 +13,66 @@
                 End If
             Next
             units.FindItemWithText(supportee).BackColor = defa
+        ElseIf tactical_option = 7 And units.SelectedItems.Count <= 3 Then
+            Dim r As String = ""
+            For Each l As ListViewItem In units.Items
+                If l.BackColor = golden Then
+                    If d10() >= arty_location(enemy(l.Text).arty_type, mover.arty_int - 1 + enemy(l.Text).sorties * 2 - mover.initial + mover.strength) Then
+                        r = r + l.Text + vbNewLine
+                        enemy(l.Text).eligibleCB = True
+                    End If
+                End If
+            Next
+            If r <> "" Then
+                With resultform_2
+                    .result.Text = "The following batterys have been located" + vbNewLine + r
+                    .ShowDialog()
+                End With
+            End If
         End If
         set_allocation(False)
+    End Sub
+
+    Private Sub units_SelectedIndexChanged(sender As Object, e As EventArgs) Handles units.SelectedIndexChanged
+        If tactical_option = 7 Then
+            If units.SelectedItems.Count <= 3 Then
+                If units.FocusedItem.BackColor = golden Then units.FocusedItem.BackColor = defa Else units.FocusedItem.BackColor = golden
+            End If
+        Else
+            For Each l As ListViewItem In units.Items
+                l.BackColor = nostatus
+            Next
+            supportee = units.FocusedItem.Text
+            units.FocusedItem.BackColor = golden
+        End If
+        units.FocusedItem.Selected = False
+    End Sub
+    Private Sub set_allocation(setting As Boolean)
+        If setting Then
+            units.Items.Clear()
+            If tactical_option = 3 Or tactical_option = 5 Then
+                populate_lists(units, ph_hqs, "Command", "")
+                units.MultiSelect = False
+                command_function.Text = "Provide Direct Support to"
+                allocate.Text = "Support"
+                For Each l As ListViewItem In units.Items
+                    l.BackColor = nostatus
+                    If l.Text = subject.primary Then l.BackColor = golden
+                Next
+            ElseIf tactical_option = 7 Then
+                populate_lists(units, enemy, "CB Targets", "")
+                command_function.Text = "Artillery to attempt to Locate"
+                allocate.Text = "Locate"
+                units.MultiSelect = True
+            Else
+            End If
+
+        End If
+        movement_actions.Visible = Not setting
+        arty_allocation.Visible = setting
+        executeorders.Enabled = Not setting
+        allocate.Enabled = setting
+
     End Sub
 
 
@@ -156,16 +214,6 @@
 
     Private Sub update_title(ByVal x As String)
         selected_hq.Text = "Units under comd of " + x
-    End Sub
-
-    Private Sub units_SelectedIndexChanged(sender As Object, e As EventArgs) Handles units.SelectedIndexChanged
-
-        For Each l As ListViewItem In units.Items
-            l.BackColor = nostatus
-        Next
-        supportee = units.FocusedItem.Text
-        units.FocusedItem.BackColor = golden
-        units.FocusedItem.Selected = False
     End Sub
 
     Public Sub options_for(ByVal purpose As String)
@@ -317,22 +365,20 @@
                         'Artillery Missions and observer
                         'If Not mover.indirect Then Exit Select
                         set_allocation(True)
+                    Case 6
+                        For Each l As ListViewItem In undercommand.Items
+                            l.BackColor = defa
+                            If l.BackColor = golden And orbat(l.Text).radar Then
+                                orbat(l.Text).eligiblecb = True
+                                orbat(l.Text).status(Tag)
+                            End If
+                        Next
+                    Case 7
+
+
                 End Select
             End If
         Next
-
-    End Sub
-    Private Sub set_allocation(setting As Boolean)
-        If setting Then
-            For Each l As ListViewItem In units.Items
-                l.BackColor = nostatus
-                If l.Text = subject.primary Then l.BackColor = golden
-            Next
-        End If
-        movement_actions.Visible = Not setting
-        arty_allocation.Visible = setting
-        executeorders.Enabled = Not setting
-        allocate.Enabled = setting
 
     End Sub
     Private Sub select_air_tasking(sender As Object, e As EventArgs) Handles o4.Click
@@ -418,7 +464,7 @@
                                         End With
                                     Else
                                         mover.moved = gt
-                                        If mover.indirect Then mover.eligibleCB = False
+                                        If mover.indirect Then mover.eligibleCB = False : mover.sorties = 0
                                         If oppfire Then conduct_fire(tactical_option)
                                     End If
                                 End If
@@ -751,11 +797,11 @@
             o0.Text = "Out of Command"
             o1.Text = "Line of Supply broken"
             o2.Text = "Out of Supply"
-            o3.Text = "Artillery Mission Planning"
+            o3.Text = "Artillery Allocation"
             o4.Text = "Air Mission Planning"
-            o5.Text = "Allocate Observers"
-            o6.Text = ""
-            o7.Text = ""
+            o5.Text = "Allocate Air Observers"
+            o6.Text = "Break EMCON"
+            o7.Text = "Artillery Location Finding"
             o8.Text = ""
             o9.Text = ""
 
@@ -799,85 +845,88 @@
             If t = 3 And Not subject.indirect Then Exit Sub
             If t = 4 Or t = 9 Then Exit Sub
             If t = 5 And subject.task <> "Observation" Then Exit Sub
+            If t = 6 And Not subject.radar Then Exit Sub
+            If t = 7 And Not orbat(subject.parent).arty_int > 0 Then Exit Sub
+
             If sender.backcolor = golden Then
-                sender.backcolor = defa
-                tac_opt_txt = ""
-                tac = -1
-            Else
-                sender.backcolor = golden
-                tac = t
-                tac_opt_txt = sender.text
-            End If
-        ElseIf Tag = "Movement" Then
-            Dim x As Integer = select_count
-            If t = 1 And sender.backcolor = golden Then
-                tac = tac_less_move : tac_less_move = 0
-                sender.backcolor = defa
-            ElseIf t = 1 And sender.backcolor = defa Then
-                tac_less_move = tac
-                If subject.helarm Then tac = 2 Else tac = 4
-                sender.backcolor = golden
-            ElseIf sender.backcolor = defa And tac < 4 Then
-                If tac <= 3 And stabilised And t = 0 Then
-                    tac = tac + 1
+                    sender.backcolor = defa
+                    tac_opt_txt = ""
+                    tac = -1
+                Else
                     sender.backcolor = golden
-                ElseIf tac <= 2 And Not stabilised And t = 0 Then
-                    tac = tac + 2
+                    tac = t
+                    tac_opt_txt = sender.text
+                End If
+            ElseIf Tag = "Movement" Then
+                Dim x As Integer = select_count
+                If t = 1 And sender.backcolor = golden Then
+                    tac = tac_less_move : tac_less_move = 0
+                    sender.backcolor = defa
+                ElseIf t = 1 And sender.backcolor = defa Then
+                    tac_less_move = tac
+                    If subject.helarm Then tac = 2 Else tac = 4
                     sender.backcolor = golden
-                ElseIf tac = 0 And not_conc And t = 8 Then
-                    tac = tac + 4
-                    sender.backcolor = golden
-                ElseIf tac <= 2 And Not not_conc And t = 8 Then
-                    tac = tac + 2
-                    sender.backcolor = golden
-                ElseIf t = 3 Then
-                    tac = tac + 0
-                    sender.backcolor = golden
-                ElseIf tac <= 2 And (t > 1 And t <> 8) Then
-                    tac = tac + 2
-                    sender.backcolor = golden
+                ElseIf sender.backcolor = defa And tac < 4 Then
+                    If tac <= 3 And stabilised And t = 0 Then
+                        tac = tac + 1
+                        sender.backcolor = golden
+                    ElseIf tac <= 2 And Not stabilised And t = 0 Then
+                        tac = tac + 2
+                        sender.backcolor = golden
+                    ElseIf tac = 0 And not_conc And t = 8 Then
+                        tac = tac + 4
+                        sender.backcolor = golden
+                    ElseIf tac <= 2 And Not not_conc And t = 8 Then
+                        tac = tac + 2
+                        sender.backcolor = golden
+                    ElseIf t = 3 Then
+                        tac = tac + 0
+                        sender.backcolor = golden
+                    ElseIf tac <= 2 And (t > 1 And t <> 8) Then
+                        tac = tac + 2
+                        sender.backcolor = golden
+                    Else
+                    End If
+                ElseIf sender.backcolor = golden Then
+                    If stabilised And t = 0 Then
+                        tac = tac - 1
+                    ElseIf Not stabilised And t = 0 Then
+                        tac = tac - 2
+                    ElseIf t = 1 Then
+                        tac = tac_less_move
+                        tac_less_move = 0
+                    ElseIf not_conc And t = 8 Then
+                        tac = tac - 4
+                    ElseIf Not not_conc And t = 8 Then
+                        tac = tac - 2
+                    ElseIf t = 4 Then
+                        tac = tac + 0
+                    ElseIf (t > 1 And t <> 8) Then
+                        tac = tac - 2
+                    Else
+                    End If
+                    sender.backcolor = defa
+                    If tac_less_move <= 2 And o1.BackColor = golden Then
+                        tac_less_move = 0
+                        tac = 0
+                    End If
                 Else
                 End If
-            ElseIf sender.backcolor = golden Then
-                If stabilised And t = 0 Then
-                    tac = tac - 1
-                ElseIf Not stabilised And t = 0 Then
-                    tac = tac - 2
-                ElseIf t = 1 Then
-                    tac = tac_less_move
-                    tac_less_move = 0
-                ElseIf not_conc And t = 8 Then
-                    tac = tac - 4
-                ElseIf Not not_conc And t = 8 Then
-                    tac = tac - 2
-                ElseIf t = 4 Then
-                    tac = tac + 0
-                ElseIf (t > 1 And t <> 8) Then
-                    tac = tac - 2
+                'If t = 1 Then o1.BackColor = golden
+                If tac = 0 Then
+                    o1.Text = "Move"
+                    o1.BackColor = defa
+                ElseIf tac = 1 Then
+                    o1.Text = "Move up to 3/4"
+                ElseIf tac = 2 Then
+                    o1.Text = "Move up to 1/2"
+                ElseIf tac = 3 Then
+                    o1.Text = "Move up to 1/4"
                 Else
-                End If
-                sender.backcolor = defa
-                If tac_less_move <= 2 And o1.BackColor = golden Then
-                    tac_less_move = 0
-                    tac = 0
+                    o1.Text = "Move Allowance used"
                 End If
             Else
             End If
-            'If t = 1 Then o1.BackColor = golden
-            If tac = 0 Then
-                o1.Text = "Move"
-                o1.BackColor = defa
-            ElseIf tac = 1 Then
-                o1.Text = "Move up to 3/4"
-            ElseIf tac = 2 Then
-                o1.Text = "Move up to 1/2"
-            ElseIf tac = 3 Then
-                o1.Text = "Move up to 1/4"
-            Else
-                o1.Text = "Move Allowance used"
-            End If
-        Else
-        End If
 
     End Sub
 

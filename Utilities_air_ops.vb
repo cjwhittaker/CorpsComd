@@ -80,7 +80,7 @@
     Public Function cb_targets(side As Collection)
         cb_targets = False
         For Each u As cunit In side
-            If u.eligibleCB Then cb_targets = True : Exit For
+            If u.sorties > 0 And u.indirect Then cb_targets = True : Exit For
         Next
     End Function
 

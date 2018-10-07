@@ -62,7 +62,7 @@ Partial Class movement
         Me.allocate = New System.Windows.Forms.Button()
         Me.units = New System.Windows.Forms.ListView()
         Me.ColumnHeader2 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.command_function = New System.Windows.Forms.Label()
         Me.Panel1.SuspendLayout()
         Me.Panel2.SuspendLayout()
         Me.movement_actions.SuspendLayout()
@@ -489,7 +489,7 @@ Partial Class movement
         Me.arty_allocation.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.arty_allocation.Controls.Add(Me.allocate)
         Me.arty_allocation.Controls.Add(Me.units)
-        Me.arty_allocation.Controls.Add(Me.Label2)
+        Me.arty_allocation.Controls.Add(Me.command_function)
         Me.arty_allocation.Location = New System.Drawing.Point(868, 13)
         Me.arty_allocation.Name = "arty_allocation"
         Me.arty_allocation.Size = New System.Drawing.Size(391, 577)
@@ -525,18 +525,18 @@ Partial Class movement
         Me.ColumnHeader2.Text = "Unit"
         Me.ColumnHeader2.Width = 272
         '
-        'Label2
+        'command_function
         '
-        Me.Label2.AccessibleRole = System.Windows.Forms.AccessibleRole.None
-        Me.Label2.BackColor = System.Drawing.Color.Transparent
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.ForeColor = System.Drawing.Color.Black
-        Me.Label2.Location = New System.Drawing.Point(17, 3)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(357, 32)
-        Me.Label2.TabIndex = 46
-        Me.Label2.Text = "Units to Support"
-        Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.command_function.AccessibleRole = System.Windows.Forms.AccessibleRole.None
+        Me.command_function.BackColor = System.Drawing.Color.Transparent
+        Me.command_function.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.command_function.ForeColor = System.Drawing.Color.Black
+        Me.command_function.Location = New System.Drawing.Point(17, 3)
+        Me.command_function.Name = "command_function"
+        Me.command_function.Size = New System.Drawing.Size(357, 32)
+        Me.command_function.TabIndex = 46
+        Me.command_function.Text = "Units to Support"
+        Me.command_function.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'movement
         '
@@ -548,8 +548,8 @@ Partial Class movement
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.executeorders)
-        Me.Controls.Add(Me.movement_actions)
         Me.Controls.Add(Me.arty_allocation)
+        Me.Controls.Add(Me.movement_actions)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "movement"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
@@ -597,7 +597,7 @@ Partial Class movement
     Friend WithEvents arty_allocation As Panel
     Friend WithEvents units As ListView
     Friend WithEvents ColumnHeader2 As ColumnHeader
-    Friend WithEvents Label2 As Label
+    Friend WithEvents command_function As Label
     Friend WithEvents allocate As Button
     Friend WithEvents flight_strength As GroupBox
     Friend WithEvents RadioButton6 As RadioButton

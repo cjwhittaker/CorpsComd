@@ -17,7 +17,7 @@
     Public qtypinned As Integer, qtyrepulsed As Integer, qtydestroyed As Integer
     Public topserial As Integer, oppfire As Boolean, result_option As String
     Public lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray, sel As Color = can_observe
-    Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, demoralisedstatus As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
+    Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, emcon As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
     Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen
     Public opportunityfire As New unit_selection, airground As New unit_selection, groundair As New unit_selection
     Public night As Boolean, dawn As Integer, dusk As Integer, twilight As Boolean
@@ -25,6 +25,17 @@
     Public golden As Color = Color.Goldenrod, defa As Color = SystemColors.Control
     Public travel As String = "Travel", conc As String = "Conc", disp As String = "Disp"
     Public debussed As String = "debussed", embussed As String = "embussed", dismounted As String = "dismounted", uncarrying As String = "uncarrying", carrying As String = "carrying"
+    Public arty_location(,) As Integer = {{10, 8, 6},
+{9, 7, 6},
+{8, 7, 5},
+{7, 6, 5},
+{6, 5, 4},
+{5, 4, 3},
+{4, 3, 2},
+{3, 2, 1},
+{2, 1, 1},
+{1, 1, 1}
+}
     Public fire_loss_table(,) As Integer = {{0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2},
 {0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2},
 {0, 0, 0, 0, 0, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3},

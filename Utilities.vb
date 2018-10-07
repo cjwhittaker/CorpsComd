@@ -101,25 +101,26 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
-                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsCB TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
+                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
                     'listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
+                    If purpose = "Ground Targets" And u.indirect And u.eligibleCB Then l.BackColor = can_observe
                     If purpose = "CAP Combat" Then
-                        listitem.SubItems.Add(4 - u.tacticalpts)
-                        If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")
+                            listitem.SubItems.Add(4 - u.tacticalpts)
+                            If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")
+                        Else
+                            If l.Columns.ContainsKey("RD") Then l.Columns.RemoveByKey("RD")
+                        End If
+                    ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
+                        listitem.SubItems.Add(u.task)
+                        listitem.SubItems.Add(u.equipment)
+                    ElseIf InStr("DemoralisationMorale Recovery", purpose) > 0 Then
+                        listitem.SubItems.Add(u.comdpts)
+                    ElseIf InStr("TransportCAP TargetsAir TargetsSEAD TargetsSEAD Defence TargetsObserver", purpose) > 0 Then
+                        listitem.SubItems.Add(u.equipment)
                     Else
-                        If l.Columns.ContainsKey("RD") Then l.Columns.RemoveByKey("RD")
                     End If
-                ElseIf InStr("Deploy AircraftAbort AircraftAir Ground", purpose) > 0 Then
-                    listitem.SubItems.Add(u.task)
-                    listitem.SubItems.Add(u.equipment)
-                ElseIf InStr("DemoralisationMorale Recovery", purpose) > 0 Then
-                    listitem.SubItems.Add(u.comdpts)
-                ElseIf InStr("TransportCAP TargetsAir TargetsSEAD TargetsSEAD Defence TargetsObserver", purpose) > 0 Then
-                    listitem.SubItems.Add(u.equipment)
-                Else
-                End If
 
                 l.Items.Add(listitem)
                 j = j + 1

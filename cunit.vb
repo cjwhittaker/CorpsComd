@@ -696,13 +696,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
             .debussed_gt = True
         End With
     End Sub
-    'Public Function loiter()
-    '    loiter = False
-    '    Try
-    '        If aircraft() And InStr(eq_list(equipment).special, "L") Then loiter = True
-    '    Catch
-    '    End Try
-    'End Function
+    Public Function loiter()
+        loiter = False
+        If aircraft() And InStr(eq_list(equipment).special, "L") Then loiter = True
+    End Function
+    Public Function second_attack()
+        second_attack = False
+        If ((loiter() And tacticalpts <= 2) Or (aircraft() And tacticalpts = 1)) Then second_attack = True
+    End Function
     Public Function airdefence()
         airdefence = False
         If mode = travel Then
@@ -996,7 +997,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         ElseIf context = "SEAD" And Not target.eligibleCB And target.airdefence Then
             effect = eq_list(equipment).ordnance
         ElseIf context = "CAS" Then
-            If tacticalpts = 2 Then
+            If Not second_attack() And Not disrupted_gt Then
                 effect = eq_list(equipment).ordnance
             Else
                 effect = eq_list(equipment).cannon
@@ -1524,7 +1525,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
             validunit = True
-        ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne Then
+        ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne And task <> "CAP" Then
             validunit = True
             'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             '    validunit = False

@@ -80,11 +80,16 @@
         'Next
         ' l.Items.Clear()
         l.BackColor = nostatus
-        If purpose = "Opportunity Fire" Then
+
+        If purpose = "Opportunity Fire" And Not hq = "Air" Then
             listitem = New ListViewItem
             listitem.Text = "Minefield"
             l.Items.Add(listitem)
         End If
+        For Each u As cunit In orbat
+            If u.airdefence And Not u.emplaced Then u.emplace()
+
+        Next
         If c Is Nothing Then Exit Sub
         For Each u As cunit In c
             If u.validunit(purpose, hq) Then
@@ -111,8 +116,8 @@
                         listitem.BackColor = nostatus
                     End If
                     If purpose = "CAP Combat" Then
-                        listitem.SubItems.Add(4 - u.tacticalpts)
                         If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")
+                        listitem.SubItems.Add(4 - u.tacticalpts)
                     Else
                         If l.Columns.ContainsKey("RD") Then l.Columns.RemoveByKey("RD")
                     End If

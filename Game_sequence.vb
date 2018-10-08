@@ -166,62 +166,11 @@
         End If
     End Sub
 
-    'Public Sub break_emcon()
-    '    For i = 1 To 2
-    '        unit_selection.Tag = "Radar On"
-    '        populate_lists(unit_selection.units, ph_units, "Radar On", "")
-    '        If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
-    '        swap_phasing_player(True)
-    '    Next
-
-    'End Sub
-
-    'Public Sub artillery_allocation_planning()
-    '    Dim arty As Boolean
-    '    For i = 1 To 2
-    '        arty = False
-    '        For Each u As cunit In orbat
-    '            If u.comd = 0 Then
-    '                If u.nation = ph And u.indirect Then
-    '                    hq_functions(orbat(u.parent), "Arty units")
-    '                    If u.primary Is Nothing Then u.primary = ""
-    '                    If u.primary <> "" And orbat.Contains(u.primary) Then hq_functions(orbat(u.primary), "Arty units")
-    '                    arty = True
-    '                    If u.task = "" Then u.task = "DS"
-    '                    'If orbat(u.parent).comd > 3 Then u.task = "GS"
-    '                    'If u.indirect Then u.primary = ""
-    '                End If
-    '            End If
-    '        Next
-    '        If arty Then
-    '            With movement
-    '                .Text = "Arty Tasking Phase for " + ph + " - Game Turn " + Str(gt)
-    '                .Tag = "Arty Tasking"
-    '                .options_for("Arty Tasking")
-    '                .ShowDialog()
-    '            End With
-    '            swap_phasing_player(True)
-    '        End If
-    '    Next
-
-    'End Sub
 
     Public Sub deploy_air_missions()
         unit_selection.Tag = "Deploy Aircraft"
         populate_lists(unit_selection.units, orbat, "Deploy Aircraft", "")
         If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
-        '    'quality check step
-        '    For Each ac As cunit In orbat
-        '        If ac.airborne Then
-        '            dice = d10()
-        '            'dice = 1
-        '            If dice > ac.quality Or dice = 10 Then ac.task = "Abort"
-        '        End If
-        '    Next
-        '    unit_selection.Tag = "Abort Aircraft"
-        '    populate_lists(unit_selection.units, orbat, "Abort Aircraft", "")
-        '    If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
-        'End If
     End Sub
 
     Public Sub air_air_combat(first As String, second As String)
@@ -264,40 +213,54 @@
     End Sub
 
 
-    Public Sub ground_to_air()
+    Public Sub ground_to_air(ad As Collection, ac As Collection)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
-        Dim x As Integer = 0, y As Integer = 0
-        For Each ac As cunit In p1_air
-            If ac.airborne Then ac.tacticalpts = 2 : x = x + 1
-        Next
-        For Each ac As cunit In p2_air
-            If ac.airborne Then ac.tacticalpts = 2 : y = y + 1
-        Next
-        If x > 0 Or y > 0 Then
-            populate_lists(combat_2.firers, ph_units, "Ground to Air", "")
-            populate_lists(combat_2.targets, enemy_air, "Air Defence Targets", "")
+        populate_lists(combat_2.firers, ad, "Ground to Air", "")
+        populate_lists(combat_2.targets, ac, "Air Defence Targets", "")
+        With combat_2
+            .Tag = "Ground to Air"
+            .enable_controls(True, combat_2.directfirepanel)
+            .enable_controls(False, combat_2.targetpanel)
+            .observation(False)
+            .abort_firer.Visible = False
+            .abort_target.Visible = True
+            .firer = New cunit
+            .target = New cunit
+            .fire.Visible = True
+            .firesmoke.Visible = False
+            .range_not_needed = False
+        End With
+        If Not combat_2.Visible Then
             With combat_2
-                .Tag = "Ground to Air"
-                .enable_controls(True, combat_2.directfirepanel)
-                .enable_controls(False, combat_2.targetpanel)
-                .observation(False)
-                .firer = New cunit
-                .target = New cunit
-                .fire.Visible = True
-                .firesmoke.Visible = False
-                .range_not_needed = False
+                .Text = "Ground to Air Fire Sub Phase for " + gameturn
+                .ShowDialog()
             End With
-            If Not combat_2.Visible Then
-                With combat_2
-                    .Text = "Ground to Air Fire Sub Phase for " + gameturn
-                    .ShowDialog()
-                End With
-            End If
         End If
-
     End Sub
-
+    Public Sub air_to_ground()
+        combat_2.targets.Items.Clear()
+        combat_2.firers.Items.Clear()
+        populate_lists(combat_2.firers, friend_air, "Air to Ground", "")
+        populate_lists(combat_2.targets, enemy, "Ground Targets", "")
+        With combat_2
+            .Tag = "Air to Ground"
+            .Text = "Air to Ground Fire Sub Phase for " + gameturn
+            .enable_controls(False, .directfirepanel)
+            .enable_controls(True, .targetpanel)
+            .abort_firer.Visible = True
+            .abort_target.Visible = False
+            .fire.Visible = True
+            .firesmoke.Visible = False
+            .range_not_needed = False
+        End With
+        If Not combat_2.Visible Then
+            With combat_2
+                .Text = "Air to Ground Fire Sub Phase for " + gameturn
+                .ShowDialog()
+            End With
+        End If
+    End Sub
 
     'Public Sub conduct_sead()
     '    airground.Tag = "SEAD"
@@ -317,21 +280,6 @@
     '        '    populate_lists(combat_2.targets, enemy, "SEAD Targets", "")
     '        '    If combat_2.targets.Items.Count > 0 Then unit_selection.ShowDialog()
     '        'End If
-    '        swap_phasing_player(True)
-    '    Next
-    'End Sub
-
-    'Public Sub conduct_air_to_ground()
-    '    For i As Integer = 1 To 2
-    '        populate_lists(airground.units, ph_units, "Air Ground", "")
-    '        If airground.units.Items.Count > 0 Then
-    '            populate_lists(combat_2.targets, enemy, "Ground Targets", "")
-    '            populate_lists(groundair.units, enemy, "Air Defence", "")
-    '            With airground
-    '                .Tag = "Air Ground"
-    '                .ShowDialog()
-    '            End With
-    '        End If
     '        swap_phasing_player(True)
     '    Next
     'End Sub
@@ -369,23 +317,6 @@
             swap_phasing_player(True)
         Next
 
-    End Sub
-
-    Public Sub cb_fire()
-        For i As Integer = 1 To 2
-            If cb_capable(ph_hqs) And cb_targets(enemy) Then
-                If arty_fire_mission("CB", ph_units) Then
-                    populate_lists(combat_2.targets, enemy, "CB Targets", "")
-                    With movement
-                        .Text = "Counter Battery Artillery Phase for " + ph + " - Game Turn " + Str(gt)
-                        .Tag = "CB Fire"
-                        .options_for("CB Fire")
-                        .ShowDialog()
-                    End With
-                End If
-            End If
-            swap_phasing_player(True)
-        Next
     End Sub
 
     Public Sub movement_phase()
@@ -453,14 +384,6 @@
 
     Public Sub morale_recovery()
         For i As Integer = 1 To 2
-            'Moralerecovery()
-            'Phase 1 - spend command points to rally BGs from demoralised and units from rout or repulsed
-            'unit_selection.Tag = "Demoralisation Recovery"
-            'populate_lists(unit_selection.units, ph_hqs, "Demoralisation", "")
-            'If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
-            'For Each u As cunit In ph_units
-            '    If u.comd = 0 Then u.effective = False
-            'Next
             With movement
                 .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
                 .options_for("Morale Recovery")

@@ -567,8 +567,8 @@
                     .ta_altitude.Visible = True
                 End With
             Else
-                populate_lists(combat_2.firers, enemy, "Opportunity Fire", nph)
-                populate_lists(combat_2.firers, enemy_air, "Opportunity Fire", nph)
+                populate_lists(combat_2.firers, enemy, "Opportunity Fire", "")
+                populate_lists(combat_2.firers, enemy_air, "Opportunity Fire", "Air")
                 With combat_2
                     .enable_controls(True, combat_2.directfirepanel)
                     .enable_controls(True, combat_2.targetpanel)

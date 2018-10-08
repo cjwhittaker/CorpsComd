@@ -1103,8 +1103,8 @@ Partial Class combat_2
         Me.ClientSize = New System.Drawing.Size(1284, 662)
         Me.Controls.Add(Me.centrepanel)
         Me.Controls.Add(Me.targetpanel)
-        Me.Controls.Add(Me.indirectfirepanel)
         Me.Controls.Add(Me.directfirepanel)
+        Me.Controls.Add(Me.indirectfirepanel)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "combat_2"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide

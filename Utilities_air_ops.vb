@@ -64,7 +64,33 @@
         End If
 
     End Function
-
+    Public Function ground_air_required(initial)
+        ground_air_required = False
+        Dim x As Integer = 0, y As Integer = 0
+        For Each ac As cunit In p1_air
+            If ac.airborne Then
+                If initial And ac.abbrev_air_mission = "CAS" Then
+                    ac.tacticalpts = IIf(ac.loiter, 3, 2)
+                ElseIf initial And ac.abbrev_air_mission = "PGM" Or ac.abbrev_air_mission = "SEAD" Then
+                    ac.tacticalpts = 1
+                Else
+                End If
+                If (Not initial And Not ac.heli) Or initial Then x = x + 1
+            End If
+        Next
+        For Each ac As cunit In p2_air
+            If ac.airborne Then
+                If initial And ac.abbrev_air_mission = "CAS" Then
+                    ac.tacticalpts = IIf(ac.loiter, 3, 2)
+                ElseIf initial And ac.abbrev_air_mission = "PGM" Or ac.abbrev_air_mission = "SEAD" Then
+                    ac.tacticalpts = 1
+                Else
+                End If
+                If (Not initial And Not ac.heli) Or initial Then y = y + 1
+            End If
+        Next
+        If x > 0 Or y > 0 Then ground_air_required = True
+    End Function
     Public Function arty_fire_mission(mission As String, side As Collection)
         arty_fire_mission = False
         For Each u As cunit In side

@@ -1,7 +1,7 @@
 ﻿Public Class combat_2
 
     Public firer As cunit, target As cunit, observer As cunit, combatmode As String, target_fires As Boolean = False, range_not_needed As Boolean, ac_firer As cunit
-    Public weapon As String, fired_this_turn As Integer = 0, nt As Integer, nf As Integer, no As Integer, interceptor As String
+    Public weapon As String, fired_this_turn As Integer = 0, nt As Integer, nf As Integer, no As Integer, interceptor As String, area_fire As Boolean
     Dim currentrange As Integer, tn As Integer, a2g_target As cunit, a2g_range As String
     Public Sub enable_controls(groundfire As Boolean, panel As Object)
         Dim gf As Boolean = False, af As Boolean = False
@@ -370,28 +370,37 @@
     End Sub
 
     Private Sub select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click, observers.Click, artillery.Click
-        set_sel_color(sender.items, False, False)
+        set_sel_color(sender, False, False)
+        If firer.title Is Nothing Then area_fire = False
+
         If sender.name = "targets" Then
             target = orbat(sender.FocusedItem.Text)
             nt = targets.FocusedItem.Index
-            set_sel_color(sender.items, True, True)
+            set_sel_color(sender, True, True)
             If Tag <> "Smoke Barrage" And Tag <> "Indirect Fire" Then firer_strength(t1, t2, t3, target.firers_available, target.airborne)
             If Tag = "Air to Air" Then If Not firer.title Is Nothing Then abort_target.Visible = abort_option(target, firer, 0)
         ElseIf sender.name = "firers" Then
+
             firer = orbat(sender.FocusedItem.Text)
             nf = firers.FocusedItem.Index
-            set_sel_color(sender.items, True, False)
+            set_sel_color(sender, True, False)
             firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
             If Tag = "Air to Air" Then If Not target.title Is Nothing Then abort_firer.Visible = abort_option(firer, target, 0)
         ElseIf sender.name = "artillery" And Not observer.title Is Nothing Then
             firer = orbat(sender.FocusedItem.Text)
             If firer.valid_arty_observer(observer) Then
                 firer = orbat(sender.FocusedItem.Text)
+                If Tag = "Indirect Fire" And firer.role = "|RL|" Then
+                    area_fire = True
+                Else
+                    If area_fire = True Then area_fire = False : set_sel_color(targets, False, False)
+                End If
                 firer_strength(a1, a2, a3, firer.firers_available, False)
                 nf = artillery.FocusedItem.Index
-                set_sel_color(sender.items, True, False)
+                set_sel_color(sender, True, False)
             Else
                 firer = New cunit
+                area_fire = False
                 reset_strength(a1, a2, a3)
                 tgt_range_select.SelectedIndex = -1
                 tgt_range.Text = "Range"
@@ -403,7 +412,7 @@
                 If observer.valid_arty_observer(ph_units(l.Text)) Then l.BackColor = in_ds Else l.BackColor = nostatus
             Next
             no = observers.FocusedItem.Index
-            set_sel_color(sender.items, True, False)
+            set_sel_color(sender, True, False)
             If observer.indirect Then firer = observer Else Exit Sub
         Else
             Exit Sub
@@ -412,26 +421,44 @@
         eligible_to_fire(sender)
 
     End Sub
-    Private Sub set_sel_color(obj As Object, set_color As Boolean, t As Boolean)
-        For Each l As ListViewItem In obj
-            If set_color Then
-                If l.Focused Then l.Selected = False : l.BackColor = golden
-            ElseIf Not set_color And l.BackColor = golden Then
-                l.BackColor = nostatus
-            Else
-            End If
-            If Tag = "Indirect Fire" And t And l.BackColor = nostatus Then
-                If enemy(l.Text).indirect And enemy(l.Text).eligibleCB Then l.BackColor = can_observe
-            End If
-            If Tag = "Indirect Fire" And Not t And l.BackColor = nostatus Then
-                If ph_units.Contains(l.Text) Then
-                    If ph_units(l.Text).task = "DS" Then l.BackColor = in_ds
-                ElseIf friend_air.Contains(l.Text) Then
-                    If friend_air(l.Text).task = "DS" Then l.BackColor = in_ds
+    Private Sub set_sel_color(obj As ListView, set_color As Boolean, t As Boolean)
+        Dim current_selected As String = ""
+        obj.FocusedItem.Selected = False
+        If Not set_color And Not t Then
+            For Each l As ListViewItem In obj.Items
+                If l.BackColor = golden And Not (obj.Name = "targets" And area_fire) Then
+                    l.BackColor = nostatus
+                    If Tag = "Indirect Fire" Then
+                        If obj.Name = "targets" Then
+                            If enemy(l.Text).indirect And enemy(l.Text).eligibleCB Then l.BackColor = can_observe
+                        Else
+                            If ph_units.Contains(l.Text) Then
+                                If ph_units(l.Text).task = "DS" Then l.BackColor = in_ds
+                            ElseIf friend_air.Contains(l.Text) Then
+                                If friend_air(l.Text).task = "DS" Then l.BackColor = in_ds
+                            Else
+                            End If
+                        End If
+                    End If
+
+                End If
+            Next
+        Else
+            If obj.FocusedItem.BackColor <> golden Then obj.FocusedItem.BackColor = golden Else obj.FocusedItem.BackColor = nostatus
+            If Tag = "Indirect Fire" And obj.FocusedItem.BackColor = nostatus Then
+                If t Then
+                    If enemy(obj.FocusedItem.Text).indirect And enemy(obj.FocusedItem.Text).eligibleCB Then obj.FocusedItem.BackColor = can_observe
                 Else
+                    If ph_units.Contains(obj.FocusedItem.Text) Then
+                        If ph_units(obj.FocusedItem.Text).task = "DS" Then obj.FocusedItem.BackColor = in_ds
+                    ElseIf friend_air.Contains(obj.FocusedItem.Text) Then
+                        If friend_air(obj.FocusedItem.Text).task = "DS" Then obj.FocusedItem.BackColor = in_ds
+                    Else
+                    End If
                 End If
             End If
-        Next
+        End If
+
 
     End Sub
 
@@ -876,10 +903,21 @@
         If Tag = "Air to Air" Then
             If firer.tacticalpts = 3 And firer.task = "CAP" Then stage = 1 Else stage = 2
             stages = 3
+        ElseIf area_fire Then
+            stages = 0 : stage = 1
+            For Each l As ListViewItem In targets.Items
+                If l.BackColor = golden Then stages = stages + 1
+            Next
+            If stages = 0 Then Exit Sub
         Else
             stage = 1 : stages = 1
         End If
         For i As Integer = stage To stages
+            If area_fire Then
+                For Each l As ListViewItem In targets.Items
+                    If l.BackColor = golden Then target = enemy(l.Text) : Exit For
+                Next
+            End If
             firer.fires = True
             resolvefire(firer, target, i)
             target.update_after_firing(False)
@@ -933,11 +971,13 @@
                 If interceptor = "Parity" Then interceptor = air_assessment(3, interceptor)
                 If Not firer.airborne Or Not target.airborne Or firer.strength = 0 Or target.strength = 0 Then Exit For
             Else
+                If area_fire Then targets.FindItemWithText(target.title).BackColor = target.status("T")
                 reset_target()
-                reset_firer()
+                If stage = stages Then reset_firer()
             End If
         Next
         If Tag = "Ground to Air" And targets.Items.Count = 0 Then Close()
+        area_fire = False
         eligible_to_fire(firers)
     End Sub
 

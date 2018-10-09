@@ -1193,11 +1193,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 status = disruptedstatus
             ElseIf airborne Or (aircraft And arrives = gt + 1) Then
                 status = take_off
-            ElseIf Not eligibleCB And instr(UCase(eq_list(equipment)), "E") > 0 Then
+            ElseIf Not eligibleCB And instr(UCase(eq_list(equipment).special), "E") > 0 Then
                 status = emcon
-            ElseIf eligibleCB And instr(UCase(eq_list(equipment)), "E") > 0 Then
+            ElseIf eligibleCB And instr(UCase(eq_list(equipment).special), "E") > 0 Then
                 status = can_observe
-
+            ElseIf eligibleCB And indirect And fm = "T" Then
+                status = can_observe
                 'ElseIf sorties > 0 Then
                 '    status = no_action_pts
             ElseIf mode = travel And fm = "Orbat" Then

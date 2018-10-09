@@ -10,7 +10,7 @@
 
     Public Sub testing(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles get_result.Click
         'If immediate Then rallying = False
-
+        modifier = 0
         For Each ctrl In Me.Controls
             If ctrl.name = "disrupted_friends" Then
                 modifier = modifier + Val(Strings.Left(ctrl.text, 1))

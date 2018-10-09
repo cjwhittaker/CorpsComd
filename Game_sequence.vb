@@ -355,16 +355,21 @@
                     ac.strength = 0
                 ElseIf ac.airborne Then
                     ac.lands(False)
-                    endsortie = True
-                    Dim l As New ListViewItem
-                    With l
-                        .Text = ac.title
-                        .SubItems.Add(ac.task)
-                        .SubItems.Add(ac.equipment)
-                    End With
-                    unit_selection.units.Items.Add(l)
+                    If ac.strength > 0 Then
+                        endsortie = True
+                        Dim l As New ListViewItem
+                        With l
+                            .Text = ac.title
+                            .SubItems.Add(ac.task)
+                            .SubItems.Add(ac.equipment)
+                        End With
+                        unit_selection.units.Items.Add(l)
+                    Else
+                        orbat.Remove(ac.title)
+                        If p1 = ac.nation Then p1_air.Remove(ac.title) Else p2_air.Remove(ac.title)
+                    End If
                 Else
-                End If
+                    End If
             Next
             For i As Integer = friend_air.Count To 1 Step -1
                 If friend_air(i).sorties = -1 Then

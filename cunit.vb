@@ -1178,42 +1178,80 @@ Imports System.Runtime.Serialization.Formatters.Binary
         Else
         End If
     End Function
-
+    Public Sub morale_checks()
+        Dim r As Integer = 1000000
+        msg = ""
+        effective = False
+        If nuclear_attack Then r = r + 1
+        If chemical_attack Then r = r + 10
+        If quality <= 3 Then r = r + 100
+        If disrupted Then r = r + 1000
+        If halfstrength And Not hit Then r = r + 10000
+        If halfstrength And hit Then r = r + 100000
+        msg = Mid(Trim(Str(r)), 2)
+    End Sub
     Public Function status(fm As String)
         status = nostatus
-        If comd > 0 And ooc Then
-            status = no_action_pts
+        If comd > 0 And fm = "Morale Recovery" Then
+            For Each u As cunit In ph_units
+                'If title = "1-115 MRR" Then Stop
+
+                If u.parent = title And Not u.effective And u.ground_unit Then
+                    If Val(u.msg) = 0 And Not status = may_test Then
+                        status = nostatus
+                    ElseIf Val(u.msg) <> 100000 Then
+                        status = may_test
+                    Else
+                        status = must_test
+                        Exit Function
+                    End If
+                End If
+            Next
         ElseIf fm <> "Orbat" And demoralised Then
             status = emcon
-        ElseIf comd = 0 Then
-            If Not conc() And mode = "conc" Then mode = disp
-            If strength <= 0 Then
+            ElseIf comd = 0 Then
+            If fm = "Orbat" Then
+                If mode = travel Then
+                    status = Color.DeepSkyBlue
+                ElseIf mode = disp Then
+                    status = Color.DarkKhaki
+                Else
+                End If
+            ElseIf fm = "Morale Recovery" Then
+                If disrupted And Not effective Then
+                    status = disruptedstatus
+                ElseIf disrupted And effective Then
+                    status = tested_and_disrupted
+                ElseIf Val(msg) >= 100000 And Not effective Then
+                    status = must_test
+                ElseIf Val(msg) > 0 And Not effective Then
+                    status = may_test
+                ElseIf effective Then
+                    status = no_action_pts
+                Else
+                    status = nostatus
+                End If
+            ElseIf strength <= 0 Then
                 status = dead
             ElseIf disrupted Then
                 status = disruptedstatus
-            ElseIf airborne Or (aircraft And arrives = gt + 1) Then
+            ElseIf airborne Or (aircraft() And arrives = gt + 1) Then
                 status = take_off
-            ElseIf Not eligibleCB And instr(UCase(eq_list(equipment).special), "E") > 0 Then
-                status = emcon
-            ElseIf eligibleCB And instr(UCase(eq_list(equipment).special), "E") > 0 Then
-                status = can_observe
-            ElseIf eligibleCB And indirect And fm = "T" Then
-                status = can_observe
-                'ElseIf sorties > 0 Then
-                '    status = no_action_pts
-            ElseIf mode = travel And fm = "Orbat" Then
-                status = Color.DeepSkyBlue
-            ElseIf mode = disp And fm = "Orbat" Then
-                status = Color.DarkKhaki
-            ElseIf indirect And primary <> "" And task = "DS" Then
-                status = in_ds
-            ElseIf ooc And fm = "Command" Then
-                status = assaulting
+                ElseIf Not eligibleCB And InStr(UCase(eq_list(equipment).special), "E") > 0 Then
+                    status = emcon
+                ElseIf eligibleCB And InStr(UCase(eq_list(equipment).special), "E") > 0 Then
+                    status = can_observe
+                ElseIf eligibleCB And indirect() And fm = "T" Then
+                    status = can_observe
+                ElseIf indirect() And primary <> "" And task = "DS" Then
+                    status = in_ds
+                ElseIf ooc And fm = "Command" Then
+                    status = assaulting
+                Else
+                    status = nostatus
+                End If
             Else
-                status = nostatus
             End If
-        Else
-        End If
 
     End Function
     Public Function pass_quality_test(modi As Integer)
@@ -1269,6 +1307,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         firers_available = strength
         fires = False
         hits = 0
+        'hit = False
         aborts = 0
         scoot = False
         casualties = 0
@@ -1376,6 +1415,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 .strength = strength
                 .casualties = casualties
                 .mode = mode
+                .cas_gt = cas_gt
+                .disrupted = disrupted
+                .disrupted_gt = disrupted_gt
             End With
         End If
         msg = ""

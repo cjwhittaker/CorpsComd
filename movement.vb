@@ -85,8 +85,9 @@
         'If commanders.Items.Count <> 1 And commander.title = e.Item.Text Then Exit Sub
         If tactical_actions.Text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking" Then o9.Text = "Return to Command" : end_air_tasking(o9, Nothing)
         If arty_allocation.Visible Then set_allocation(False)
-        mark_ooc(comdtree.Nodes)
+        'mark_ooc(comdtree.Nodes)
         commander = orbat(e.Node.Text)
+        reset_comd_nodes(comdtree.Nodes(0))
         undercommand.Items.Clear()
         comdtree.HideSelection = True
         If Tag = "Movement" And commander.comdpts = 0 Then
@@ -113,10 +114,18 @@
         k = -1
         reset_unit_options()
     End Sub
+    Private Sub reset_comd_nodes(node As TreeNode)
+        For Each n As TreeNode In node.Nodes
+            n.BackColor = ph_hqs(n.Text).status("Morale Recovery")
+            reset_comd_nodes(n)
+        Next
+        node.BackColor = ph_hqs(node.Text).status("Morale Recovery")
 
+    End Sub
     Private Sub count_selected_units()
         select_count = 0
         For Each l As ListViewItem In undercommand.Items
+            If subject.title = l.Text And Tag = "Morale Recovery" And (l.BackColor = disruptedstatus Or l.BackColor = may_test Or BackColor = must_test) Then select_count = 1 : Exit Sub
             If l.BackColor = golden Then
                 select_count = select_count + 1
                 If InStr(eq_list(orbat(l.Text).equipment).special, "s") > 0 Then stabilised = True Else stabilised = False
@@ -162,21 +171,66 @@
                 If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = nostatus Else undercommand.FocusedItem.BackColor = golden
             End If
         ElseIf Tag = "Morale Recovery" Then
-            If subject.strength = 0 Then
-            Else
-                If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = subject.status("") Else undercommand.FocusedItem.BackColor = golden
+            If subject.strength = 0 Or subject.effective Then undercommand.SelectedItems.Clear() : Exit Sub
+            If (undercommand.FocusedItem.BackColor <> nostatus And undercommand.FocusedItem.BackColor <> golden) Or Not (o9.BackColor = golden And (undercommand.FocusedItem.BackColor = nostatus Or undercommand.FocusedItem.BackColor = golden)) Then
+                For Each l As ListViewItem In undercommand.Items
+                    l.BackColor = ph_units(l.Text).status(Tag)
+                Next
             End If
+            If undercommand.FocusedItem.BackColor <> nostatus And undercommand.FocusedItem.BackColor <> golden Then
+                If o9.BackColor = golden Then orders_changed(o9, Nothing)
+                If opp_fire.Text = "" Or opp_fire.Text <> subject.title Then
+                    opp_fire.Text = subject.title
+                    set_morale_factors(True)
+                Else
+                    opp_fire.Text = ""
+                    set_morale_factors(False)
+                End If
+                If undercommand.FocusedItem.BackColor = may_test Then
+                    For i As Integer = 2 To 6
+                        If Val(Mid(subject.msg, i, 1)) = 1 Then
+                            Select Case i
+                                Case 2, 4
+                                    orders_changed(o3, Nothing)
+                                Case 3
+                                    If o2.BackColor <> golden Then orders_changed(o2, Nothing)
+                                Case 5
+                                    orders_changed(4, Nothing)
+                                Case 6
+                                    orders_changed(o5, Nothing)
+                            End Select
+                        End If
+                    Next
+                End If
 
+            Else
+                If undercommand.FocusedItem.BackColor = nostatus Then
+                    undercommand.FocusedItem.BackColor = golden
+                    If o9.BackColor <> golden Then set_morale_factors(True)
+                ElseIf undercommand.FocusedItem.BackColor = golden Then
+                    undercommand.FocusedItem.BackColor = nostatus
+                    If select_count = 1 And o9.BackColor = golden Then orders_changed(o9, Nothing)
+                Else
+                End If
+                opp_fire.Text = ""
+                count_selected_units()
+                set_actions()
+            End If
         Else
         End If
-        count_selected_units()
-
-        If select_count = 0 Then
-            cover.Text = "None"
-            cover.BackColor = defa
-        End If
-        set_actions()
+        'set_actions()
         undercommand.SelectedItems.Clear()
+    End Sub
+    Private Sub set_morale_factors(setting As Boolean)
+        tactical_actions.Enabled = setting
+        executeorders.Enabled = setting
+        If setting Then
+            For Each c As Control In tactical_actions.Controls
+                c.BackColor = defa
+            Next
+        End If
+
+
     End Sub
 
     Private Sub set_actions()
@@ -184,6 +238,7 @@
             If tactical_actions.Visible = True Then executeorders.Enabled = True
             opp_fire.Enabled = True
             unitcover.Enabled = True
+            executeorders.Enabled = IIf(Tag = "Morale Recovery" And o9.BackColor <> golden, False, True)
             tactical_actions.Enabled = True
             flight_strength.Enabled = True
             If Tag = "Movement" Then
@@ -217,7 +272,7 @@
     End Sub
 
     Public Sub options_for(ByVal purpose As String)
-        populate_command_structure(comdtree, ph, "Command")
+        If purpose <> "Morale Recovery" Then populate_command_structure(comdtree, ph, "Command") Else populate_command_structure(comdtree, ph, purpose)
         set_allocation(False)
 
         If purpose = "Movement" Then
@@ -240,7 +295,7 @@
             tactical_actions.Text = "Morale Factors"
             executeorders.Text = "Test Morale"
             unitcover.Visible = False
-            opp_fire.Visible = False
+            'opp_fire.Visible = False
             flight_strength.Visible = False
         ElseIf purpose = "Air Tasking" Or purpose = "Helarm Tasking" Then
             undercommand.MultiSelect = False
@@ -305,40 +360,72 @@
         End If
     End Sub
     Private Sub morale_tests()
-        For Each l As ListViewItem In undercommand.Items
-            mover = New cunit
-            mover = orbat(l.SubItems(0).Text)
-            If l.BackColor = golden Then
-                If o9.BackColor = golden Then
-                    mover.disrupted = True
-                    mover.disrupted_gt = True
-                Else
-                    Dim modifier As Integer = 0, r As String = ""
-                    For Each ctrl In Me.Controls
-                        If ctrl.name = "disrupted_friends" Then
-                            modifier = modifier + Val(Strings.Left(ctrl.text, 1))
-                        ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
-                            modifier = modifier + Val(ctrl.tag)
-                        Else
-                        End If
-                    Next
-                    r = test_morale(mover, modifier, IIf(mover.disrupted, True, False))
-                    With resultform_2
-                        .result.Text = r
-                        .ShowDialog()
+        If o9.BackColor = golden Then
+            For Each l As ListViewItem In undercommand.Items
+                If l.BackColor = golden Then
+                    With ph_units(l.Text)
+                        .disrupted = True
+                        .disrupted_gt = True
+                        .effective = True
                     End With
-                    l.SubItems(1).Text = mover.strength
-                    l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 3))
+                    l.BackColor = ph_units(l.Text).status("")
                 End If
-                l.BackColor = mover.status("")
+            Next
+            o9.BackColor = defa
+            Exit Sub
+        Else
+            Dim test_needed As Boolean = False, r As String = ""
+            'For Each l As ListViewItem In undercommand.Items
+            '    If l.BackColor = must_test Then
+            '        subject = ph_units(l.Text)
+            '        test_needed = True
+            '        Exit For
+            '    End If
+            'Next
+
+            If undercommand.FindItemWithText(subject.title).BackColor = may_test Then
+                test_needed = False
+                For i As Integer = 2 To 6
+                    If Val(Mid(subject.msg, i, 1)) = 1 Then
+                        If ((i = 2 Or i = 4) And o3.BackColor = golden) Or (i = 3 And o2.BackColor = golden) Or (i = 5 And o4.BackColor = golden) Or (i = 6 And o5.BackColor = golden) Then test_needed = True : Exit For
+                    End If
+                Next
+            ElseIf (subject.disrupted And Not subject.effective) Or undercommand.FindItemWithText(subject.title).BackColor = must_test Then
+                test_needed = True
             End If
-        Next
+            If test_needed Then
+                Dim modifier As Integer = 0
+                For Each ctrl In Me.Controls
+                    If ctrl.name = "disrupted_friends" Then
+                        modifier = modifier + Val(Strings.Left(ctrl.text, 1))
+                    ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
+                        modifier = modifier + Val(ctrl.tag)
+                    Else
+                    End If
+                Next
+                r = test_morale(subject, modifier, IIf(subject.disrupted, True, False))
+            Else
+                r = "No Morale Test Required"
+            End If
+            With resultform_2
+                .result.Text = r
+                .ShowDialog()
+            End With
+            subject.effective = True
+            opp_fire.Text = ""
+            If subject.strength = 0 Then
+                undercommand.FindItemWithText(subject.title).Remove()
+            Else
+                With undercommand.FindItemWithText(subject.title)
+                    .SubItems(1).Text = subject.strength
+                    .SubItems(2).Text = UCase(Strings.Left(subject.mode, 1))
+                    .BackColor = subject.status("Morale Recovery")
+                End With
+            End If
+        End If
         'If ca And spt Then conduct_assault()
         update_title(commander.title)
         reset_unit_options()
-        tactical_option = 0
-        cover_selected = False
-
     End Sub
     Private Sub command_orders()
         Dim comdcost As Integer = 0
@@ -822,21 +909,30 @@
 
         If Tag = "Morale Recovery" Then
             tac_opt_txt = ""
-            If sender.name = "o2" Then
-                change_disrupted_friends(sender)
-            ElseIf sender.BackColor = golden Then
-                sender.backcolor = defa
-            Else
-                sender.backcolor = golden
+            If sender.name = "o9" Or (sender.name <> "o9" And o9.BackColor = golden) Then
+                If sender.name = "o9" And o9.BackColor = defa Then
+                    For Each c As Control In tactical_actions.Controls
+                        c.BackColor = defa
+                        If c.Name = "o2" Then c.Text = "0 disrupted friends within 1000m"
+                    Next
+                    o9.BackColor = golden
+                    executeorders.Text = "Disperse Selected Units"
+                Else
+                    For Each l As ListViewItem In undercommand.Items
+                        l.BackColor = ph_units(l.Text).status(Tag)
+                    Next
+                    o9.BackColor = defa
+                    executeorders.Text = "Test Morale"
+                End If
             End If
             If sender.name <> "o9" Then
-                o9.BackColor = defa
-            Else
-                For Each c As Control In tactical_actions.Controls
-                    c.BackColor = defa
-                    If c.Name = "o2" Then c.Text = "0 disrupted friends within 1000m"
-                Next
-                o9.BackColor = golden
+                If sender.name = "o2" Then
+                    change_disrupted_friends(sender)
+                ElseIf sender.BackColor = golden Then
+                    sender.backcolor = defa
+                Else
+                    sender.backcolor = golden
+                End If
             End If
         ElseIf Tag = "Command" Then
             For Each c As Control In tactical_actions.Controls

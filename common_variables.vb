@@ -13,12 +13,12 @@
     Public p1_tree As Collection, p2_tree As Collection
     Public p1_cap As Integer, p2_cap As Integer, p1_sead As Integer, p2_sead As Integer
     Public ph_units As Collection, enemy As Collection, enemy_air As Collection, friend_air As Collection
-    Public smokefiredthisturn As Boolean
+    Public smokefiredthisturn As Boolean, nuclear_attack As Boolean, chemical_attack As Boolean
     Public qtypinned As Integer, qtyrepulsed As Integer, qtydestroyed As Integer
     Public topserial As Integer, oppfire As Boolean, result_option As String
     Public lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray, sel As Color = can_observe
     Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, emcon As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
-    Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen
+    Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen, must_test As Color = Color.Violet, may_test As Color = Color.Lavender, tested_and_disrupted As Color = Color.DarkRed
     Public opportunityfire As New unit_selection, airground As New unit_selection, groundair As New unit_selection
     Public night As Boolean, dawn As Integer, dusk As Integer, twilight As Boolean
     Public sys_dir As String, g_dir As String, d_dir As String

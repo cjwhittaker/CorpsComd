@@ -299,6 +299,7 @@ Partial Class movement
         Me.opp_fire.Name = "opp_fire"
         Me.opp_fire.Size = New System.Drawing.Size(297, 34)
         Me.opp_fire.TabIndex = 72
+        Me.opp_fire.Tag = "Liable for Opportunity Fire"
         Me.opp_fire.Text = "Liable for Opportunity Fire"
         Me.opp_fire.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
@@ -548,8 +549,8 @@ Partial Class movement
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.executeorders)
-        Me.Controls.Add(Me.arty_allocation)
         Me.Controls.Add(Me.movement_actions)
+        Me.Controls.Add(Me.arty_allocation)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "movement"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide

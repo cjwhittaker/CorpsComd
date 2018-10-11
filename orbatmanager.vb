@@ -158,6 +158,7 @@
             .quality = Val(quality.SelectedItem)
             .nation = orbatside
             .initial = Val(strength.Text)
+            .arty_int = Val(arty_rating.Text)
         End With
 
         For Each i In orbat
@@ -174,6 +175,7 @@
         comd.Enabled = True
         quality.SelectedItem = Trim(Str(u.quality))
         strength.Text = u.initial
+        arty_rating.Text = u.arty_int
         If mgt = "insert" Then
             comd.SelectedIndex = 6 - orbat(n.parent).comd + 1
         ElseIf u.parent = "root" Then
@@ -184,16 +186,20 @@
             strength.Enabled = False
             quality.Enabled = False
             equip.Enabled = False
+            arty_rating.Enabled = False
         ElseIf u.comd > 0 Or mgt = "insert" Then
             strength.Enabled = False
             equip.Text = "HQ"
+            If u.comd >= 2 Then arty_rating.Enabled = True
         ElseIf mgt = "reject" Then
             strength.Enabled = False
             equip.Text = "HQ"
+            arty_rating.Enabled = False
         ElseIf u.comd = 0 Then
             strength.Enabled = True
             equip.Enabled = False
             equip.Text = u.equipment
+            arty_rating.Enabled = False
         Else
         End If
     End Sub
@@ -204,6 +210,7 @@
             'equip.Enabled = True
             'equip.Text = u.equipment
         Else
+            arty_rating.Enabled = False
             strength.Enabled = False
             equip.Enabled = False
             equip.Text = "HQ"

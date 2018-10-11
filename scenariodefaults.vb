@@ -223,23 +223,22 @@
         If phase = 0 Then phase = phase + 1
         Do
             Select Case phase
-                Case 1 : determineinitiative()
+                'Case 1 : determineinitiative()
                 'Case 2 : smoke_barrage_phase(ph)
                 'Case 5 : deploy_air_missions()
                 'Case 6 : air_air_combat(ph, nph)
                 'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
-                Case 10 : indirect_fire_phase(ph, nph)
-                Case 13 : direct_fire_phase(ph, nph)
-                '    'player 1
-                Case 15 : command_and_control()
-                Case 16 : movement_phase()
-                '    'player 2
-                Case 17 : command_and_control()
-                Case 18 : movement_phase()
+                'Case 10 : indirect_fire_phase(ph, nph)
+                'Case 13 : direct_fire_phase(ph, nph)
+                ''    'player 1
+                'Case 15 : command_and_control()
+                'Case 16 : movement_phase()
+                ''    'player 2
+                'Case 17 : command_and_control()
+                'Case 18 : movement_phase()
                 Case 20 : morale_recovery()
                 Case 21 : end_sorties()
             End Select
-            'If ph <> initiative Then swap_phasing_player(True)
             If phase = 2 Or phase = 10 Or phase = 7 Or phase = 13 Or phase = 16 Or phase = 18 Then
                 For Each u As cunit In orbat
                     If u.comd = 0 And u.fires And u.fired <> gt Then u.fired = gt
@@ -255,15 +254,8 @@
             If phase = 17 Or phase = 18 Then
                 If first_player = ph Then swap_phasing_player(True)
             End If
-            'If phase = 2 Then phase = 17
-            'If phase = 18 Then phase = 20
-            'savedata(scenario)
-            'If phase = 3 Or phase = 6 Or phase = 14 Or phase = 17 Then
-            '    If MsgBox("Do you wish to quit the program", MsgBoxStyle.YesNo, "Quit Program") = MsgBoxResult.Yes Then Exit Sub
-            'End If
 
         Loop Until phase = 22
-        'Me.Visible = True
         If smokefiredthisturn Then MsgBox("Remove all smoke fired during the last tactical action phase before this one", vbOKOnly + vbInformation, "Remove Smoke")
         smokefiredthisturn = False
         gameturn.Text = gameturn.Text + 1

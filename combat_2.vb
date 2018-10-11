@@ -10,17 +10,17 @@
             If Mid(c.Name, 3, 1) = "_" Then af = True Else af = False
             'If groundfire Then
             If gf And TypeOf c Is Label Then
-                    With c
-                        .Enabled = groundfire
-                        .Visible = groundfire
-                    End With
-                ElseIf af And TypeOf c Is Label Then
-                    With c
-                        .Enabled = Not groundfire
-                        .Visible = Not groundfire
-                    End With
-                Else
-                End If
+                With c
+                    .Enabled = groundfire
+                    .Visible = groundfire
+                End With
+            ElseIf af And TypeOf c Is Label Then
+                With c
+                    .Enabled = Not groundfire
+                    .Visible = Not groundfire
+                End With
+            Else
+            End If
             'Else
             'End If
             If c.BackColor = golden Then c.BackColor = defa : c.Text = c.Tag
@@ -152,9 +152,9 @@
             Else
                 sender.text = target.w2
                 target.secondary = sender.text
-                End If
             End If
-            eligible_to_fire(sender)
+        End If
+        eligible_to_fire(sender)
 
     End Sub
 
@@ -184,7 +184,7 @@
         Dim cover As Object
         If sender.name = "t_cover" Then If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
         If sender.name = "f_cover" Then If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
-        If sender.name= "f_cover" Then cover = f_cover Else cover = t_cover
+        If sender.name = "f_cover" Then cover = f_cover Else cover = t_cover
         If cover.Text = "None" Then
             cover.Text = "+1" : cover.BackColor = golden
         ElseIf cover.Text = "+1" Then
@@ -673,7 +673,7 @@
     End Sub
 
     Private Sub return_fire_available()
-        If (Tag <> "Direct Fire" And Tag<>"Air to Air") Or firer.firers = 0 Then
+        If (Tag <> "Direct Fire" And Tag <> "Air to Air") Or firer.firers = 0 Then
             return_fire.BackColor = defa
             Exit Sub
         End If
@@ -848,7 +848,7 @@
             rge = Val(visrange.Text)
             observed = spotting(rge, observer, target)
             If Not observed And target.has_fired Then identified = True
-            If target.eligibleCB And firer.cb Then identified = True
+            If target.eligibleCB And firer.cb Then identified = True : observed = False
             If observed Then
                 visrange.ForeColor = Color.Green
             ElseIf identified And Not observed Then

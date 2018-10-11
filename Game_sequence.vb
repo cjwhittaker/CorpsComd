@@ -369,7 +369,7 @@
                         If p1 = ac.nation Then p1_air.Remove(ac.title) Else p2_air.Remove(ac.title)
                     End If
                 Else
-                    End If
+                End If
             Next
             For i As Integer = friend_air.Count To 1 Step -1
                 If friend_air(i).sorties = -1 Then
@@ -389,11 +389,19 @@
 
     Public Sub morale_recovery()
         For i As Integer = 1 To 2
+            For Each u As cunit In ph_units
+                u.morale_checks()
+            Next
+
             With movement
                 .Text = "Morale Recovery Phase for " + ph + " - Game Turn " + Str(gt)
+                .opp_fire.Text = ""
+                .opp_fire.Visible = True
                 .options_for("Morale Recovery")
                 .Tag = "Morale Recovery"
                 .ShowDialog()
+                .opp_fire.Text = .opp_fire.Tag
+                .opp_fire.Visible = False
             End With
             swap_phasing_player(True)
         Next

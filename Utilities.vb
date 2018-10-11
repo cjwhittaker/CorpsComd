@@ -73,12 +73,12 @@
         End If
 
     End Function
+    Public Sub morale_checks_needed(c As Collection)
+
+
+    End Sub
     Public Sub populate_lists(ByVal l As ListView, ByVal c As Collection, ByVal purpose As String, ByVal hq As String)
         Dim listitem As ListViewItem, j As Integer = 0, info As String = ""
-        'For Each i As ListViewItem In l.Items
-        '    i.Remove()
-        'Next
-        ' l.Items.Clear()
         l.BackColor = nostatus
 
         If purpose = "Opportunity Fire" And Not hq = "Air" Then
@@ -96,7 +96,6 @@
                 listitem = New ListViewItem
                 listitem.Text = u.title
                 If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
-                    'listitem.SubItems.Add(u.comdpts)
                 ElseIf l.Name = "undercommand" Then
                     If purpose = "Movement" Or purpose = "Command" Or purpose = "Morale Recovery" Then
                         info = UCase(Strings.Left(u.mode, 1))
@@ -107,7 +106,6 @@
                     listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
                 ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
-                    'listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
                     If purpose = "Ground Targets" And u.indirect And u.eligibleCB Then
@@ -135,22 +133,6 @@
                 j = j + 1
             End If
         Next
-        'For Each li As ListViewItem In l.Items
-        '    If orbat.Contains(li.Text) Then
-        '        If purpose = "Observer" Or purpose = "Artillery Support" Then
-        '            'If orbat(li.Text).rockets = 0 Then
-        '            '    li.BackColor = in_ds
-        '            'ElseIf orbat(li.Text).rockets = 1 Then
-        '            '    li.BackColor = can_observe
-        '            'Else
-        '            '    li.BackColor = not_on_net
-        '            'End If
-        '        ElseIf InStr("DemoralisationMorale RecoveryMovementArty Tasking", purpose) > 0 Then
-        '            li.BackColor = orbat(li.Text).status("")
-        '        Else
-        '        End If
-        '    End If
-        'Next
     End Sub
 
     Public Function divisional_comd(ByVal p As cunit)
@@ -363,7 +345,9 @@
                             If purpose = "Orbat" And orbat(x).Inf Then If orbat(x).dismounted Then subNode.ToolTipText = "Dismounted" Else subNode.ToolTipText = "Embused"
                         End If
                     End If
-                    If (purpose = "Orbat" And orbat(x).comd > 0) Or (purpose = "Command" And orbat(x).comd > 1) Then CreateNodes(side, subNode, orbat(x).title, purpose)
+                    If (purpose = "Orbat" And orbat(x).comd > 0) Or (purpose <> "Orbat" And orbat(x).comd > 1) Then
+                        CreateNodes(side, subNode, orbat(x).title, purpose)
+                    End If
                 End If
             End If
         Next

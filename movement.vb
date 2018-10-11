@@ -505,7 +505,7 @@
         subject.strength = subject.strength - ac.strength
         undercommand.FindItemWithText(subject.title).SubItems(1).Text = subject.strength
         orbat.Add(ac, ac.title)
-        If ac.nation = p1 Then p1_air.Add(ac, ac.title) Else p2_air.Add(ac, ac.title)
+        If UCase(ac.nation) = UCase(p1) Then p1_air.Add(ac, ac.title) Else p2_air.Add(ac, ac.title)
         Dim l As New ListViewItem
         With l
             .Text = ac.title

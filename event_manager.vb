@@ -31,7 +31,7 @@
         End If
         side_options.Items.Clear()
         For Each u As cunit In orbat
-            If u.nation = nation And u.comd > 0 Then
+            If UCase(u.nation) = UCase(nation) And u.comd > 0 Then
                 Me.side_options.Items.Add(u.title)
             End If
         Next
@@ -194,7 +194,7 @@
     Private Sub link_event_to_unit(t As String)
         If t <> "" Then t = Replace(t, ":00", "")
         For Each u As cunit In orbat
-            If u.nation = nation And ((u.parent = event_list(selected_row).unit And u.comd = 0) Or u.title = event_list(selected_row).unit) Then
+            If UCase(u.nation) = UCase(nation) And ((u.parent = event_list(selected_row).unit And u.comd = 0) Or u.title = event_list(selected_row).unit) Then
                 u.arrives = Val(t)
             End If
         Next

@@ -53,8 +53,8 @@
     End Sub
     Public Sub save_orbat()
         If IsNothing(orbat) Then Exit Sub
-        order_command_structure(scenariodefaults.player1.Text)
-        order_command_structure(scenariodefaults.player2.Text)
+        order_command_structure(p1)
+        order_command_structure(p2)
         file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".orb"), False)
         'Dim y As String = "", n As String = ""
         'For Each p As System.Reflection.PropertyInfo In properties
@@ -94,7 +94,7 @@
         End If
         For Each u In orbat
             x = x + 1
-            If u.nation = side And u.parent = "root" Then Exit For
+            If UCase(u.nation) = UCase(side) And u.parent = "root" Then Exit For
         Next
         Topunit = u.title
         create_structure(Topunit)
@@ -102,11 +102,12 @@
     End Sub
 
     Public Sub create_structure(ByVal currentcomd As String)
-        If orbat(currentcomd).nation = scenariodefaults.player1.Text Then
+        If UCase(orbat(currentcomd).nation) = UCase(p1) Then
             p1_tree.Add(orbat(currentcomd), orbat(currentcomd).title)
         Else
             p2_tree.Add(orbat(currentcomd), orbat(currentcomd).title)
         End If
+        If orbat(currentcomd).comd = 0 Then Exit Sub
 
         For x As Integer = 1 To orbat.Count
             If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
@@ -189,7 +190,6 @@
     Public Sub load_subunits()
         If Not My.Computer.FileSystem.FileExists(d_dir + "\" + "subunits.dat") Then Exit Sub
         TOE = New Collection
-        'unittypes = New Collection
         Dim pnames As New Collection, subunit As csubunit
         Dim myType As Type = GetType(csubunit), pname As String = "", pval As String = "", i As Integer
         Dim p As System.Reflection.PropertyInfo
@@ -205,9 +205,9 @@
             subunit = New csubunit
             Try
                 currentRow = MyReader.ReadFields()
-                i = 1
+                i = 0
                 For Each cfield As String In currentRow
-                    p = myType.GetProperty(pnames(i))
+                    p = myType.GetProperty(pnames(i + 1))
                     'data changes
                     If cfield = "" Then
 
@@ -227,15 +227,15 @@
                 Next
                 'If TOE.Contains(subunit.title) Then TOE.Remove(subunit.title)
                 TOE.Add(subunit)
-                If Not unittypes.Contains(subunit.title) Then
-                    unittype = New cunittype
-                    With unittype
-                        .nation = subunit.nation
-                        .title = subunit.title
-                        .comd = subunit.comd
-                    End With
-                    unittypes.Add(unittype, subunit.title)
-                End If
+                'If Not TOE.Contains(subunit.title) Then
+                '    subunit = New csubunit
+                '    With subunit
+                '        .nation = subunit.nation
+                '        .title = subunit.title
+                '        .comd = subunit.comd
+                '    End With
+                '    TOE.Add(subunit, subunit.title)
+                'End If
             Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
                 MsgBox("Line " & ex.Message &
                 "is not valid and will be skipped.")

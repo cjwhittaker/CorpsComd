@@ -347,7 +347,7 @@
         pnames = New Collection
         load_orbat_properties()
         load_equipment()
-        unittypes = New Collection
+        TOE = New Collection
         load_subunits()
         airground = New unit_selection
         airground.Name = "airground"

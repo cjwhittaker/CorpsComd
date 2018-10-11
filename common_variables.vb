@@ -2,7 +2,7 @@
     Public orbat As Collection, u As cunit, phase As Integer, playerphase As Integer, gamedate As Date, gameturn As String
     Public eq_list As Collection, event_list As Collection, pnames As Collection, pname As String
     Public TOE As Collection, subunit As csubunit
-    Public unittypes As Collection, unittype As cunittype
+    'Public unittypes As Collection, unittype As cunittype
     Public scenario As String, gt As Integer, dice As Integer
     Public ph As String, nph As String, initiative As String, p1 As String, p2 As String, first_player As String
     Public ph_hqs As Collection, recovered As Collection

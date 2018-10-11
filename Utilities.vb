@@ -164,7 +164,7 @@
                 Exit Function
             End If
         Next
-        orbat(u.parent).primary = "Ground Units"
+        'orbat(u.parent).primary = "Ground Units"
     End Function
     Public Sub ewsupport(ByVal candidates As Collection, ByVal phase As String)
         Dim ewac As Boolean = False
@@ -255,7 +255,7 @@
         p1 = scenariodefaults.player1.Text
         p2 = scenariodefaults.player2.Text
         For Each u As cunit In orbat
-            If u.nation = p1 Then
+            If UCase(u.nation) = UCase(p1) Then
                 p1_orbat.Add(u, u.title)
                 If u.comd > 0 Then
                     p1_hqs.Add(u, u.title)
@@ -322,7 +322,7 @@
     Public Sub populate_command_structure(tree As TreeView, ByVal side As String, purpose As String)
         Dim TopNode As TreeNode, u As New cunit, x As Integer = 0
         For Each u In orbat
-            If u.root And u.nation = side Then Exit For
+            If u.root And UCase(u.nation) = UCase(side) Then Exit For
         Next
         tree.Nodes.Clear()
         TopNode = tree.Nodes.Add(u.title, u.title)
@@ -336,7 +336,7 @@
         Dim subNode As New TreeNode
         'If currentcomd = "ASOC" Then Stop
         For x As Integer = 1 To orbat.Count
-            If orbat(x).nation = side Then
+            If UCase(orbat(x).nation) = UCase(side) Then
                 If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
                     If (orbat(x).comd = 0 And purpose = "Orbat") Or orbat(x).comd > 0 Then
                         subNode = ParentNode.Nodes.Add(orbat(x).Title, orbat(x).Title)
@@ -378,7 +378,7 @@
                             .nb.Visible = False
                         End With
                         For Each u As cunit In orbat
-                            If u.nation = e.side And (u.title = e.unit Or u.parent = e.unit) Then
+                            If UCase(u.nation) = UCase(e.side) And (u.title = e.unit Or u.parent = e.unit) Then
                                 u.arrives = 0
                                 If u.comd = 0 Then
                                     If Not u.conc Then u.mode = travel

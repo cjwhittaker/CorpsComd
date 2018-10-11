@@ -366,7 +366,7 @@
                         unit_selection.units.Items.Add(l)
                     Else
                         orbat.Remove(ac.title)
-                        If p1 = ac.nation Then p1_air.Remove(ac.title) Else p2_air.Remove(ac.title)
+                        If UCase(p1) = UCase(ac.nation) Then p1_air.Remove(ac.title) Else p2_air.Remove(ac.title)
                     End If
                 Else
                 End If
@@ -374,10 +374,10 @@
             For i As Integer = friend_air.Count To 1 Step -1
                 If friend_air(i).sorties = -1 Then
                     orbat.Remove(friend_air(i).title)
-                    If p1 = friend_air(i).nation Then p1_air.Remove(friend_air(i).title) Else p2_air.Remove(friend_air(i).title)
+                    If UCase(p1) = UCase(friend_air(i).nation) Then p1_air.Remove(friend_air(i).title) Else p2_air.Remove(friend_air(i).title)
                     'friend_air.Remove(i)
                     If i > friend_air.Count Then i = friend_air.Count
-                End If
+                    End If
             Next
             swap_phasing_player(True)
         Next

@@ -59,7 +59,11 @@
         Next
     End Sub
     Private Sub group_edit()
-        no = check_next_to_edit(comdtree.Nodes(0))
+        Dim no As TreeNode
+        'Do
+        no = next_edit(comdtree.Nodes(0))
+        'Loop Until no Is Nothing
+        'no = check_next_to_edit(comdtree.Nodes(0))
         If Not no Is Nothing Then
             no.BackColor = nostatus
             comdtree.Enabled = False
@@ -71,8 +75,27 @@
             comdtree.Enabled = True
             selectedunit.Enabled = False
             purpose.Text = ""
+
         End If
     End Sub
+    Private Function next_edit(currentcomd As TreeNode)
+        If currentcomd.BackColor = golden Then
+            next_edit = currentcomd
+            Exit Function
+        End If
+        For Each no As TreeNode In currentcomd.Nodes
+            If Not no.BackColor = golden Then
+                currentcomd = next_edit(no)
+                If Not currentcomd Is Nothing Then
+                    If currentcomd.BackColor = golden Then next_edit = currentcomd : Exit Function
+                End If
+            Else
+                next_edit = no
+                Exit Function
+            End If
+        Next
+    End Function
+
 
     Private Function check_next_to_edit(ByVal x As TreeNode)
         check_next_to_edit = Nothing
@@ -335,8 +358,10 @@
             If InStr(x.title, "/" + u.title) > 0 Then Exit Sub
         Next
         unittype.Items.Clear()
-        For Each t As cunittype In unittypes
-            If t.nation = u.nation And t.comd = u.comd Then unittype.Items.Add(t.title)
+        For Each t As csubunit In TOE
+            If UCase(t.nation) = UCase(u.nation) And t.comd = u.comd And Not unittype.Items.Contains(t.title) Then
+                unittype.Items.Add(t.title)
+            End If
         Next
         If unittype.Items.Count > 0 Then
             select_unit_template.Enabled = True
@@ -358,7 +383,7 @@
 
         For Each u In orbat
             x = x + 1
-            If u.nation = orbatside And u.parent = "root" Then Exit For
+            If UCase(u.nation) = UCase(orbatside) And u.parent = "root" Then Exit For
         Next
         Topunit = u.title
         printunit(Topunit, 0)
@@ -573,10 +598,11 @@
             If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
                 If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
                 passengers = False
-                Try
-                    If eq_list(s.equipment).troopcarrier Then passengers = True
-                Catch ex As Exception
-                End Try
+                If eq_list(s.equipment).role = "MICV" Or eq_list(s.equipment).role = "APC" Then
+                    passengers = True
+                Else
+                    passengers = False
+                End If
             End If
         Next
         For Each s As csubunit In TOE
@@ -654,6 +680,7 @@
                         .equipment = IIf(s.unit_comd = 0, s.equipment, "")
                         .quality = Val(sub_unit_quality.SelectedItem)
                         .parent = orbattitle
+                        .role = "|" + eq_list(n.equipment).role + "|"
                     End With
 
                     Dim j As Integer = 0

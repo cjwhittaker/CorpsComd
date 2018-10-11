@@ -115,7 +115,6 @@
     <Compile Include="common_variables.vb" />
     <Compile Include="cunit.vb" />
     <Compile Include="csubunit.vb" />
-    <Compile Include="cunittype.vb" />
     <Compile Include="event_manager.designer.vb">
       <DependentUpon>event_manager.vb</DependentUpon>
     </Compile>

@@ -1,5 +1,5 @@
 ﻿Public Class event_manager
-    Dim selected_row As Integer = 0, new_e As Boolean, nation As String
+    Dim selected_event As String = "", new_e As Boolean, nation As String, sel_row As Integer
     Private Sub event_time_inc_ValueChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles event_time_inc.ValueChanged
         Dim hrs As Integer
         hrs = (1 * event_time_inc.Value)
@@ -52,7 +52,7 @@
         event_table.Items.Clear()
         If event_list Is Nothing Then Exit Sub
         For Each v As cevents In event_list
-            If v.side = nation Then
+            If UCase(v.side) = UCase(nation) Then
                 Dim lv As ListViewItem
                 lv = New ListViewItem
                 With lv
@@ -63,6 +63,7 @@
                     .SubItems.Add(IIf(v.dec, "Yes", "No"))
                     .SubItems.Add(v.time + ":00")
                     .SubItems.Add(IIf(v.tested, "Yes", "No"))
+                    .SubItems.Add(v.id)
                 End With
                 event_table.Items.Add(lv)
             End If
@@ -89,8 +90,8 @@
     End Sub
 
     Private Sub save_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles save_event.Click
-        If selected_row <> 0 Then
-            With event_list(selected_row)
+        If selected_event <> "" Then
+            With event_list(selected_event)
                 .side = nation
                 .unit = side_options.Text
                 .time = IIf(LCase(detail.Text) = "off table", "25", Replace(event_time.Text, ":00", ""))
@@ -101,8 +102,8 @@
                 .dec = IIf(dec_dice.Text = "Yes", True, False)
             End With
             populate_events()
-            link_event_to_unit(event_list(selected_row).time)
-            selected_row = 0
+            link_event_to_unit(event_list(selected_event).unit, event_list(selected_event).time)
+            selected_event = ""
         End If
         reset_fields(False)
         enable_edits(False)
@@ -110,12 +111,12 @@
     End Sub
 
     Private Sub discard_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles discard_event.Click
-        If selected_row <> 0 Then
+        If selected_event <> "" Then
             If new_e Then
-                event_list.Remove(selected_row)
+                event_list.Remove(selected_event)
                 new_e = False
             End If
-            selected_row = 0
+            selected_event = ""
         End If
         reset_fields(False)
         enable_edits(False)
@@ -123,9 +124,9 @@
     End Sub
 
     Private Sub edit_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles edit_event.Click
-        If selected_row <> 0 And event_list.Count <> 0 Then
+        If selected_event <> "" And event_list.Count <> 0 Then
             Dim v As New cevents
-            v = event_list(selected_row)
+            v = event_list(selected_event)
             reset_fields(True)
             With Me
                 .side_options.Text = v.unit
@@ -146,10 +147,10 @@
     Private Sub new_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles new_event.Click
         Dim v As cevents
         v = New cevents
-        'v.reset()
+        v.create_id()
         reset_fields(True)
-        event_list.Add(v)
-        selected_row = event_list.Count
+        event_list.Add(v, v.id)
+        selected_event = v.id
         enable_edits(True)
         dec_dice.Enabled = False
         dice_score.Enabled = False
@@ -166,19 +167,19 @@
 
     Private Sub delete_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles delete_event.Click
 
-        If selected_row <> 0 Then
-            link_event_to_unit("")
-            event_list.Remove(selected_row)
-            event_table.Items(selected_row - 1).Remove()
-            selected_row = 0
+        If selected_event <> "" Then
+            link_event_to_unit(event_list(selected_event).unit, 0)
+            event_list.Remove(selected_event)
+            event_table.Items(sel_row).Remove()
+            selected_event = ""
         End If
     End Sub
 
-
     Private Sub event_table_Selection(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles event_table.Click
-        If event_list.Count = 0 Then selected_row = 0 : Exit Sub
-        selected_row = event_table.FocusedItem.Index + 1
-        Dim x As Integer = selected_row
+        If event_list.Count = 0 Then selected_event = 0 : Exit Sub
+        selected_event = event_table.FocusedItem.SubItems(7).Text
+        sel_row = event_table.FocusedItem.Index
+        ' Dim x As Integer = selected_event
         'reset_fields(False)
         'With Me
         '    .side_options.SelectedItem = event_list(x).side
@@ -191,12 +192,4 @@
 
     End Sub
 
-    Private Sub link_event_to_unit(t As String)
-        If t <> "" Then t = Replace(t, ":00", "")
-        For Each u As cunit In orbat
-            If UCase(u.nation) = UCase(nation) And ((u.parent = event_list(selected_row).unit And u.comd = 0) Or u.title = event_list(selected_row).unit) Then
-                u.arrives = Val(t)
-            End If
-        Next
-    End Sub
 End Class

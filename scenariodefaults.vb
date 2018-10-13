@@ -223,19 +223,19 @@
         If phase = 0 Then phase = phase + 1
         Do
             Select Case phase
-                'Case 1 : determineinitiative()
-                'Case 2 : smoke_barrage_phase(ph)
-                'Case 5 : deploy_air_missions()
-                'Case 6 : air_air_combat(ph, nph)
-                'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
-                'Case 10 : indirect_fire_phase(ph, nph)
-                'Case 13 : direct_fire_phase(ph, nph)
-                ''    'player 1
-                'Case 15 : command_and_control()
-                'Case 16 : movement_phase()
-                ''    'player 2
-                'Case 17 : command_and_control()
-                'Case 18 : movement_phase()
+                Case 1 : determineinitiative()
+                Case 2 : smoke_barrage_phase(ph)
+                Case 5 : deploy_air_missions()
+                Case 6 : air_air_combat(ph, nph)
+                Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
+                Case 10 : indirect_fire_phase(ph, nph)
+                Case 13 : direct_fire_phase(ph, nph)
+                '    'player 1
+                Case 15 : command_and_control()
+                Case 16 : movement_phase()
+                '    'player 2
+                Case 17 : command_and_control()
+                Case 18 : movement_phase()
                 Case 20 : morale_recovery()
                 Case 21 : end_sorties()
             End Select
@@ -244,6 +244,7 @@
                     If u.comd = 0 And u.fires And u.fired <> gt Then u.fired = gt
                 Next
             End If
+            savedata(scenario)
             phase = phase + 1
             If ph <> initiative And phase <> 15 And phase <> 17 Then
                 swap_phasing_player(True)
@@ -269,7 +270,7 @@
 
     End Sub
 
-    Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs)
+    Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         For Each u As cunit In orbat
             If u.parent = "115 MRR" And u.comd = 0 Then
                 If u.indirect Then u.eligibleCB = True
@@ -349,12 +350,6 @@
         load_equipment()
         TOE = New Collection
         load_subunits()
-        airground = New unit_selection
-        airground.Name = "airground"
-        airground.Tag = "Air Ground"
-        groundair = New unit_selection
-        groundair.Name = "groundair"
-        groundair.Tag = "Air Defence"
 
     End Sub
 End Class

@@ -23,7 +23,7 @@
         test_result.Visible = True
         get_result.Enabled = False
         ok_button.Visible = True
-
+        log_entry("Game Turn" + Str(gt) + " " + scenariodefaults.Current_time.Text + " Immediate Morale Test for " + tester.title + " " + Replace(test_result.Text, vbNewLine, " ",))
     End Sub
 
     Private Sub ok_button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ok_button.Click

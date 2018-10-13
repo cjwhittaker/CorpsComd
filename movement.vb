@@ -88,6 +88,7 @@
         'mark_ooc(comdtree.Nodes)
         commander = orbat(e.Node.Text)
         reset_comd_nodes(comdtree.Nodes(0))
+
         undercommand.Items.Clear()
         comdtree.HideSelection = True
         If Tag = "Movement" And commander.comdpts = 0 Then
@@ -98,28 +99,28 @@
 
         Me.Focus()
         update_title(commander.title)
-        populate_lists(undercommand, ph_units, Tag, commander.title)
-        If Tag = "Command" Then
+        populate_lists(undercommand, ph_units, IIf(InStr(Tag, "Command") > 0, "Command", Tag), commander.title)
+        If InStr(Tag, "Command") > 0 Then
             If air_hq(commander.title) Then
-                populate_lists(undercommand, friend_air, Tag, commander.title)
+                populate_lists(undercommand, friend_air, "Command", commander.title)
                 undercommand.Columns(3).Text = "Msn"
             Else
                 undercommand.Columns(3).Text = "Cover"
             End If
             If arty_allocation.Visible Then arty_allocation.Visible = False
         ElseIf Tag = "Movement" Then
-            populate_lists(undercommand, friend_air, Tag, commander.title)
-        Else
-        End If
+                populate_lists(undercommand, friend_air, Tag, commander.title)
+            Else
+            End If
         k = -1
         reset_unit_options()
     End Sub
     Private Sub reset_comd_nodes(node As TreeNode)
         For Each n As TreeNode In node.Nodes
-            n.BackColor = ph_hqs(n.Text).status("Morale Recovery")
+            n.BackColor = ph_hqs(n.Text).status(Tag)
             reset_comd_nodes(n)
         Next
-        node.BackColor = ph_hqs(node.Text).status("Morale Recovery")
+        node.BackColor = ph_hqs(node.Text).status(Tag)
 
     End Sub
     Private Sub count_selected_units()
@@ -150,7 +151,7 @@
         If Tag = "Movement" Then
             If Tag = "Movement" Then commander.comdpts = 0
             If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = nostatus Else undercommand.FocusedItem.BackColor = golden
-        ElseIf Tag = "Command" And subject.aircraft Then
+        ElseIf instr(Tag, "Command") > 0 And subject.aircraft Then
             If undercommand.FocusedItem.BackColor <> golden And select_count = 1 Then
                 For Each l As ListViewItem In undercommand.Items
                     l.BackColor = friend_air(l.Text).status(Tag)
@@ -165,7 +166,7 @@
             For Each c As RadioButton In flight_strength.Controls
                 If c.Checked Then c.Checked = False
             Next
-        ElseIf Tag = "Command" Then
+        ElseIf instr(Tag, "Command") > 0 Then
             If Not subject.validunit("Select Unit", subject.parent) Then
             Else
                 If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = nostatus Else undercommand.FocusedItem.BackColor = golden
@@ -218,7 +219,11 @@
             End If
         Else
         End If
-        'set_actions()
+        If Not Tag = "Morale Recovery" Then
+            opp_fire.Text = ""
+            count_selected_units()
+            set_actions()
+        End If
         undercommand.SelectedItems.Clear()
     End Sub
     Private Sub set_morale_factors(setting As Boolean)
@@ -306,18 +311,19 @@
             opp_fire.Visible = False
             flight_strength.Visible = True
             flight_strength.Enabled = True
-        ElseIf purpose = "Command" Then
-            form_function.Text = "Command Orders"
+        ElseIf purpose = "Command" Or purpose = "Initial Command" Then
+            form_function.Text = IIf(purpose = "Command", "Command Orders", "Pre-Game Initial Orders")
             movement_actions.Visible = True
             arty_allocation.Visible = False
             form_function.Tag = form_function.Text
-            form_function.Text = "Command Tasks"
-            load_orders("Command")
+            'form_function.Text = "Command Tasks"
+            load_orders(purpose)
             tactical_actions.Text = "Commands"
             executeorders.Text = "Execute Commands"
             flight_strength.Visible = False
             opp_fire.Visible = False
             unitcover.Visible = False
+            oppfire = False
         Else
 
         End If
@@ -352,10 +358,12 @@
             movement_orders()
         ElseIf Tag = "Morale Recovery" Then
             morale_tests
-        ElseIf Tag = "Command" And (tactical_actions.text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking") Then
+        ElseIf instr(Tag, "Command") > 0 And (tactical_actions.text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking") Then
             air_tasks()
         ElseIf Tag = "Command" Then
             command_orders()
+        ElseIf Tag = "Initial Command" Then
+            initial_orders
         Else
         End If
     End Sub
@@ -374,15 +382,7 @@
             o9.BackColor = defa
             Exit Sub
         Else
-            Dim test_needed As Boolean = False, r As String = ""
-            'For Each l As ListViewItem In undercommand.Items
-            '    If l.BackColor = must_test Then
-            '        subject = ph_units(l.Text)
-            '        test_needed = True
-            '        Exit For
-            '    End If
-            'Next
-
+            Dim test_needed As Boolean = False, r As String = "Morale Test Results" + vbNewLine + subject.title + vbNewLine
             If undercommand.FindItemWithText(subject.title).BackColor = may_test Then
                 test_needed = False
                 For i As Integer = 2 To 6
@@ -403,10 +403,11 @@
                     Else
                     End If
                 Next
-                r = test_morale(subject, modifier, IIf(subject.disrupted, True, False))
+                r = r + test_morale(subject, modifier, IIf(subject.disrupted, True, False))
             Else
-                r = "No Morale Test Required"
+                r = r + "No Morale Test Required"
             End If
+            r = r
             With resultform_2
                 .result.Text = r
                 .ShowDialog()
@@ -453,16 +454,75 @@
                         'If Not mover.indirect Then Exit Select
                         set_allocation(True)
                     Case 6
-                        For Each l As ListViewItem In undercommand.Items
-                            l.BackColor = defa
-                            If l.BackColor = golden And orbat(l.Text).radar Then
-                                orbat(l.Text).eligiblecb = True
-                                orbat(l.Text).status(Tag)
-                            End If
-                        Next
+                        break_emcon()
+                    Case 8
+                        off_table(True)
+
+
+                End Select
+            End If
+        Next
+
+    End Sub
+    Private Sub break_emcon()
+        For Each l As ListViewItem In undercommand.Items
+            If l.BackColor = golden And orbat(l.Text).radar Then
+                orbat(l.Text).eligiblecb = True
+                orbat(l.Text).status(Tag)
+            End If
+            l.BackColor = defa
+        Next
+    End Sub
+    Private Sub off_table(on_table As Boolean)
+        If on_table And Not (gt = 1 And phase = 0) Then
+            Dim v As New cevents
+            v.create_id()
+            With v
+                .side = subject.nation
+                .unit = commander.title
+                .time = ":00"
+                .text = commander.title + " follows new order and arrives on table"
+                .die = "None"
+                ' .score = IIf(.die = "D6" And .score > 6, 6, Val(dice_score.Text))
+                .score = 0
+                .dec = False
+            End With
+            link_event_to_unit(commander.title, v.time)
+        ElseIf on_table Then
+            link_event_to_unit(commander.title, Str(Hour(DateAdd(DateInterval.Hour, 1, gamedate))))
+        ElseIf Not on_table Then
+            link_event_to_unit(commander.title, "25")
+        Else
+        End If
+        For Each l As ListViewItem In undercommand.Items
+            l.BackColor = defa
+        Next
+    End Sub
+
+    Private Sub initial_orders()
+        'Dim comdcost As Integer = 0
+        For Each a As ListViewItem In undercommand.Items
+            mover = New cunit
+            mover = orbat(a.Text)
+            subject = mover
+            If a.BackColor = golden Then
+                tactical_option = tac
+                Select Case tac
+
+                    Case 0, 1, 2
+                        change_mode_action(a)
+                    Case 3, 5
+                        'Artillery Missions and observer
+                        'If Not mover.indirect Then Exit Select
+                        set_allocation(True)
+                    Case 6
+                        break_emcon()
                     Case 7
-
-
+                        dismount_action(a)
+                    Case 8
+                        embus_action(a)
+                    Case 9
+                        off_table(False)
                 End Select
             End If
         Next
@@ -476,7 +536,13 @@
     End Sub
     Private Sub end_air_tasking(sender As Object, e As EventArgs) Handles o9.Click
         If sender.text <> "Return to Command" Then Exit Sub
-        options_for("Command")
+        If Tag = "Command" Then
+            options_for("Command")
+        ElseIf Tag = "Initial Command" Then
+            options_for("Initial Command")
+        Else
+        End If
+
     End Sub
 
     Private Sub air_tasks()
@@ -565,56 +631,14 @@
                             Case 3
                                 'dismount
                                 If Not mover.embussed Or mover.debussed_gt Or mover.dismounted Then Exit Select
-                                If oppfire Then conduct_fire(tactical_option)
-                                Dim listitem As New ListViewItem, nu As New cunit
-                                nu = orbat(mover.carrying)
-                                mover.debus()
-                                l.SubItems(3).Text = Replace(l.SubItems(3).Text, "*", "")
-                                With listitem
-                                    .Text = nu.title
-                                    .SubItems.Add(nu.strength)
-                                    .SubItems.Add(UCase(Strings.Left(nu.mode, 1)))
-                                    .SubItems.Add(IIf(nu.Cover > 0, "+" + Trim(Str(nu.Cover)), ""))
-                                    .SubItems.Add(nu.equipment)
-                                End With
-                                undercommand.Items.Insert(l.Index + 1, listitem)
+                                dismount_action(l)
                             Case 4
                                 'embuss
                                 If mover.embussed Or mover.debussed_gt Or Not mover.dismounted Then Exit Select
-                                If oppfire Then conduct_fire(tactical_option)
-                                mover.embus()
-                                undercommand.Items.Remove(l)
-                                undercommand.Items(undercommand.FindItemWithText(mover.carrying).Index).SubItems(4).Text = undercommand.Items(undercommand.FindItemWithText(mover.carrying).Index).SubItems(4).Text + "*"
+                                embus_action(l)
                             Case 5, 6, 7
                                 'change modes
-                                Dim prev_mode As String = mover.mode
-                                If oppfire Then conduct_fire(tactical_option)
-
-                                If prev_mode = mover.mode Then
-                                    If tactical_option = 5 And mover.conc Then
-                                        If mover.mode = travel Then
-                                            mover.mode = conc
-                                        ElseIf mover.mode = conc Then
-                                            mover.mode = travel
-                                        Else
-                                        End If
-                                    ElseIf tactical_option = 6 And mover.conc Then
-                                        If mover.mode = conc Then
-                                            mover.mode = disp
-                                        ElseIf mover.mode = disp Then
-                                            mover.mode = conc
-                                        Else
-                                        End If
-                                    Else
-                                        If mover.mode = travel Then
-                                            mover.mode = disp
-                                        ElseIf mover.mode = disp Then
-                                            mover.mode = travel
-                                        Else
-                                        End If
-                                    End If
-                                    l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
-                                End If
+                                'Dim prev_mode As String = mover.mode
                         End Select
                         'If tactical_option <> 16 Then l.BackColor = mover.status(Me.Name)
                         If Not mover Is Nothing Or mover.title <> "" Then
@@ -633,6 +657,62 @@
         cover_selected = False
     End Sub
 
+    Private Sub change_mode_action(l As ListViewItem)
+        If oppfire Then conduct_fire(tactical_option)
+
+        'If prev_mode = mover.mode Then
+        If tactical_option = 5 And mover.conc Then
+                If mover.mode = travel Then
+                    mover.mode = conc
+                ElseIf mover.mode = conc Then
+                    mover.mode = travel
+                Else
+                End If
+            ElseIf tactical_option = 6 And mover.conc Then
+                If mover.mode = conc Then
+                    mover.mode = disp
+                ElseIf mover.mode = disp Then
+                    mover.mode = conc
+                Else
+                End If
+            Else
+                If mover.mode = travel Then
+                    mover.mode = disp
+                ElseIf mover.mode = disp Then
+                    mover.mode = travel
+                Else
+                End If
+            End If
+            l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
+        'End If
+
+    End Sub
+
+    Private Sub dismount_action(l As ListViewItem)
+        'dismount
+        If oppfire Then conduct_fire(tactical_option)
+        Dim listitem As New ListViewItem, nu As New cunit
+        nu = orbat(mover.carrying)
+        mover.debus()
+        l.SubItems(4).Text = Replace(l.SubItems(4).Text, "*", "")
+        With listitem
+            .Text = nu.title
+            .SubItems.Add(nu.strength)
+            .SubItems.Add(UCase(Strings.Left(nu.mode, 1)))
+            .SubItems.Add(IIf(nu.Cover > 0, "+" + Trim(Str(nu.Cover)), ""))
+            .SubItems.Add(nu.equipment)
+        End With
+        undercommand.Items.Insert(l.Index + 1, listitem)
+    End Sub
+    Private Sub embus_action(l As ListViewItem)
+        If Not mover.can_embus(IIf(Tag = "Initial Command", False, True)) Then Exit Sub
+        If oppfire Then conduct_fire(tactical_option)
+        mover.embus()
+        If mover.carrying = "" Then Exit Sub
+        undercommand.Items.Remove(l)
+        undercommand.Items(undercommand.FindItemWithText(mover.carrying).Index).SubItems(4).Text = undercommand.Items(undercommand.FindItemWithText(mover.carrying).Index).SubItems(4).Text + "*"
+
+    End Sub
     Private Sub conduct_fire(opt As Integer)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
@@ -733,44 +813,6 @@
         If select_count > 0 Then set_actions()
     End Sub
 
-    Public Sub debus(ByVal unit As cunit, dismount As Boolean)
-        'subject = orbat(unit.carrying)
-        'With subject
-        '    .parent = unit.parent
-        '    '.strength = unit.strength * (.initial / unit.initial)
-        '    .firers = unit.firers
-        '    .moved = gt
-        '    .fired = unit.fired
-        '    .lostcomms = unit.lostcomms
-        '    .mode = unit.mode
-        '    .debussed = unit.debussed
-        'End With
-        'If dismount Then
-        '    subject.carrying = ""
-        '    unit.carrying = ""
-        'End If
-    End Sub
-
-    Private Sub embus(ByVal unit As cunit)
-        'If unit.debussed And unit.carrying <> "" Then
-        '    unit.debussed = False
-        '    debus(unit, False)
-        'Else
-        '    populate_lists(unit_selection.units, ph_units, "Transport", unit.parent)
-        '    If unit_selection.units.Items.Count = 0 Then Exit Sub
-        '    carrier = New cunit
-        '    With unit_selection
-        '        .Tag = "Transport"
-        '        .title.Text = "Choose which transport to load " + unit.title + " onto"
-        '        .ShowDialog()
-        '    End With
-        '    If carrier Is Nothing Then Exit Sub
-        '    unit.debussed = False
-        '    unit.carrying = carrier.title
-        '    debus(unit, False)
-        '    carrier = Nothing
-        'End If
-    End Sub
 
     Private Sub opp_fire_clicked(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles opp_fire.Click
         If opp_fire.BackColor = defa Then
@@ -801,9 +843,14 @@
     End Sub
 
     Private Sub movement_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        If Tag = "Movement" Then mov_rates.Show()
+        If Tag = "Movement" Then
+            mov_rates.Show()
+            opp_fire.BackColor = golden
+            oppfire = True
+        Else
+            oppfire = False
+        End If
         opportunityfire.Tag = "Opportunity Fire"
-        opp_fire.BackColor = golden : oppfire = True
     End Sub
 
     Private Sub movement_closed(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Closed
@@ -889,8 +936,19 @@
             o5.Text = "Allocate Air Observers"
             o6.Text = "Break EMCON"
             o7.Text = "Artillery Location Finding"
-            o8.Text = ""
+            o8.Text = "Release Off table Units"
             o9.Text = ""
+        ElseIf purpose = "Initial Command" Then
+            o0.Text = "Travel<>Conc "
+            o1.Text = "Conc<>Disp "
+            o2.Text = "Travel<>Disp"
+            o3.Text = "Artillery Allocation"
+            o4.Text = "Air Mission Planning"
+            o5.Text = "Allocate Air Observers"
+            o6.Text = "Break EMCON"
+            o7.Text = "Dismount"
+            o8.Text = "Embus"
+            o9.Text = IIf(commander.arrives = 0, "Place off Table", "Bring onto the table")
 
         Else
 
@@ -934,27 +992,28 @@
                     sender.backcolor = golden
                 End If
             End If
-        ElseIf Tag = "Command" Then
+        ElseIf instr(Tag, "Command") > 0 Then
             For Each c As Control In tactical_actions.Controls
                 If c.BackColor = golden And sender.name <> c.Name Then c.BackColor = defa
             Next
+            If sender.backcolor = golden Then
+                sender.backcolor = defa
+                tac_opt_txt = ""
+                tac = -1
+                Exit Sub
+            Else
+                sender.backcolor = golden
+                tac = t
+                tac_opt_txt = sender.text
+            End If
             If t = 3 And Not subject.indirect Then Exit Sub
             If t = 4 Or t = 9 Then Exit Sub
             If t = 5 And subject.task <> "Observation" Then Exit Sub
             If t = 6 And Not subject.radar Then Exit Sub
-            If t = 7 And Not orbat(subject.parent).arty_int > 0 Then Exit Sub
+            If Tag = "Command" And t = 7 And Not orbat(subject.parent).arty_int > 0 Then Exit Sub
 
-            If sender.backcolor = golden Then
-                    sender.backcolor = defa
-                    tac_opt_txt = ""
-                    tac = -1
-                Else
-                    sender.backcolor = golden
-                    tac = t
-                    tac_opt_txt = sender.text
-                End If
-            ElseIf Tag = "Movement" Then
-                Dim x As Integer = select_count
+        ElseIf Tag = "Movement" Then
+            Dim x As Integer = select_count
                 If t = 1 And sender.backcolor = golden Then
                     tac = tac_less_move : tac_less_move = 0
                     sender.backcolor = defa

@@ -7,6 +7,15 @@
     Private pdec As Boolean
     Private ptime As String
     Private ptested As Boolean
+    Private pid As String
+    Property id() As String
+        Get
+            Return pid
+        End Get
+        Set(ByVal Value As String)
+            pid = Value
+        End Set
+    End Property
     Property side() As String
         Get
             Return pside
@@ -90,6 +99,11 @@
     Public Sub save_to_file(ByVal x As Object)
         x.WriteLine(side + "," + time + "," + text + "," + die + "," + Str(score) + "," + Str(dec) + "," + Str(tested))
     End Sub
-
-
+    Public Sub create_id()
+        Dim i As Integer = 0
+        Do
+            id = Trim(Str(event_list.Count + i))
+            i = i + 1
+        Loop Until Not event_list.Contains(id)
+    End Sub
 End Class

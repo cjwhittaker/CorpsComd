@@ -246,9 +246,6 @@
 
     Public Sub save_subunits()
         Dim file As System.IO.StreamWriter = My.Computer.FileSystem.OpenTextFileWriter("subunits.dat", False)
-        For Each subunit As csubunit In TOE
-            file.WriteLine(subunit.savetofile)
-        Next
         file.Close()
     End Sub
 
@@ -311,7 +308,7 @@
                     i = i + 1
                     If i > pnames.Count Then Exit For
                 Next
-                event_list.Add(evt)
+                event_list.Add(evt, evt.id)
             Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
                 MsgBox("Line " & ex.Message &
                 "is not valid and will be skipped.")

@@ -73,10 +73,7 @@
         End If
 
     End Function
-    Public Sub morale_checks_needed(c As Collection)
 
-
-    End Sub
     Public Sub populate_lists(ByVal l As ListView, ByVal c As Collection, ByVal purpose As String, ByVal hq As String)
         Dim listitem As ListViewItem, j As Integer = 0, info As String = ""
         l.BackColor = nostatus
@@ -97,7 +94,7 @@
                 listitem.Text = u.title
                 If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
                 ElseIf l.Name = "undercommand" Then
-                    If purpose = "Movement" Or purpose = "Command" Or purpose = "Morale Recovery" Then
+                    If purpose = "Movement" Or InStr(purpose, "Command") > 0 Or purpose = "Morale Recovery" Then
                         info = UCase(Strings.Left(u.mode, 1))
                         listitem.BackColor = u.status(purpose)
                     End If
@@ -286,7 +283,7 @@
             ph = nph
             nph = tmp
         End If
-        If ph = scenariodefaults.player1.Text Then
+        If UCase(ph) = UCase(p1) Then
             ph_hqs = New Collection
             ph_hqs = p1_hqs
             ph_units = New Collection
@@ -352,11 +349,17 @@
             End If
         Next
     End Sub
+    Public Sub link_event_to_unit(unit_name As String, t As String)
+        If t <> "" Then t = Replace(t, ":00", "")
+        For Each u As cunit In orbat
+            If (u.parent = orbat(unit_name).title And u.comd = 0 And Not u.aircraft) Or u.title = unit_name Then u.arrives = Val(t)
+        Next
+    End Sub
 
     Public Sub test_for_events(ByVal s As String, ByVal t As Date)
         For Each e As cevents In event_list
             If Not e.tested Then
-                If Format(t, "HH:mm") >= e.time And s = e.side Then
+                If Format(t, "HH:mm") >= e.time And UCase(s) = UCase(e.side) Then
                     If e.die = "None" Then
                         e.tested = True
                     Else

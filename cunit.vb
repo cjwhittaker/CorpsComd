@@ -675,13 +675,18 @@ Imports System.Runtime.Serialization.Formatters.Binary
         cb = False
         If indirect() And task = "DS" And (orbat(parent).arty_int > 0 Or orbat(primary).arty_int > 0) Then cb = True
     End Function
-    Public Sub embus()
-        If debussed_gt Or Not Inf() Or Not dismounted() Then Exit Sub
+    Public Function can_embus(in_game As Boolean)
+        can_embus = True
+        If (in_game And debussed_gt) Or Not Inf() Or Not dismounted() Then can_embus = False
         Dim tmp As String = Replace(title, "#", "")
-        If Not orbat.Contains(tmp) Or orbat(tmp).debussed_gt Then Exit Sub
+        If Not orbat.Contains(tmp) Or (in_game And orbat(tmp).debussed_gt) Then can_embus = False
+
+    End Function
+    Public Sub embus()
+        Dim tmp As String = Replace(title, "#", "")
         carrying = tmp
         With orbat(tmp)
-            .carrying = ""
+            .carrying = title
             .mode = mode
             .debussed_gt = True
         End With
@@ -1207,6 +1212,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
                     End If
                 End If
             Next
+        ElseIf comd > 0 Then
+            status = nostatus
         ElseIf fm <> "Orbat" And demoralised Then
             status = emcon
             ElseIf comd = 0 Then

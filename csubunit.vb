@@ -2,6 +2,8 @@
     Private pnation As String
     Private ptitle As String
     Private pequipment As String
+    Private psub_units As Boolean
+    Private ppassengers As Boolean
     Private pquantity As Integer
     Private pstrength As Integer
     Private pcomd As Integer
@@ -33,6 +35,22 @@
         End Get
         Set(ByVal Value As String)
             pequipment = Value
+        End Set
+    End Property
+    Property sub_units() As Boolean
+        Get
+            Return psub_units
+        End Get
+        Set(ByVal Value As Boolean)
+            psub_units = Value
+        End Set
+    End Property
+    Property passengers() As Boolean
+        Get
+            Return ppassengers
+        End Get
+        Set(ByVal Value As Boolean)
+            ppassengers = Value
         End Set
     End Property
     Property quantity() As Integer
@@ -83,39 +101,5 @@
             pdesig = Value
         End Set
     End Property
-
-
-
-
-
-    Public Function savetofile()
-        Dim x As String = "", d As String = ","
-        x = x + nation
-        x = x + d + title
-        x = x + d + equipment
-        x = x + d + Str(quantity)
-        x = x + d + Str(strength)
-        x = x + d + Str(comd)
-
-        Return x
-    End Function
-    Public Sub loadfromfile(ByVal x As Array)
-        Dim currentField As String, i As Integer
-        i = 1
-        For Each currentField In x
-            Select Case i
-                Case 1 : nation = currentField
-                Case 2 : title = currentField
-                Case 3 : equipment = currentField
-                Case 4 : quantity = Val(currentField)
-                Case 5 : strength = Val(currentField)
-                Case 6 : comd = Val(currentField)
-
-            End Select
-            i = i + 1
-        Next
-    End Sub
-
-
 
 End Class

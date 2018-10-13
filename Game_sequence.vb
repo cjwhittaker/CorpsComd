@@ -1,6 +1,9 @@
 ﻿Module Game_sequence
     Public Sub initialise_turn()
+        Randomize(3600 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
+        gameturn = " for Game Turn" + Str(gt) + " at " + Format(gamedate, "HHmm") + "hrs " + Format(gamedate, "dd MMM yyyy")
         If gt = 1 And phase = 0 Then
+            initialise_collections()
             scenariodefaults.enable_data_entry(False)
             For Each u As cunit In orbat
                 If u.comd = 0 Then
@@ -11,14 +14,25 @@
                     If u.airdefence Or u.indirect Then u.emplaced = True
                 End If
             Next
+            ph = p1 : nph = p2
+            swap_phasing_player(False)
+            For i As Integer = 1 To 2
+                With movement
+                    .Tag = "Initial Command"
+                    .Text = "Pre-Game Command and Control Phase "
+                    .options_for("Initial Command")
+                    .ShowDialog()
+                End With
+                swap_phasing_player(True)
+            Next
+            phase = 1
+            savedata(scenario)
         End If
-        Randomize(3600 * Hour(TimeOfDay) + 60 * Minute(TimeOfDay) + Second(TimeOfDay))
+        If phase <> 0 Then swap_phasing_player(False)
         oppfire = False
         For Each u As cunit In orbat
             If u.comd = 0 Then u.reset_unit()
         Next
-        If phase <> 0 Then swap_phasing_player(False)
-        gameturn = " for Game Turn" + Str(gt) + " at " + Format(gamedate, "HHmm") + "hrs " + Format(gamedate, "dd MMM yyyy")
     End Sub
 
     Public Sub determineinitiative()
@@ -51,8 +65,6 @@
     End Sub
 
     Public Sub command_and_control()
-        'populate_lists(unit_selection.units, ph_hqs, "Command", "commanders")
-        'populate_command_structure(unit_selection.comdtree, ph, "Command")
         For Each u As cunit In ph_units
             u.emplace()
         Next
@@ -80,10 +92,6 @@
             .target = New cunit
             .firesmoke.Visible = False
             .fire.Visible = True
-            '.abort_firer.Visible = False
-            '.abort_target.Visible = False
-            '.ta_altitude_label.Visible = False
-            '.ta_altitude.Visible = False
             .range_not_needed = False
         End With
         If Not combat_2.Visible Then
@@ -117,11 +125,6 @@
             .firesmoke.Visible = False
             .fire.Visible = True
             .firesmoke.Visible = False
-
-            '.abort_firer.Visible = False
-            '.abort_target.Visible = False
-            '.ta_altitude_label.Visible = False
-            '.ta_altitude.Visible = False
             .range_not_needed = False
         End With
         If Not combat_2.Visible Then
@@ -139,7 +142,6 @@
     Public Sub smoke_barrage_phase(first As String)
         combat_2.targets.Items.Clear()
         combat_2.firers.Items.Clear()
-        'populate_lists(combat_2.targets, enemy, "Ground Targets", target)
         populate_lists(combat_2.firers, ph_units, "Smoke Barrage", first)
         With combat_2
             .Tag = "Smoke Barrage"
@@ -151,12 +153,7 @@
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = True
-            '.abort_firer.Visible = False
-            '.abort_target.Visible = False
-            '.ta_altitude_label.Visible = False
-            '.ta_altitude.Visible = False
             .range_not_needed = False
-            '.ShowDialog()
         End With
         If Not combat_2.Visible Then
             With combat_2

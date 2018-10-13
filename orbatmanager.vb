@@ -59,7 +59,7 @@
         Next
     End Sub
     Private Sub group_edit()
-        Dim no As TreeNode
+        'Dim no As TreeNode
         'Do
         no = next_edit(comdtree.Nodes(0))
         'Loop Until no Is Nothing
@@ -333,7 +333,7 @@
         orbat(dropNode.Text).parent = targetNode.Text
         orbat(dropNode.Text).arrives = orbat(targetNode.Text).arrives
         l = orbat(dropNode.Text).carrying
-        If orbat(dropNode.Text).carrying <> "" Then orbat(orbat(dropNode.Text).carrying).parent = targetNode.Text
+        If orbat(dropNode.Text).carrying <> "" And orbat(dropNode.Text).carrying <> "Arty Units" Then orbat(orbat(dropNode.Text).carrying).parent = targetNode.Text
 
         'Remove the drop node from its current location
         dropNode.Remove()
@@ -346,8 +346,8 @@
         'End If
 
         'Ensure the newley created node is visible to the user and select it
-        dropNode.EnsureVisible()
-        comdtree.SelectedNode = dropNode
+        'dropNode.EnsureVisible()
+        'comdtree.SelectedNode = dropNode
 
 
     End Sub
@@ -594,31 +594,33 @@
         Dim n As New cunit, i As Integer = 0, l As String = "", passengers As Boolean = False, t As String = "", orbattitle As String = comdtree.SelectedNode.Text
         Dim same_desig As Boolean = False, ch As Integer = 65, pas As String = "*", subunits As Integer = 0, desig As String = ""
         If Not sub_1.BackColor = golden And Not sub_a.BackColor = golden Then Exit Sub
-        For Each s As csubunit In TOE
-            If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
-                If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
-                passengers = False
-                If eq_list(s.equipment).role = "MICV" Or eq_list(s.equipment).role = "APC" Then
-                    passengers = True
-                Else
-                    passengers = False
-                End If
-            End If
-        Next
+        'For Each s As csubunit In TOE
+        '    If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
+        '        If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
+        '        passengers = False
+        '        If eq_list(s.equipment).role = "MICV" Or eq_list(s.equipment).role = "APC" Then
+        '            passengers = True
+        '        Else
+        '            passengers = False
+        '        End If
+        '    End If
+        'Next
         For Each s As csubunit In TOE
             If s.title = unittype.SelectedItem Then
-                If subunits > 9 Or sub_a.BackColor = golden Then
+                If s.quantity > 9 Or sub_a.BackColor = golden Then
                     ch = 65
                 Else
                     ch = 49
                 End If
+                'If s.desig = "RECON/" Then Stop
                 If s.desig <> desig Then
                     desig = s.desig
                     same_desig = False
                 Else
                     same_desig = True
                 End If
-                If passengers Then
+                If s.passengers Then
+                    'Stop
                     i = i - s.quantity
                 ElseIf same_desig Then
                     i = i
@@ -636,21 +638,21 @@
                     ElseIf s.equipment = "ACV" And s.desig = "" Then
                         l = "HQ/"
                     ElseIf s.desig <> "" Then
-                        If passengers Then
+                        If s.passengers Then
                             If s.sub_comd Then
                                 l = Replace(s.desig, "/", pas + "/") + t + "-"
                             Else
-                                l = IIf(s.quantity > 1 Or same_desig, t + pas + "/", "1/") + s.desig
+                                l = IIf(s.sub_units, t + pas + "/", "1/") + s.desig
                             End If
                         Else
                             If s.sub_comd Then
                                 l = s.desig + t + "-"
                             Else
-                                l = IIf(s.quantity > 1 Or same_desig, t + "/", "") + s.desig
+                                l = IIf(s.sub_units, t + "/", "") + s.desig
                             End If
                         End If
                     ElseIf s.desig = "" Then
-                        If passengers Then
+                        If s.passengers Then
                             l = t + pas + "/"
                         Else
                             l = t + "/"
@@ -662,7 +664,7 @@
                     'ElseIf l = "HQ" And x > 1 And Not s.sub_comd Then
                     '    l = l + Trim(Str(x - 1))
                     'Else
-                    If s.quantity > 1 Or (same_desig And s.unit_comd = 0 And s.equipment <> "ACV") Or (s.desig = "" And s.unit_comd = 0 And s.equipment <> "ACV") Then
+                    If s.sub_units Or s.quantity > 1 Or (same_desig And s.unit_comd = 0 And s.equipment <> "ACV") Or (s.desig = "" And s.unit_comd = 0 And s.equipment <> "ACV") Then
                         i = i + 1
                     End If
                     n = New cunit
@@ -680,9 +682,8 @@
                         .equipment = IIf(s.unit_comd = 0, s.equipment, "")
                         .quality = Val(sub_unit_quality.SelectedItem)
                         .parent = orbattitle
-                        .role = "|" + eq_list(n.equipment).role + "|"
                     End With
-
+                    If n.comd = 0 Then n.role = "|" + eq_list(s.equipment).role + "|"
                     Dim j As Integer = 0
                     Do While orbat.Contains(n.title)
                         n.title = Trim(Chr(49 + j)) + "/" + Mid(n.title, InStr(n.title, "/"))
@@ -691,7 +692,7 @@
                     orbat.Add(n, n.title)
                 Next
                 'i = i + 1
-                If n.troopcarrier Then passengers = True Else passengers = False
+                'If n.troopcarrier Then passengers = True Else passengers = False
             End If
         Next
         select_unit_template.Enabled = False

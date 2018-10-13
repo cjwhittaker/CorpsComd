@@ -383,8 +383,11 @@
                         For Each u As cunit In orbat
                             If UCase(u.nation) = UCase(e.side) And (u.title = e.unit Or u.parent = e.unit) Then
                                 u.arrives = 0
-                                If u.comd = 0 Then
-                                    If Not u.conc Then u.mode = travel
+                                If gt <> 1 And u.comd = 0 Then
+                                    With u
+                                        .mode = travel
+                                        .moved = gt
+                                    End With
                                 End If
                             End If
                         Next

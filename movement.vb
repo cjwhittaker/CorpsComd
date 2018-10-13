@@ -488,6 +488,15 @@
                 .dec = False
             End With
             link_event_to_unit(commander.title, v.time)
+            For Each u As cunit In ph_units
+                If u.parent = commander.title Then
+                    With u
+                        .mode = travel
+                        .moved = gt
+                    End With
+                End If
+
+            Next
         ElseIf on_table Then
             link_event_to_unit(commander.title, Str(Hour(DateAdd(DateInterval.Hour, 1, gamedate))))
         ElseIf Not on_table Then

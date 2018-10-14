@@ -59,6 +59,8 @@ Partial Class scenariodefaults
         Me.scenario_name = New System.Windows.Forms.TextBox()
         Me.p2_events = New System.Windows.Forms.Button()
         Me.Button1 = New System.Windows.Forms.Button()
+        Me.p2_c2 = New System.Windows.Forms.Button()
+        Me.p1_c2 = New System.Windows.Forms.Button()
         CType(Me.start_time_inc, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -217,12 +219,12 @@ Partial Class scenariodefaults
         'nextturn
         '
         Me.nextturn.Enabled = False
-        Me.nextturn.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.nextturn.Location = New System.Drawing.Point(485, 601)
+        Me.nextturn.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.nextturn.Location = New System.Drawing.Point(254, 554)
         Me.nextturn.Name = "nextturn"
-        Me.nextturn.Size = New System.Drawing.Size(165, 42)
+        Me.nextturn.Size = New System.Drawing.Size(291, 40)
         Me.nextturn.TabIndex = 15
-        Me.nextturn.Text = "Continue to [N]ext Turn"
+        Me.nextturn.Text = "Continue to Next Turn"
         Me.nextturn.UseVisualStyleBackColor = True
         '
         'loadscenario
@@ -351,7 +353,7 @@ Partial Class scenariodefaults
         Me.p1_events.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.p1_events.Location = New System.Drawing.Point(254, 459)
         Me.p1_events.Name = "p1_events"
-        Me.p1_events.Size = New System.Drawing.Size(132, 40)
+        Me.p1_events.Size = New System.Drawing.Size(132, 35)
         Me.p1_events.TabIndex = 27
         Me.p1_events.Text = "P1 Events"
         Me.p1_events.UseVisualStyleBackColor = True
@@ -453,19 +455,41 @@ Partial Class scenariodefaults
         Me.p2_events.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.p2_events.Location = New System.Drawing.Point(413, 459)
         Me.p2_events.Name = "p2_events"
-        Me.p2_events.Size = New System.Drawing.Size(132, 40)
+        Me.p2_events.Size = New System.Drawing.Size(132, 35)
         Me.p2_events.TabIndex = 34
         Me.p2_events.Text = "P2 Events"
         Me.p2_events.UseVisualStyleBackColor = True
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(548, 538)
+        Me.Button1.Location = New System.Drawing.Point(588, 195)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(84, 42)
         Me.Button1.TabIndex = 35
         Me.Button1.Text = "Button1"
         Me.Button1.UseVisualStyleBackColor = True
+        '
+        'p2_c2
+        '
+        Me.p2_c2.Enabled = False
+        Me.p2_c2.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.p2_c2.Location = New System.Drawing.Point(413, 500)
+        Me.p2_c2.Name = "p2_c2"
+        Me.p2_c2.Size = New System.Drawing.Size(132, 35)
+        Me.p2_c2.TabIndex = 37
+        Me.p2_c2.Text = "P2 Comd Cntrl"
+        Me.p2_c2.UseVisualStyleBackColor = True
+        '
+        'p1_c2
+        '
+        Me.p1_c2.Enabled = False
+        Me.p1_c2.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.p1_c2.Location = New System.Drawing.Point(254, 500)
+        Me.p1_c2.Name = "p1_c2"
+        Me.p1_c2.Size = New System.Drawing.Size(132, 35)
+        Me.p1_c2.TabIndex = 36
+        Me.p1_c2.Text = "P1 Comd Cntrl"
+        Me.p1_c2.UseVisualStyleBackColor = True
         '
         'scenariodefaults
         '
@@ -474,6 +498,8 @@ Partial Class scenariodefaults
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(684, 661)
+        Me.Controls.Add(Me.p2_c2)
+        Me.Controls.Add(Me.p1_c2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.p2_events)
         Me.Controls.Add(Me.sunset)
@@ -558,4 +584,6 @@ Partial Class scenariodefaults
     Friend WithEvents scenario_name As TextBox
     Friend WithEvents p2_events As Button
     Friend WithEvents Button1 As Button
+    Friend WithEvents p2_c2 As Button
+    Friend WithEvents p1_c2 As Button
 End Class

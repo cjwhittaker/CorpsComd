@@ -129,6 +129,8 @@
         lock_2.Enabled = setting
         p1_events.Enabled = setting
         p2_events.Enabled = setting
+        p1_c2.Enabled = setting
+        p2_c2.Enabled = setting
         nextturn.Enabled = Not setting
     End Sub
 
@@ -285,12 +287,14 @@
             p1_orbat_manager.Enabled = False
             player1.Enabled = False
             player1_init.Enabled = False
+            p1_c2.Enabled = False
             lock_1.Enabled = False
         Else
             lock_2.Text = "Locked"
             p2_orbat_manager.Enabled = False
             player2.Enabled = False
             player2_init.Enabled = False
+            p2_c2.Enabled = False
             lock_2.Enabled = False
         End If
         If Not lock_1.Enabled And Not lock_2.Enabled Then
@@ -315,10 +319,6 @@
 
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs)
-        Stop
-
-    End Sub
 
     Private Sub manage_events_Click(sender As Object, e As EventArgs) Handles p1_events.Click, p2_events.Click
         If event_list Is Nothing Then event_list = New Collection
@@ -328,9 +328,21 @@
             .Tag = ""
         End With
     End Sub
+    Private Sub conduct_pre_game_command_and_control(sender As Object, e As EventArgs) Handles p1_c2.Click, p2_c2.Click
+        initialise_collections()
+        ph = p1 : nph = p2
+        If Strings.Left(sender.name, 2) = "p1" Then swap_phasing_player(False) Else swap_phasing_player(True)
+        With movement
+            .Tag = "Initial Command"
+            .Text = "Pre-Game Command and Control Phase "
+            .options_for("Initial Command")
+            .ShowDialog()
+        End With
+        savedata(scenario)
+    End Sub
 
     Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
-
+        Stop
         For Each u As cunit In orbat
             u.fatigue = 0
         Next

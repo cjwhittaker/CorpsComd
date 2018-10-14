@@ -7,25 +7,13 @@
             scenariodefaults.enable_data_entry(False)
             For Each u As cunit In orbat
                 If u.comd = 0 Then
-                    If Not u.conc Then u.mode = disp Else u.mode = conc
+                    'If Not u.conc Then u.mode = disp Else u.mode = conc
                     u.fired = -1
                     u.moved = -1
                     If u.indirect Then u.smoke = -4
-                    If u.airdefence Or u.indirect Then u.emplaced = True
+                    If u.mode = disp And (u.airdefence Or u.indirect) Then u.emplaced = True
                 End If
             Next
-            ph = p1 : nph = p2
-            swap_phasing_player(False)
-            For i As Integer = 1 To 2
-                With movement
-                    .Tag = "Initial Command"
-                    .Text = "Pre-Game Command and Control Phase "
-                    .options_for("Initial Command")
-                    .ShowDialog()
-                End With
-                swap_phasing_player(True)
-            Next
-            phase = 1
             savedata(scenario)
         End If
         If phase <> 0 Then swap_phasing_player(False)

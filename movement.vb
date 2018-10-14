@@ -169,7 +169,7 @@
         ElseIf instr(Tag, "Command") > 0 Then
             If Not subject.validunit("Select Unit", subject.parent) Then
             Else
-                If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = nostatus Else undercommand.FocusedItem.BackColor = golden
+                If undercommand.FocusedItem.BackColor = golden Then undercommand.FocusedItem.BackColor = subject.status("Command") Else undercommand.FocusedItem.BackColor = golden
             End If
         ElseIf Tag = "Morale Recovery" Then
             If subject.strength = 0 Or subject.effective Then undercommand.SelectedItems.Clear() : Exit Sub
@@ -468,9 +468,9 @@
         For Each l As ListViewItem In undercommand.Items
             If l.BackColor = golden And orbat(l.Text).radar Then
                 orbat(l.Text).eligiblecb = True
-                orbat(l.Text).status(Tag)
+                orbat(l.Text).status("Command")
             End If
-            l.BackColor = defa
+            l.BackColor = orbat(l.Text).status("Command")
         Next
     End Sub
     Private Sub off_table(on_table As Boolean)
@@ -511,10 +511,10 @@
     Private Sub initial_orders()
         'Dim comdcost As Integer = 0
         For Each a As ListViewItem In undercommand.Items
-            mover = New cunit
-            mover = orbat(a.Text)
-            subject = mover
             If a.BackColor = golden Then
+                mover = New cunit
+                mover = orbat(a.Text)
+                subject = mover
                 tactical_option = tac
                 Select Case tac
 
@@ -668,31 +668,31 @@
 
     Private Sub change_mode_action(l As ListViewItem)
         If oppfire Then conduct_fire(tactical_option)
-
+        If mover.mode Is Nothing Then mover.mode = disp
         'If prev_mode = mover.mode Then
-        If tactical_option = 5 And mover.conc Then
-                If mover.mode = travel Then
-                    mover.mode = conc
-                ElseIf mover.mode = conc Then
-                    mover.mode = travel
-                Else
-                End If
-            ElseIf tactical_option = 6 And mover.conc Then
-                If mover.mode = conc Then
-                    mover.mode = disp
-                ElseIf mover.mode = disp Then
-                    mover.mode = conc
-                Else
-                End If
+        If tactical_option = 0 And mover.conc Then
+            If mover.mode = travel Then
+                mover.mode = conc
+            ElseIf mover.mode = conc Then
+                mover.mode = travel
             Else
-                If mover.mode = travel Then
-                    mover.mode = disp
-                ElseIf mover.mode = disp Then
-                    mover.mode = travel
-                Else
-                End If
             End If
-            l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
+        ElseIf tactical_option = 1 And mover.conc Then
+            If mover.mode = conc Then
+                mover.mode = disp
+            ElseIf mover.mode = disp Then
+                mover.mode = conc
+            Else
+            End If
+        Else
+            If mover.mode = travel Then
+                mover.mode = disp
+            ElseIf mover.mode = disp Then
+                mover.mode = travel
+            Else
+            End If
+        End If
+        l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
         'End If
 
     End Sub
@@ -814,7 +814,7 @@
             If select_all And Not orbat(l.Text).disrupted Then
                 l.BackColor = golden
             ElseIf Not select_all Then
-                If Tag = "Command" Then l.BackColor = orbat(l.Text).status(Tag) Else l.BackColor = nostatus
+                If InStr(Tag, "Command") > 0 Then l.BackColor = orbat(l.Text).status(Tag) Else l.BackColor = nostatus
             Else
             End If
         Next

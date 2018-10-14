@@ -732,7 +732,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         radar = False
         If mode = travel Then
             radar = False
-        ElseIf InStr("|PDSAM|ADSAM|", role) > 0 And InStr(UCase(eq_list(Me.equipment).special), "E") > 0 Then
+        ElseIf InStr("|PDSAM|ADSAM|AAA|", role) > 0 And InStr(UCase(eq_list(Me.equipment).special), "E") > 0 Then
             radar = True
         Else
             radar = False

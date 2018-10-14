@@ -346,6 +346,19 @@
             If Tag = "Indirect Fire" Then
                 If firer.scoot Then set_shoot(scoot, Nothing)
             End If
+            If firer.role = "InfSAM" And firer.carrying <> "" Then
+                With ph_units(firer.carrying)
+                    .cover = firer.Cover
+                    .elevated = firer.elevated
+                    .roadmove = firer.roadmove
+                    .plains = firer.plains
+                    .insmoke = firer.insmoke
+                    .has_moved = firer.has_moved
+                    .mode = firer.mode
+                    .flanked = firer.flanked
+                    .rear = firer.rear
+                End With
+            End If
         ElseIf opt = "targets" Then
             reset_unit_options(targetpanel)
             If target.Cover > 0 Then select_cover(t_cover, Nothing)
@@ -386,6 +399,7 @@
             set_sel_color(sender, True, False)
             firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
             If Tag = "Air to Air" Then If Not target.title Is Nothing Then abort_firer.Visible = abort_option(firer, target, 0)
+            If Tag = "Ground to Air" And ph_units(firer.carrying).airdefence Then firer = ph_units(firer.carrying)
         ElseIf sender.name = "artillery" And Not observer.title Is Nothing Then
             firer = orbat(sender.FocusedItem.Text)
             If firer.valid_arty_observer(observer) Then
@@ -832,6 +846,7 @@
                 If rge > target.getmaxrange Then return_fire_disable()
             End If
         ElseIf Tag = "Ground to Air" Or (Tag = "Opportunity Fire" And target.heli) Then
+
             If firer.valid_air_defence(rge, ta_altitude.Text) And Not (firer.eligibleCB And target.disrupted_gt) Then
                 fire.Enabled = True
                 target.spotted = True

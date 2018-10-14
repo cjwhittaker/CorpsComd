@@ -713,8 +713,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
         airdefence = False
         If mode = travel Then
             airdefence = False
-        ElseIf Inf() And Not dismounted() Then
-            airdefence = False
+        ElseIf orbat(carrying).Inf() And orbat(carrying).role = "|InfSAM|" Then
+            airdefence = True
         ElseIf InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then
             airdefence = True
         Else

@@ -243,7 +243,10 @@
             End Select
             If phase = 2 Or phase = 10 Or phase = 7 Or phase = 13 Or phase = 16 Or phase = 18 Then
                 For Each u As cunit In orbat
-                    If u.comd = 0 And u.fires And u.fired <> gt Then u.fired = gt
+                    If u.comd = 0 And u.fires And u.fired <> gt Then
+                        u.fired = gt
+                        If u.carrying <> "" Then orbat(u.carrying).fired = u.fired
+                    End If
                 Next
             End If
             savedata(scenario)

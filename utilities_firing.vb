@@ -201,7 +201,7 @@
         Else
         End If
 
-        Dim smoked As Boolean = IIf(combat_2.t_insmoke.BackColor = golden Or combat_2.f_insmoke.BackColor = golden, True, False)
+        Dim smoked As Boolean = IIf(target.insmoke Or spotter.insmoke, True, False)
         If night Then
             om = 1
         ElseIf twilight Then

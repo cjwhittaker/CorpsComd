@@ -84,7 +84,7 @@
             l.Items.Add(listitem)
         End If
         For Each u As cunit In orbat
-            If u.airdefence And Not u.emplaced Then u.emplace()
+            If u.comd = 0 Then If u.airdefence And Not u.emplaced Then u.emplace()
 
         Next
         If c Is Nothing Then Exit Sub

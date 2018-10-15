@@ -18,9 +18,11 @@
         End If
         If phase <> 0 Then swap_phasing_player(False)
         oppfire = False
-        For Each u As cunit In orbat
-            If u.comd = 0 Then u.reset_unit()
-        Next
+        If phase <= 1 Then
+            For Each u As cunit In orbat
+                If u.comd = 0 Then u.reset_unit()
+            Next
+        End If
     End Sub
 
     Public Sub determineinitiative()

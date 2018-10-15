@@ -713,8 +713,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
         airdefence = False
         If mode = travel Then
             airdefence = False
-        ElseIf orbat(carrying).Inf() And orbat(carrying).role = "|InfSAM|" Then
-            airdefence = True
+        ElseIf Not carrying Is Nothing Then
+            If orbat(carrying).Inf() And orbat(carrying).role = "|InfSAM|" Then airdefence = True
         ElseIf InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then
             airdefence = True
         Else
@@ -959,41 +959,41 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     End Function
 
-    Public Function getmaxrange()
-        Dim maxrange As Integer = 0
+    Public Function get_range(max As Boolean)
+        get_range = 0
         If Not equipment Is Nothing Then
             If airborne Then
                 If InStr(UCase(equipment), "GA") > 0 Or (heli() And secondary = "RP") Then
-                    getmaxrange = 2000
+                    If max Then get_range = 2000 Else max = 1500
                 ElseIf InStr(UCase(equipment), "SEAD") > 0 Then
-                    getmaxrange = 20000
+                    get_range = 20000
                 ElseIf heli() And secondary = eq_list(equipment).weapon_2 Then
-                    getmaxrange = eq_list(eq_list(equipment).weapon_2).maxrange
+                    If max Then get_range = eq_list(eq_list(equipment).weapon_2).maxrange Else get_range = eq_list(eq_list(equipment).weapon_2).opr
                 ElseIf heli() And secondary = "Guns" Then
-                    getmaxrange = eq_list(equipment).maxrange
+                    If max Then get_range = eq_list(equipment).maxrange Else get_range = eq_list(equipment).opr
                 ElseIf InStr(equipment, "SO") > 0 Then
                     If eq_list(equipment).standoff_range = "s" Then
-                        getmaxrange = 10000
+                        get_range = 10000
                     ElseIf eq_list(equipment).standoff_range = "m" Then
-                        getmaxrange = 20000
+                        get_range = 20000
                     Else
-                        getmaxrange = 40000
+                        get_range = 40000
                     End If
                 Else
-                    getmaxrange = 100000
+                    get_range = 100000
                 End If
             ElseIf equipment <> secondary Then
-                getmaxrange = eq_list(equipment).maxrange
+                If max Then get_range = eq_list(equipment).maxrange Else get_range = eq_list(equipment).opr
             Else
-                getmaxrange = eq_list(equipment + secondary).maxrange
+                If max Then get_range = eq_list(equipment + secondary).maxrange Else get_range = eq_list(equipment + secondary).opr
             End If
         End If
-        'getmaxrange = maxrange
+        'get_range = maxrange
     End Function
     Public Sub set_fire_effect(target As cunit, r As Integer, stage As Integer)
         If equipment Is Nothing Then effect = 0 : Exit Sub
         Dim context As String = IIf(airborne, abbrev_air_mission, "")
-        Dim max_range As Integer = getmaxrange()
+        Dim max_range As Integer = get_range(True)
         If r > max_range Then effect = 0 : Exit Sub
 
         If context = "SEAD" And target.eligibleCB And target.airdefence Then
@@ -1307,6 +1307,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         rockets = IIf(helarm, Val(Mid(task, 6, 1)), 0)
         Dim x As Integer = IIf(atgw() And Not heli(), 1, 2)
         'fatigue = strength * 2
+        If airdefence() And missile_armed() Then reset_missiles()
         opp_ca = strength * x
         opp_mode = strength * x
         opp_move = strength * x
@@ -1496,7 +1497,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If Strings.Left(title, 3) = "003" Then Stop
+        'If title = "3/44 AD Bty" Then Stop
         'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then

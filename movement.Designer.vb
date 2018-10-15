@@ -63,6 +63,7 @@ Partial Class movement
         Me.units = New System.Windows.Forms.ListView()
         Me.ColumnHeader2 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.command_function = New System.Windows.Forms.Label()
+        Me.ColumnHeader7 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.Panel1.SuspendLayout()
         Me.Panel2.SuspendLayout()
         Me.movement_actions.SuspendLayout()
@@ -140,7 +141,7 @@ Partial Class movement
         '
         'undercommand
         '
-        Me.undercommand.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader3, Me.ColumnHeader4, Me.ColumnHeader6, Me.ColumnHeader1, Me.ColumnHeader5})
+        Me.undercommand.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader3, Me.ColumnHeader4, Me.ColumnHeader6, Me.ColumnHeader1, Me.ColumnHeader5, Me.ColumnHeader7})
         Me.undercommand.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.undercommand.FullRowSelect = True
         Me.undercommand.GridLines = True
@@ -539,6 +540,10 @@ Partial Class movement
         Me.command_function.Text = "Units to Support"
         Me.command_function.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'ColumnHeader7
+        '
+        Me.ColumnHeader7.Width = 0
+        '
         'movement
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -607,4 +612,5 @@ Partial Class movement
     Friend WithEvents RadioButton3 As RadioButton
     Friend WithEvents RadioButton2 As RadioButton
     Friend WithEvents RadioButton1 As RadioButton
+    Friend WithEvents ColumnHeader7 As ColumnHeader
 End Class

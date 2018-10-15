@@ -81,7 +81,7 @@ Partial Class combat_2
         Me.t_aspect = New System.Windows.Forms.Label()
         Me.t_mode = New System.Windows.Forms.Label()
         Me.t_plains = New System.Windows.Forms.Label()
-        Me.t_move = New System.Windows.Forms.Label()
+        Me.t_roadmove = New System.Windows.Forms.Label()
         Me.t_status = New System.Windows.Forms.Label()
         Me.ta_ecm_label = New System.Windows.Forms.Label()
         Me.return_fire = New System.Windows.Forms.Label()
@@ -90,6 +90,7 @@ Partial Class combat_2
         Me.Label9 = New System.Windows.Forms.Label()
         Me.swap = New System.Windows.Forms.Button()
         Me.indirectfirepanel = New System.Windows.Forms.Panel()
+        Me.obs_insmoke = New System.Windows.Forms.Label()
         Me.scoot = New System.Windows.Forms.Label()
         Me.obs_moving = New System.Windows.Forms.Label()
         Me.obs_mode = New System.Windows.Forms.Label()
@@ -587,7 +588,7 @@ Partial Class combat_2
         Me.targetpanel.Controls.Add(Me.t_mode)
         Me.targetpanel.Controls.Add(Me.targets)
         Me.targetpanel.Controls.Add(Me.t_plains)
-        Me.targetpanel.Controls.Add(Me.t_move)
+        Me.targetpanel.Controls.Add(Me.t_roadmove)
         Me.targetpanel.Controls.Add(Me.t_cover)
         Me.targetpanel.Controls.Add(Me.t_status)
         Me.targetpanel.Controls.Add(Me.t_terrain)
@@ -817,17 +818,17 @@ Partial Class combat_2
         Me.t_plains.Text = "Open Terrain"
         Me.t_plains.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        't_move
+        't_roadmove
         '
-        Me.t_move.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.t_move.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.t_move.Location = New System.Drawing.Point(337, 392)
-        Me.t_move.Name = "t_move"
-        Me.t_move.Size = New System.Drawing.Size(132, 30)
-        Me.t_move.TabIndex = 50
-        Me.t_move.Tag = "X Country"
-        Me.t_move.Text = "X Country"
-        Me.t_move.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.t_roadmove.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.t_roadmove.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.t_roadmove.Location = New System.Drawing.Point(337, 392)
+        Me.t_roadmove.Name = "t_roadmove"
+        Me.t_roadmove.Size = New System.Drawing.Size(132, 30)
+        Me.t_roadmove.TabIndex = 50
+        Me.t_roadmove.Tag = "X Country"
+        Me.t_roadmove.Text = "X Country"
+        Me.t_roadmove.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         't_status
         '
@@ -923,6 +924,7 @@ Partial Class combat_2
         'indirectfirepanel
         '
         Me.indirectfirepanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.indirectfirepanel.Controls.Add(Me.obs_insmoke)
         Me.indirectfirepanel.Controls.Add(Me.scoot)
         Me.indirectfirepanel.Controls.Add(Me.obs_moving)
         Me.indirectfirepanel.Controls.Add(Me.obs_mode)
@@ -938,6 +940,18 @@ Partial Class combat_2
         Me.indirectfirepanel.Name = "indirectfirepanel"
         Me.indirectfirepanel.Size = New System.Drawing.Size(491, 638)
         Me.indirectfirepanel.TabIndex = 95
+        '
+        'obs_insmoke
+        '
+        Me.obs_insmoke.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.obs_insmoke.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.obs_insmoke.Location = New System.Drawing.Point(45, 492)
+        Me.obs_insmoke.Name = "obs_insmoke"
+        Me.obs_insmoke.Size = New System.Drawing.Size(132, 30)
+        Me.obs_insmoke.TabIndex = 111
+        Me.obs_insmoke.Tag = "No Smoke"
+        Me.obs_insmoke.Text = "No Smoke"
+        Me.obs_insmoke.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'scoot
         '
@@ -980,7 +994,7 @@ Partial Class combat_2
         Me.Label15.AutoSize = True
         Me.Label15.BackColor = System.Drawing.Color.Transparent
         Me.Label15.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label15.Location = New System.Drawing.Point(53, 502)
+        Me.Label15.Location = New System.Drawing.Point(53, 470)
         Me.Label15.Name = "Label15"
         Me.Label15.Size = New System.Drawing.Size(124, 20)
         Me.Label15.TabIndex = 107
@@ -1008,7 +1022,7 @@ Partial Class combat_2
         Me.observers.Location = New System.Drawing.Point(17, 15)
         Me.observers.MultiSelect = False
         Me.observers.Name = "observers"
-        Me.observers.Size = New System.Drawing.Size(189, 485)
+        Me.observers.Size = New System.Drawing.Size(189, 452)
         Me.observers.TabIndex = 105
         Me.observers.Tag = ""
         Me.observers.UseCompatibleStateImageBehavior = False
@@ -1137,7 +1151,7 @@ Partial Class combat_2
     Friend WithEvents Label13 As Label
     Friend WithEvents t_aspect As Label
     Friend WithEvents t_plains As Label
-    Friend WithEvents t_move As Label
+    Friend WithEvents t_roadmove As Label
     Friend WithEvents t_elevation As Label
     Friend WithEvents t_insmoke As Label
     Friend WithEvents ta_altitude As Label
@@ -1202,4 +1216,5 @@ Partial Class combat_2
     Friend WithEvents ta_ecm_ds As Label
     Friend WithEvents ta_ecm_gs As Label
     Friend WithEvents ta_ecm_label As Label
+    Friend WithEvents obs_insmoke As Label
 End Class

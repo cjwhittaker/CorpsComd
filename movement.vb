@@ -393,7 +393,7 @@
             o9.BackColor = defa
             Exit Sub
         Else
-            Dim test_needed As Boolean = False, r As String = "Morale Test Results" + vbNewLine + subject.title + vbNewLine
+            Dim test_needed As Boolean = False, r As String = "Morale Test Results" + vbNewLine
             If undercommand.FindItemWithText(subject.title).BackColor = may_test Then
                 test_needed = False
                 For i As Integer = 2 To 6

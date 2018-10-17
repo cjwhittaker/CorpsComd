@@ -99,6 +99,7 @@
         combat_2.observers.Items.Clear()
         populate_lists(combat_2.targets, enemy, "Ground Targets", second)
         populate_lists(combat_2.artillery, ph_units, "Indirect Fire", first)
+        combat_2.observers.Items.Add("Area Fire")
         populate_lists(combat_2.observers, ph_units, "Observers", first)
         populate_lists(combat_2.observers, friend_air, "Observers", first)
 
@@ -131,33 +132,45 @@
 
     Public Sub smoke_barrage_phase(first As String)
         combat_2.targets.Items.Clear()
-        combat_2.firers.Items.Clear()
-        populate_lists(combat_2.firers, ph_units, "Smoke Barrage", first)
+        combat_2.artillery.Items.Clear()
+        populate_lists(combat_2.artillery, ph_units, "Smoke Barrage", first)
         With combat_2
             .Tag = "Smoke Barrage"
-            .enable_controls(True, combat_2.indirectfirepanel)
+            .enable_controls(False, combat_2.indirectfirepanel)
             .enable_controls(True, combat_2.targetpanel)
-            .indirectfirepanel.Visible = False
-            .directfirepanel.Visible = True
+            .indirectfirepanel.Visible = True
+            .directfirepanel.Visible = False
+            .observers.Enabled = False
             .observation(False)
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = True
-            .range_not_needed = False
+            .range_not_needed = True
+            .reset_strength(combat_2.a1, .a2, .a3)
+            .firer_strength(.a1, .a2, .a3, 0, False)
         End With
         If Not combat_2.Visible Then
             With combat_2
                 .Text = "Smoke Barrage Sub Phase" + gameturn
                 .ShowDialog()
+                .observers.Enabled = True
             End With
         End If
     End Sub
 
 
     Public Sub deploy_air_missions()
+        Dim r As String = ""
         unit_selection.Tag = "Deploy Aircraft"
         populate_lists(unit_selection.units, orbat, "Deploy Aircraft", "")
-        If unit_selection.units.Items.Count > 0 Then unit_selection.ShowDialog()
+        For Each l As ListViewItem In unit_selection.units.Items
+            r = r + l.Text + ", "
+        Next
+        If unit_selection.units.Items.Count > 0 Then
+            unit_selection.ShowDialog()
+            log_entry("Game Turn" + Str(gt) + " " + scenariodefaults.Current_time.Text + " Air Missions deployed " + r)
+
+        End If
     End Sub
 
     Public Sub air_air_combat(first As String, second As String)

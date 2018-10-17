@@ -1539,7 +1539,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf (phase = "Orbat" And hq = parent) Then
             validunit = True
-        ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not (Inf() And embussed()) Then
+        ElseIf phase = "Command" And (hq = parent Or hq = primary) And Not ((Inf() And embussed()) Or (aircraft And sorties > 0)) Then
             validunit = True
         ElseIf phase = "Direct Fire" And arrives = 0 And Not disrupted And Not demoralised And firers_available > 0 And Not has_fired() And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
             validunit = True

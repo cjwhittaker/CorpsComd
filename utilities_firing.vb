@@ -23,14 +23,14 @@
             If airtoair And target.Airground Then target.disrupted_gt = True
         End If
 
-        If firer.effect > 0 And Not target.spotted And (firer.indirect Or firer.Airground) Then
+        If firer.effect > 0 And (firer.indirect Or firer.Airground) Then
+            If Not target.spotted Then unobserved = True Else unobserved = False
             firer.effective = True
         ElseIf stage = 1 And target.airborne And firer.airborne And target.tacticalpts = 3 And firer.tacticalpts = 2 Then
             firer.effective = False
             firer.msg = IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing")
         ElseIf firer.effect > 0 Then
             firer.effective = True
-            If firer.task = "AF" Then unobserved = True Else unobserved = False
         Else
             firer.effective = False
             firer.msg = IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing")
@@ -86,7 +86,7 @@
             If firer.indirect And unobserved Then
                 init_msg = "Unobserved Indirect Fire "
             ElseIf firer.indirect And Not unobserved Then
-                init_msg = "Observed Indirect Fire"
+                init_msg = "Observed Indirect Fire "
             ElseIf firer.Airground Then
                 init_msg = "Air-Ground Fire "
             End If

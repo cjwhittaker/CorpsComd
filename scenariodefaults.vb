@@ -262,7 +262,10 @@
             End If
 
         Loop Until phase = 22
-        If smokefiredthisturn Then MsgBox("Remove all smoke fired during the last tactical action phase before this one", vbOKOnly + vbInformation, "Remove Smoke")
+        With resultform_2
+            .result.Text = "End of Game Turn" + vbNewLine + "Remove all smoke fired during the last tactical action phase before this one"
+            .ShowDialog()
+        End With
         smokefiredthisturn = False
         gameturn.Text = gameturn.Text + 1
         gamedate = DateAdd(DateInterval.Hour, 1, gamedate)

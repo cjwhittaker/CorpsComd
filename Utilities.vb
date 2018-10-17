@@ -93,6 +93,7 @@
                 listitem = New ListViewItem
                 listitem.Text = u.title
                 If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
+
                 ElseIf l.Name = "undercommand" Then
                     If purpose = "Movement" Or InStr(purpose, "Command") > 0 Or purpose = "Morale Recovery" Then
                         info = UCase(Strings.Left(u.mode, 1))

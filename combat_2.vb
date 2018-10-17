@@ -46,6 +46,7 @@
             firesmoke.Enabled = False
             fire.Visible = False
             return_fire.Visible = False
+            range_not_needed = True
         End If
         If Tag = "Indirect Fire" Then
             directfirepanel.Visible = False
@@ -119,6 +120,9 @@
         'observer.Visible = enable
         visrange.Visible = enable
         vis_range_select.Visible = enable
+        For Each c As Control In indirectfirepanel.Controls
+            If Strings.Left(c.Name, 3) = "obs" Then c.Enabled = enable
+        Next
     End Sub
 
     Private Sub choose_weapon(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles fwpn.Click, twpn.Click
@@ -243,7 +247,12 @@
 
     Public Sub firer_strength(f1 As Object, f2 As Object, f3 As Object, strength As Integer, airunit As Boolean)
         reset_strength(f1, f2, f3)
-        If strength <= 5 Then
+        If strength <= 0 Then
+            f1.Enabled = False
+            f2.Enabled = False
+            f3.Enabled = False
+            Exit Sub
+        ElseIf strength <= 5 Then
             f1.Enabled = True
             f2.Enabled = False
             f3.Enabled = False
@@ -334,7 +343,7 @@
                 f_mode.Text = firer.mode
                 If firer.mode <> conc Then f_mode.BackColor = golden Else f_mode.BackColor = defa
             End If
-            fwpn.Text = IIf(Not firer.helarm, firer.equipment, firer.helarm_select_wpn(firer.equipment))
+            If Not firer.helarm Then fwpn.Text = firer.equipment Else fwpn.Text = firer.helarm_select_wpn(firer.equipment)
             If firer.w2 = "" Then fwpn.Enabled = False Else fwpn.Enabled = True
             If firer.troopcarrier And firer.embussed Then f_dismounted.Enabled = True Else f_dismounted.Enabled = False
             If firer.Inf And firer.dismounted Then
@@ -391,7 +400,7 @@
     End Sub
 
     Private Sub select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click, observers.Click, artillery.Click
-        set_sel_color(sender, False, False)
+        If Not Tag = "Smoke Barrage" Then set_sel_color(sender, False, False)
         If firer.title Is Nothing Then area_fire = False
 
         If sender.name = "targets" Then
@@ -401,13 +410,18 @@
             If Tag <> "Smoke Barrage" And Tag <> "Indirect Fire" Then firer_strength(t1, t2, t3, target.firers_available, target.airborne)
             If Tag = "Air to Air" Then If Not firer.title Is Nothing Then abort_target.Visible = abort_option(target, firer, 0)
         ElseIf sender.name = "firers" Then
-
             firer = orbat(sender.FocusedItem.Text)
             nf = firers.FocusedItem.Index
             set_sel_color(sender, True, False)
             firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
             If Tag = "Air to Air" Then If Not target.title Is Nothing Then abort_firer.Visible = abort_option(firer, target, 0)
             If Tag = "Ground to Air" And Not firer.carrying = "" Then If ph_units(firer.carrying).airdefence Then firer = ph_units(firer.carrying)
+        ElseIf sender.name = "artillery" And Tag = "Smoke Barrage" Then
+            scoot.Text = scoot.Tag
+            scoot.BackColor = defa
+            firer = ph_units(sender.FocusedItem.Text)
+            If sender.focuseditem.backcolor <> golden Then sender.focuseditem.backcolor = golden Else sender.focuseditem.backcolor = ph_units(sender.focuseditem.text).status("")
+            sender.focuseditem.selected = False
         ElseIf sender.name = "artillery" And Not observer.title Is Nothing Then
             firer = orbat(sender.FocusedItem.Text)
             If firer.valid_arty_observer(observer) Then
@@ -435,7 +449,7 @@
             Next
             no = observers.FocusedItem.Index
             set_sel_color(sender, True, False)
-            If observer.indirect Then firer = observer Else Exit Sub
+            'If observer.indirect Then firer = observer Else Exit Sub
         Else
             Exit Sub
         End If
@@ -747,7 +761,10 @@
         End If
     End Sub
 
-
+    Private Sub visrange_Click(sender As Object, e As EventArgs) Handles visrange.Click
+        If Tag <> "Indirect Fire" Then Exit Sub
+        If vis_range_select.Enabled Then vis_range_select.Enabled = False Else vis_range_select.Enabled = True
+    End Sub
 
     Private Sub rangechange(sender As Object, e As EventArgs) Handles tgt_range_select.SelectedIndexChanged, vis_range_select.SelectedIndexChanged
         If Tag = "Indirect Fire" Then
@@ -832,7 +849,9 @@
         If (target.title Is Nothing And Not Tag = "Smoke Barrage") Or firer.title Is Nothing Then return_fire_disable() : Exit Sub
         tgt_range.Text = tgt_range_select.SelectedItem
         Dim rge As Integer = Val(tgt_range.Text), out_of_range As Boolean = False
-        If (rge > firer.get_range(True)) Or (Tag = "Opportunity Fire" And Not target.heli And rge > firer.get_range(False)) Or (Tag = "Opportunity Fire" And rge > eq_list(firer.equipment).maxrange And target.heli) Then out_of_range = True
+        If Not range_not_needed Then
+            If (rge > firer.get_range(True)) Or (Tag = "Opportunity Fire" And Not target.heli And rge > firer.get_range(False)) Or (Tag = "Opportunity Fire" And rge > eq_list(firer.equipment).maxrange And target.heli) Then out_of_range = True
+        End If
         'Or (Tag = "Air to Ground" And Not firer.heli And rge > 1000)
         'Dim r As Boolean = rge > firer.get_range
         If out_of_range And Not range_not_needed Then
@@ -840,8 +859,18 @@
             tgt_range.ForeColor = Color.Red
             Exit Sub
         ElseIf Tag = "Smoke Barrage" Then
-            tgt_range.ForeColor = Color.Green
-            firesmoke.Enabled = True
+            rge = firer.get_range(True)
+            For Each l As String In tgt_range_select.Items
+                If Val(l) >= rge Then
+                    tgt_range.Text = l
+                    tgt_range.ForeColor = Color.Green
+                    Exit For
+                End If
+            Next
+            firesmoke.Enabled = False
+            For Each l As ListViewItem In artillery.Items
+                If l.BackColor = golden Then firesmoke.Enabled = True : Exit Sub
+            Next
             Exit Sub
         ElseIf Tag = "Air to Air" Then
             If firers.Items.Count = 0 Or targets.Items.Count = 0 Then Exit Sub
@@ -883,10 +912,14 @@
             If observers.Items.Count = 0 Or artillery.Items.Count = 0 Or targets.Items.Count = 0 Then Exit Sub
             Dim tmp As String = "", observed As Boolean, identified As Boolean = False
             tgt_range.ForeColor = Color.Green
-            visrange.Text = vis_range_select.SelectedItem
-            rge = Val(visrange.Text)
-            observed = spotting(rge, observer, target)
-            If Not observed And target.has_fired Then identified = True
+            If vis_range_select.Enabled Then
+                visrange.Text = vis_range_select.SelectedItem
+                rge = Val(visrange.Text)
+                observed = spotting(rge, observer, target)
+            Else
+                observed = False
+            End If
+            If Not observed And (Not vis_range_select.Enabled Or target.has_fired) Then identified = True
             If target.eligibleCB And firer.cb Then identified = True : observed = False
             If observed Then
                 visrange.ForeColor = Color.Green
@@ -898,7 +931,7 @@
             fire.Enabled = (observed Or (identified And Not observed)) And tgt_range_select.SelectedIndex <> -1 And Not out_of_range And firer.firers > 0
             If observed Then target.spotted = True Else target.spotted = False
         Else
-        End If
+            End If
         If firer.firers = 0 Or target.title Is Nothing Or firer.title Is Nothing Or tgt_range.ForeColor = Color.Red Or (target.firers = 0 And Tag = "Direct Fire" And return_fire.BackColor = golden) Then return_fire.Enabled = False
     End Sub
 
@@ -1022,11 +1055,17 @@
 
 
     Private Sub firesmoke_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles firesmoke.Click
-        firer.smoke = gt
-        firers.Items(firers.FocusedItem.Index).Remove()
-        resultform_2.result.Text = "Smoke Fired"
-        resultform_2.ShowDialog()
-        smokefiredthisturn = True
+        For Each l As ListViewItem In artillery.Items
+            If l.BackColor = golden Then
+                firer = ph_units(l.Text)
+                firer.smoke = gt
+                firer.eligibleCB = True
+                artillery.Items.Remove(artillery.FindItemWithText(l.Text))
+                resultform_2.result.Text = firer.title + vbNewLine + "Smoke Fired"
+                resultform_2.ShowDialog()
+                smokefiredthisturn = True
+            End If
+        Next
         firesmoke.Enabled = False
         reset_range()
     End Sub
@@ -1172,7 +1211,7 @@
             End If
         End If
     End Sub
-    Private Sub reset_strength(f1 As Object, f2 As Object, f3 As Object)
+    Public Sub reset_strength(f1 As Object, f2 As Object, f3 As Object)
         f1.backcolor = defa : f2.BackColor = defa : f3.backcolor = defa
         f1.Text = "" : f2.Text = "" : f3.Text = ""
     End Sub

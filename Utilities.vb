@@ -103,13 +103,13 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
-                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportSmoke BarrageCA DefendersCA SupportsGround TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
+                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportOff Table TargetsSmoke BarrageCA DefendersCA SupportsGround TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
-                    If purpose = "Ground Targets" And u.indirect And u.eligibleCB Then
+                    If (purpose = "Ground Targets" Or purpose = "Off Table Targets") And u.indirect And u.eligibleCB Then
                         listitem.BackColor = can_observe
                     Else
-                        listitem.BackColor = nostatus
+                        listitem.BackColor = orbat(listitem.Text).status("")
                     End If
                     If purpose = "CAP Combat" Then
                         If Not l.Columns.ContainsKey("RD") Then l.Columns.Add("RD", "RD")

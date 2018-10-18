@@ -309,6 +309,7 @@
             If target.mode = travel And Not target.recon Then modifiers = modifiers + 2
             If target.soft_tpt Then modifiers = modifiers + 2
             If target.mode = disp Then modifiers = modifiers - target.Cover
+            If target.mode = disp And target.Cover = 0 Then modifiers = modifiers - 1
             If firer.insmoke Then modifiers = modifiers - 2
             If target.insmoke Then modifiers = modifiers - 2
             If firer.conc And firer.mode = disp Then modifiers = modifiers - 2
@@ -324,7 +325,7 @@
                     End If
                     If i = 11 Then col = i
                 Next
-                col = col + modifiers
+                col = col + modifiers - 1
                 col = IIf(col < 0, 0, col)
                 If firer.quality >= 8 Then dice = dice + 1
                 If firer.quality <= 3 Then dice = dice - 1
@@ -333,7 +334,7 @@
                 dice = IIf(dice > 9, 9, dice)
                 col = IIf(col > 11, 11, col)
                 fire_strength = IIf(fs > 9, 9, fs)
-                fv = direct_fire_strength(fire_strength - 1, col) - 1
+                fv = direct_fire_strength(fire_strength - 1, col)
                 If fv <= 0 Then firecasualties = 0 : Exit Function
                 firecasualties = firecasualties + fire_loss_table(dice, IIf(fv > 19, 19, fv))
                 fs = fs - 9
@@ -346,10 +347,10 @@
                 For row = 0 To 4
                     If row = 4 Or defence <= indirect_fire(row, 0) Then Exit For
                 Next
-                For col = 0 To 11
+                For col = 1 To 11
                     If firer.effect <= indirect_fire(row, col) Then Exit For
                 Next
-                col = col + modifiers
+                col = col + modifiers - 1
                 col = IIf(col < 0, 0, col)
                 dice = dice + IIf(col > 11, col - 11, 0) + firer.fatigue
                 If firer.quality >= 8 Then dice = dice + 1
@@ -357,7 +358,7 @@
                 dice = IIf(dice < 0, 0, dice)
                 dice = IIf(dice > 9, 9, dice)
                 col = (IIf(col > 11, 11, col))
-                fv = indirect_fire_strength(firer.firers, col) - 1
+                fv = indirect_fire_strength(firer.firers, col)
                 firecasualties = firecasualties + fire_loss_table(dice, IIf(fv > 19, 19, fv))
                 firer.effect = firer.effect - 10
             Loop Until firer.effect <= 0

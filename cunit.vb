@@ -741,6 +741,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function valid_air_defence(r As Integer, altitude As String)
         valid_air_defence = False
+        If mode = travel Then Exit Function
         If r / eq_list(equipment).maxrange > 0.67 Or (r / eq_list(equipment).maxrange > 0.5 And role = "|AAA|") Then
             If InStr(eq_list(equipment).radar, "M") > 0 And Not eligibleCB Then Exit Function
         ElseIf r / eq_list(equipment).maxrange > 0.34 Or role = "|AAA|" Then
@@ -1325,6 +1326,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         reset_helarm()
         assault = False
         support = False
+        moving = False
         If airborne Then
             If task = "CAP" Then
                 tacticalpts = 3
@@ -1592,10 +1594,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If indirect() And task = "CB" Then validunit = True
         ElseIf phase = "CB Targets" And indirect And sorties > 0 Then
             validunit = True
-        ElseIf phase = "Ground Targets" And ground_unit() Then
-                validunit = True
-            ElseIf phase = "Transport" Then
-                If parent = hq And carrying = "" And Not disrupted Then validunit = True
+        ElseIf phase = "Ground Targets" And ground_unit() And arrives = 0 Then
+            validunit = True
+        ElseIf phase = "Off Table Targets" And ground_unit() And arrives > 0 Then
+            validunit = True
+        ElseIf phase = "Transport" Then
+            If parent = hq And carrying = "" And Not disrupted Then validunit = True
             ElseIf phase = "Air Tasking" Then
                 If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
             ElseIf phase = "Arty Tasking" Then
@@ -1676,7 +1680,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
     Public Function has_moved()
         has_moved = False
-        If gt - moved <= 1 And moved <> 0 Then has_moved = True
+        If gt - moved = 1 And moved <> 0 Then has_moved = True
     End Function
     Public Function has_fired()
         has_fired = False

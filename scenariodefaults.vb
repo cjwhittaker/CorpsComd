@@ -226,10 +226,10 @@
         Do
             Select Case phase
                 Case 1 : determineinitiative()
-                Case 2 : smoke_barrage_phase(ph)
-                Case 5 : deploy_air_missions()
-                Case 6 : air_air_combat(ph, nph)
-                Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
+                'Case 2 : smoke_barrage_phase(ph)
+                'Case 5 : deploy_air_missions()
+                'Case 6 : air_air_combat(ph, nph)
+                'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
                 Case 10 : indirect_fire_phase(ph, nph)
                 Case 13 : direct_fire_phase(ph, nph)
                 '    'player 1
@@ -274,6 +274,9 @@
         phase = 0
         playerphase = 1
         savedata(scenario)
+        My.Computer.FileSystem.CopyFile(Replace(scenario, ".sce", ".orb"), Replace(scenario, ".sce", "GT" + Str(gt) + ".orb"))
+        My.Computer.FileSystem.CopyFile(Replace(scenario, ".sce", ".ent"), Replace(scenario, ".sce", "GT" + Str(gt) + ".ent"))
+
         If Not Me.Visible Then Me.Show()
 
     End Sub

@@ -74,6 +74,10 @@
         populate_lists(combat_2.firers, ph_units, "Direct Fire", first)
         populate_lists(combat_2.firers, friend_air, "Direct Fire", first)
         With combat_2
+            .indirectfirepanel.Visible = False
+            .directfirepanel.Visible = True
+            .directfirepanel.Enabled = True
+            .targetpanel.Enabled = True
             .Tag = "Direct Fire"
             .enable_controls(True, combat_2.directfirepanel)
             .enable_controls(True, combat_2.targetpanel)
@@ -98,8 +102,8 @@
         combat_2.artillery.Items.Clear()
         combat_2.observers.Items.Clear()
         populate_lists(combat_2.targets, enemy, "Ground Targets", second)
+        populate_lists(combat_2.targets, enemy, "Off Table Targets", second)
         populate_lists(combat_2.artillery, ph_units, "Indirect Fire", first)
-        combat_2.observers.Items.Add("Area Fire")
         populate_lists(combat_2.observers, ph_units, "Observers", first)
         populate_lists(combat_2.observers, friend_air, "Observers", first)
 
@@ -135,11 +139,13 @@
         combat_2.artillery.Items.Clear()
         populate_lists(combat_2.artillery, ph_units, "Smoke Barrage", first)
         With combat_2
+            .directfirepanel.Visible = False
+            .indirectfirepanel.Visible = True
+            .targetpanel.Visible = True
+            .targetpanel.Enabled = False
             .Tag = "Smoke Barrage"
             .enable_controls(False, combat_2.indirectfirepanel)
             .enable_controls(True, combat_2.targetpanel)
-            .indirectfirepanel.Visible = True
-            .directfirepanel.Visible = False
             .observers.Enabled = False
             .observation(False)
             .firer = New cunit
@@ -154,6 +160,7 @@
                 .Text = "Smoke Barrage Sub Phase" + gameturn
                 .ShowDialog()
                 .observers.Enabled = True
+                .indirectfirepanel.Visible = False
             End With
         End If
     End Sub
@@ -188,6 +195,7 @@
             End If
             With combat_2
                 .Tag = "Air to Air"
+                .indirectfirepanel.Visible = False
                 .directfirepanel.Visible = True
                 .directfirepanel.Enabled = True
                 .targetpanel.Enabled = True
@@ -220,6 +228,10 @@
         populate_lists(combat_2.targets, ac, "Air Defence Targets", "")
         With combat_2
             .Tag = "Ground to Air"
+            .indirectfirepanel.Visible = False
+            .directfirepanel.Visible = True
+            .directfirepanel.Enabled = True
+            .targetpanel.Enabled = True
             .enable_controls(True, combat_2.directfirepanel)
             .enable_controls(False, combat_2.targetpanel)
             .observation(False)
@@ -244,6 +256,10 @@
         populate_lists(combat_2.firers, friend_air, "Air to Ground", "")
         populate_lists(combat_2.targets, enemy, "Ground Targets", "")
         With combat_2
+            .indirectfirepanel.Visible = False
+            .directfirepanel.Visible = True
+            .directfirepanel.Enabled = True
+            .targetpanel.Enabled = True
             .Tag = "Air to Ground"
             .Text = "Air to Ground Fire Sub Phase for " + gameturn
             .enable_controls(False, .directfirepanel)
@@ -324,9 +340,6 @@
         '    If u.comd = 0 Then u.reset_fire_phase(ph)
         'Next
         populate_lists(combat_2.targets, enemy, "Ground Targets", "")
-        For Each u As cunit In ph_units
-            If Not u.has_moved Then u.moving = False
-        Next
         For Each ac As cunit In friend_air
             If ac.helarm And ac.has_fired Then ac.fired = 0
         Next

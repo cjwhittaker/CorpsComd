@@ -159,7 +159,7 @@
                 undercommand.FocusedItem.BackColor = golden
                 lv = undercommand.FocusedItem
                 undercommand.FocusedItem.Remove()
-                undercommand.Items.Insert(select_count + 1, lv)
+                undercommand.Items.Insert(select_count, lv)
             End If
         ElseIf InStr(Tag, "Command") > 0 And subject.aircraft Then
             If undercommand.FocusedItem.BackColor <> golden And select_count = 1 Then
@@ -627,16 +627,17 @@
                         Select Case tactical_option
                             Case 0
                                 'half fire
-                                If mover.has_fired Or mover.has_moved_fired Then Exit Select
+                                If mover.has_fired Then Exit Select
                                 conduct_fire(tactical_option)
                             Case 1
                                 'move
-                                If mover.has_moved Or mover.has_moved_fired Then Exit Select
+                                If mover.has_fired Or mover.moved = gt Then Exit Select
                                 If mover.ooc And d10() < 6 Then
                                     With resultform_2
                                         .result.Text = mover.title + " is out of command and has failed to move"
                                         .ShowDialog()
                                     End With
+                                    Exit Select
                                 End If
                                 mover.moved = gt
                                 If mover.indirect Then mover.eligibleCB = False : mover.sorties = 0
@@ -853,6 +854,7 @@
 
     Private Sub reset_unit_options()
         select_all = False
+        count_selected_units()
         tactical_actions.Enabled = False
         tac = 0
         selected_hq.Text = ""

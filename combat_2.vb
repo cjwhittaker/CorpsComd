@@ -33,13 +33,12 @@
         'test message
         'return_fire.Enabled = False
         fire.Enabled = False
-        directfirepanel.Visible = True
+        'directfirepanel.Visible = True
         If Tag = "Direct Fire" Or Tag = "Air to Air" Then return_fire.Visible = True Else return_fire.Visible = False
         If Tag = "Smoke Barrage" Then
-            targetpanel.Enabled = False
-            For Each c As Control In directfirepanel.Controls
-                If TypeOf c Is Label Then c.Enabled = False
-            Next
+            'For Each c As Control In directfirepanel.Controls
+            '    If TypeOf c Is Label Then c.Enabled = False
+            'Next
             'For Each c As Control In Panel2.Controls
             '    c.Enabled = False
             'Next
@@ -49,12 +48,10 @@
             range_not_needed = True
         End If
         If Tag = "Indirect Fire" Then
-            directfirepanel.Visible = False
-            indirectfirepanel.Visible = True
-            targetpanel.Enabled = True
             fire.Visible = True
         End If
         If Tag = "Direct Fire" Or Tag = "Opportunity Fire" Then
+            obs_chart.Show()
             directfirepanel.Visible = True
             indirectfirepanel.Visible = False
         End If
@@ -335,7 +332,7 @@
             If firer.plains Then plains(f_plains, Nothing)
             If firer.insmoke Then in_smoke(f_insmoke, Nothing)
             'If gt - firer.moved <= 1 Then firer.moving = True Else firer.moving = False
-            If firer.has_moved Then moved(f_moving, Nothing)
+            If firer.has_moved Then f_moving.Text = "Moved" : f_moving.BackColor = golden
             If firer.aircraft Then
                 fa_altitude.Text = firer.mode
                 If firer.mode <> "Low" Then fa_altitude.BackColor = golden Else fa_altitude.BackColor = defa
@@ -353,7 +350,7 @@
                     .BackColor = golden
                 End With
             End If
-            If Tag = "Indirect Fire" Then
+            If Tag = "Indirect Fire" Or Tag = "Smoke Barrage" Then
                 If firer.scoot Then set_shoot_scoot(scoot, Nothing)
             End If
             If firer.role = "InfSAM" And firer.carrying <> "" Then
@@ -363,7 +360,7 @@
                     .roadmove = firer.roadmove
                     .plains = firer.plains
                     .insmoke = firer.insmoke
-                    .has_moved = firer.has_moved
+                    .moved = firer.moved
                     .mode = firer.mode
                     .flanked = firer.flanked
                     .rear = firer.rear
@@ -377,7 +374,7 @@
             If target.plains Then plains(t_plains, Nothing)
             If target.insmoke Then in_smoke(t_insmoke, Nothing)
             'If gt - target.moved <= 1 Then target.moving= True Else target.moving= False
-            If target.has_moved Then moved(t_moving, Nothing)
+            If target.has_moved Then t_moving.Text = "Moved" : t_moving.BackColor = golden
             If target.aircraft Then
                 ta_altitude.Text = target.mode
                 If target.mode <> "Low" Then ta_altitude.BackColor = golden Else ta_altitude.BackColor = defa
@@ -392,7 +389,7 @@
             If observer.elevated Then elevation(obs_elevation, Nothing)
             If observer.insmoke Then in_smoke(obs_insmoke, Nothing)
             'If gt - observer.moved <= 1 Then observer.moving = True Else observer.moving = False
-            If observer.has_moved Then moved(obs_moving, Nothing)
+            If observer.has_moved Then obs_moving.Text = "Moved" : obs_moving.BackColor = golden
             obs_mode.Text = observer.mode
             If observer.mode <> conc Then obs_mode.BackColor = golden Else obs_mode.BackColor = defa
         Else
@@ -424,13 +421,13 @@
             sender.focuseditem.selected = False
         ElseIf sender.name = "artillery" And Not observer.title Is Nothing Then
             firer = orbat(sender.FocusedItem.Text)
+            If Tag = "Indirect Fire" And firer.role = "|RL|" Then
+                area_fire = True
+            Else
+                If area_fire = True Then area_fire = False : set_sel_color(targets, False, False)
+            End If
             If firer.valid_arty_observer(observer) Then
                 firer = orbat(sender.FocusedItem.Text)
-                If Tag = "Indirect Fire" And firer.role = "|RL|" Then
-                    area_fire = True
-                Else
-                    If area_fire = True Then area_fire = False : set_sel_color(targets, False, False)
-                End If
                 firer_strength(a1, a2, a3, firer.firers_available, False)
                 nf = artillery.FocusedItem.Index
                 set_sel_color(sender, True, False)
@@ -763,6 +760,8 @@
 
     Private Sub visrange_Click(sender As Object, e As EventArgs) Handles visrange.Click
         If Tag <> "Indirect Fire" Then Exit Sub
+        If observer.title Is Nothing Then Exit Sub
+        If observer.role <> "|Comd|" Then Exit Sub
         If vis_range_select.Enabled Then vis_range_select.Enabled = False Else vis_range_select.Enabled = True
     End Sub
 
@@ -976,6 +975,7 @@
             If firer.tacticalpts = 3 And firer.task = "CAP" Then stage = 1 Else stage = 2
             stages = 3
         ElseIf area_fire Then
+            firer.aborts = firer.firers
             stages = 0 : stage = 1
             For Each l As ListViewItem In targets.Items
                 If l.BackColor = golden Then stages = stages + 1
@@ -989,6 +989,7 @@
                 For Each l As ListViewItem In targets.Items
                     If l.BackColor = golden Then target = enemy(l.Text) : Exit For
                 Next
+                firer.firers = firer.aborts
             End If
             firer.fires = True
             resolvefire(firer, target, i)
@@ -1045,7 +1046,7 @@
             Else
                 If area_fire Then targets.FindItemWithText(target.title).BackColor = target.status("T")
                 reset_target()
-                If stage = stages Then reset_firer()
+                If i = stages Then reset_firer()
             End If
         Next
         If Tag = "Ground to Air" And targets.Items.Count = 0 Then Close()
@@ -1072,18 +1073,21 @@
 
     Private Sub combat_Closed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.Closing
         If Tag = "Air to Air" Then
+            Dim fnd_cap As Boolean = False, en_cap As Boolean = False
             For Each ac As cunit In friend_air
                 If ac.tacticalpts = 3 And ac.task = "CAP" Then
-                    e.Cancel = True
-                    Exit Sub
+                    fnd_cap = True
+                    Exit For
                 End If
             Next
             For Each ac As cunit In enemy_air
                 If ac.tacticalpts = 3 And ac.task = "CAP" Then
-                    e.Cancel = True
-                    Exit Sub
+                    en_cap = True
+                    Exit For
                 End If
             Next
+            If en_cap And fnd_cap Then e.Cancel = True : Exit Sub
+
             If InStr("ParityNone", air_assessment(4, interceptor)) = 0 Then
                 e.Cancel = True
                 For Each ac As cunit In friend_air
@@ -1151,7 +1155,7 @@
     End Sub
     Private Sub reset_firer()
         If firer.firers_available <= 0 Or Tag = "Indirect Fire" Then
-            If Tag = "indirect" And scoot.BackColor = golden And Not firer.moving Then firer.moving = True Else firer.moving = False
+            If Tag = "indirect" And scoot.BackColor = golden And Not firer.scoot Then firer.scoot = True Else firer.scoot = False
             If firer.firers_available <= 0 Then
                 If Tag = "Indirect Fire" Then
                     artillery.Items(nf).Remove()

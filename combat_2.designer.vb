@@ -368,6 +368,7 @@ Partial Class combat_2
         '
         'f_moving
         '
+        Me.f_moving.AccessibleDescription = ""
         Me.f_moving.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.f_moving.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.f_moving.Location = New System.Drawing.Point(45, 147)

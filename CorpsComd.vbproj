@@ -140,6 +140,12 @@
     <Compile Include="mov_rates.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="obs_chart.Designer.vb">
+      <DependentUpon>obs_chart.vb</DependentUpon>
+    </Compile>
+    <Compile Include="obs_chart.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="resultform_2.designer.vb">
       <DependentUpon>resultform_2.vb</DependentUpon>
     </Compile>
@@ -215,6 +221,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="mov_rates.resx">
       <DependentUpon>mov_rates.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="obs_chart.resx">
+      <DependentUpon>obs_chart.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="resultform_2.resx">
       <DependentUpon>resultform_2.vb</DependentUpon>

@@ -20,3 +20,4 @@ C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Deb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.exe
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.pdb
 C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.combat_2.resources
+C:\Users\cjwhi\Documents\Visual Studio 2015\Projects\CorpsComd\CorpsComd\obj\Debug\CorpsComd.obs_chart.resources

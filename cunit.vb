@@ -713,10 +713,10 @@ Imports System.Runtime.Serialization.Formatters.Binary
         airdefence = False
         If mode = travel Then
             airdefence = False
-        ElseIf Not carrying Is Nothing Then
-            If orbat(carrying).Inf() And orbat(carrying).role = "|InfSAM|" Then airdefence = True
         ElseIf InStr("|PDSAM|InfSAM|ADSAM|AAA|", role) > 0 Then
             airdefence = True
+        ElseIf Not carrying Is Nothing Then
+            If orbat(carrying).Inf() And orbat(carrying).role = "|InfSAM|" Then airdefence = True
         Else
         End If
     End Function
@@ -1499,7 +1499,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If title = "3/44 AD Bty" Then Stop
+        'If title = "SAM/1-115 MRR" Then Stop
         'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then

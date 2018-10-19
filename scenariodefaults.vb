@@ -229,7 +229,7 @@
                 'Case 2 : smoke_barrage_phase(ph)
                 'Case 5 : deploy_air_missions()
                 'Case 6 : air_air_combat(ph, nph)
-                'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
+                Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
                 Case 10 : indirect_fire_phase(ph, nph)
                 Case 13 : direct_fire_phase(ph, nph)
                 '    'player 1
@@ -283,9 +283,7 @@
 
     Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         For Each u As cunit In orbat
-            If u.parent = "115 MRR" And u.comd = 0 Then
-                If u.indirect Then u.eligibleCB = True
-            End If
+            If u.parent = "1-115 MRR" Then u.arrives = 0
         Next
     End Sub
 
@@ -353,9 +351,8 @@
     Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
         Stop
         For Each u As cunit In orbat
-            u.fatigue = 0
+            If u.parent = "1-115 MRR" Then u.arrives = True : u.mode = disp
         Next
-        Dim a As String = Strings.Left("F16-AS", InStr("F16-AS", "-") - 1)
     End Sub
 
 

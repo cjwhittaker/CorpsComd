@@ -20,7 +20,9 @@
             target.set_fire_effect(firer, tgtrange, stage)
         Else
             target.effect = 0
-            If airtoair And target.Airground Then target.disrupted_gt = True
+            If airtoair And target.Airground Then
+                target.disrupted_gt = True
+            End If
         End If
 
         If firer.effect > 0 And (firer.indirect Or firer.Airground) Then

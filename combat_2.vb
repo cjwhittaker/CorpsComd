@@ -412,7 +412,9 @@
             set_sel_color(sender, True, False)
             firer_strength(s1, s2, s3, firer.firers_available, firer.airborne)
             If Tag = "Air to Air" Then If Not target.title Is Nothing Then abort_firer.Visible = abort_option(firer, target, 0)
-            If Tag = "Ground to Air" And Not firer.carrying = "" Then If ph_units(firer.carrying).airdefence Then firer = ph_units(firer.carrying)
+            If Tag = "Ground to Air" And Not firer.carrying = "" Then
+                If ph_units(firer.carrying).airdefence Then firer = ph_units(firer.carrying)
+            End If
         ElseIf sender.name = "artillery" And Tag = "Smoke Barrage" Then
             scoot.Text = scoot.Tag
             scoot.BackColor = defa
@@ -1026,6 +1028,7 @@
             ElseIf InStr(Text, "Moving Fire") > 0 And firer.firers_available <= 0 Then
                 Close()
             ElseIf Tag = "Ground to Air" Then
+                firer.firers_available = firer.strength
                 reset_aircraft(target, False, i, IIf(target.strength = 0 Or Not target.airborne, True, False))
                 If ta_ecm_ds.BackColor = golden Then
                     ta_ecm_ds.Text = ta_ecm_ds.Tag
@@ -1120,7 +1123,9 @@
             ElseIf target.second_attack And target.disrupted_gt Then
                 If target.strength <> friend_air(target.title).strength Then
                     friend_air.Remove(target.title)
+                    orbat.Remove(target.title)
                     friend_air.Add(target, target.title)
+                    orbat.Add(target, target.title)
                 End If
                 firer = friend_air(target.title)
                 target = New cunit

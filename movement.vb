@@ -17,7 +17,10 @@
             Dim r As String = ""
             For Each l As ListViewItem In units.Items
                 If l.BackColor = golden Then
-                    If d10() >= arty_location(enemy(l.Text).arty_type, mover.arty_int - 1 + enemy(l.Text).sorties * 2 - mover.initial + mover.strength) Then
+                    Dim j As Integer = orbat(subject.parent).arty_int - 1 + enemy(l.Text).sorties * 2 - subject.initial + subject.strength
+                    If j > 9 Then j = 9
+                    If j <= 0 Then j = 0
+                    If d10() >= arty_location(j, enemy(l.Text).arty_type) Then
                         r = r + l.Text + vbNewLine
                         enemy(l.Text).eligibleCB = True
                     End If
@@ -33,10 +36,15 @@
         set_allocation(False)
     End Sub
 
-    Private Sub units_SelectedIndexChanged(sender As Object, e As EventArgs) Handles units.SelectedIndexChanged
+    Private Sub units_SelectedIndexChanged(sender As Object, e As EventArgs) Handles units.Click
         If tactical_option = 7 Then
-            If units.SelectedItems.Count <= 3 Then
-                If units.FocusedItem.BackColor = golden Then units.FocusedItem.BackColor = defa Else units.FocusedItem.BackColor = golden
+            Dim i As Integer = 0
+            For Each l As ListViewItem In units.Items
+                If l.BackColor = golden Then i = i + 1
+
+            Next
+            If i <= 2 Or (i = 3 And units.FocusedItem.BackColor = golden) Then
+                If units.FocusedItem.BackColor = golden Then units.FocusedItem.BackColor = nostatus Else units.FocusedItem.BackColor = golden
             End If
         Else
             For Each l As ListViewItem In units.Items
@@ -299,6 +307,7 @@
             tactical_actions.Text = purpose
             executeorders.Text = "Execute Tactical Orders"
             unitcover.Visible = True
+            oppfire = True
             opp_fire.Text = "Opportunity Fire"
             opp_fire.Visible = True
             opp_fire.BackColor = golden
@@ -460,7 +469,7 @@
                       'line of supply broken
                     Case 2
                       'out of supply
-                    Case 3, 5
+                    Case 3, 5, 7
                         'Artillery Missions and observer
                         'If Not mover.indirect Then Exit Select
                         set_allocation(True)
@@ -624,6 +633,7 @@
                 For Each a As Control In tactical_actions.Controls
                     If a.BackColor = golden Then
                         tactical_option = Val(Strings.Right(a.Name, 1))
+                        l.BackColor = mover.status("")
                         Select Case tactical_option
                             Case 0
                                 'half fire
@@ -683,14 +693,14 @@
         If oppfire Then conduct_fire(tactical_option)
         If mover.mode Is Nothing Then mover.mode = disp
         'If prev_mode = mover.mode Then
-        If tactical_option = 0 And mover.conc Then
+        If tactical_option = 5 And mover.conc Then
             If mover.mode = travel Then
                 mover.mode = conc
             ElseIf mover.mode = conc Then
                 mover.mode = travel
             Else
             End If
-        ElseIf tactical_option = 1 And mover.conc Then
+        ElseIf tactical_option = 6 And mover.conc Then
             If mover.mode = conc Then
                 mover.mode = disp
             ElseIf mover.mode = disp Then
@@ -707,7 +717,7 @@
         End If
         l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
         'End If
-
+        mover.pre_mode = mover.mode
     End Sub
 
     Private Sub dismount_action(l As ListViewItem)
@@ -776,9 +786,12 @@
                 .Text = "Opportunity Fire for " + gameturn
             End With
         ElseIf opt = 0 Then
-            populate_lists(combat_2.targets, enemy, "Direct Fire", nph)
-            populate_lists(combat_2.targets, enemy_air, "Direct Fire", nph)
+            populate_lists(combat_2.targets, enemy, "Ground Targets", nph)
+            populate_lists(combat_2.targets, enemy_air, "Air Defence Targets", nph)
             With combat_2
+                .directfirepanel.Visible = True
+                .targetpanel.Visible = True
+                .indirectfirepanel.Visible = False
                 .enable_controls(True, combat_2.directfirepanel)
                 .enable_controls(True, combat_2.targetpanel)
                 .firers.Items.Add(t)
@@ -787,7 +800,7 @@
                 .nf = 0
                 .update_parameters("firers")
                 .firer_strength(combat_2.s1, combat_2.s2, combat_2.s3, mover.firers_available, mover.airborne)
-                .Tag = "Direct Fire"
+                .Tag = "Half Fire"
                 .Text = "Moving Fire for " + gameturn
             End With
         Else
@@ -800,6 +813,7 @@
             .abort_firer.Visible = False
             .abort_target.Visible = False
             .range_not_needed = False
+            .swap.Visible = False
         End With
 
         If Not combat_2.Visible Then
@@ -860,6 +874,7 @@
         selected_hq.Text = ""
         load_orders(Tag)
         opp_fire.BackColor = golden
+        oppfire = True
         With cover
             .Text = "None"
             .BackColor = defa

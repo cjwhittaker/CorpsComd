@@ -43,9 +43,9 @@
         If subject.halfstrength Then modifier = modifier + 1
         If rallying And subject.halfstrength And rallying Then modifier = modifier + 2
         If subject.cas_gt > 3 Then modifier = modifier + 2
-        r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "X" + Trim(Str(subject.quality)) + "] "
         result = dice + modifier - subject.quality
-        If result < 0 Then
+        r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "=" + Trim(Str(dice + modifier)) + " X " + Trim(Str(subject.quality)) + "] "
+        If result < 0 And ((Not rallying And Not subject.disrupted) Or (rallying And subject.disrupted)) Then
             r = Replace(r, "X", "<")
             test_morale = subject.title + " has passed its Morale Test" + r
             If rallying And subject.disrupted Then
@@ -53,19 +53,19 @@
                 subject.disrupted = False
                 subject.mode = disp
             End If
-        ElseIf result < 4 And subject.disrupted Then
+        ElseIf result <= 4 And subject.disrupted Then
             r = Replace(r, "X", ">=")
             test_morale = subject.title + IIf(rallying, " has failed its Morale Test to rally and ", "") + " remains disrupted" + r
         ElseIf result >= 5 Then
-            r = Replace(r, "X", "<")
+            r = Replace(r, "X", ">=")
             test_morale = subject.title + " has failed its Morale Test and surrenders. Remove the unit from the table. " + r
             subject.strength = 0
         ElseIf result = 0 Then
             r = Replace(r, "X", "=")
             test_morale = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
             subject.mode = disp
-        ElseIf result <= 4 Then
-            r = Replace(r, "X", "<")
+        ElseIf result <= 4 And Not subject.disrupted Then
+            r = Replace(r, "X", ">=")
             test_morale = subject.title + " has failed its Morale Test and is now disrupted" + r
             subject.disrupted = True
             subject.disrupted_gt = True
@@ -388,6 +388,7 @@
                                     With u
                                         .mode = travel
                                         .moved = gt
+                                        .emplaced = False
                                     End With
                                 End If
                             End If

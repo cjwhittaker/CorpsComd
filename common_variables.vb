@@ -21,6 +21,7 @@
     Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen, must_test As Color = Color.Violet, may_test As Color = Color.Lavender, tested_and_disrupted As Color = Color.DarkRed
     Public opportunityfire As New unit_selection, airground As New unit_selection, groundair As New unit_selection
     Public night As Boolean, dawn As Integer, dusk As Integer, twilight As Boolean
+    Public temp_firing As String = "((s,e,d)=fv,col,i)=a)", firing_result As String = ""
     Public sys_dir As String, g_dir As String, d_dir As String
     Public golden As Color = Color.Goldenrod, defa As Color = SystemColors.Control
     Public travel As String = "Travel", conc As String = "Conc", disp As String = "Disp"
@@ -68,10 +69,10 @@
 {9, 11, 13, 15, 16, 17, 18, 20, 22, 23, 24, 25},
 {10, 12, 14, 16, 17, 18, 19, 21, 23, 24, 25, 26}}
     Public indirect_fire(,) As Integer = {{0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-{2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 0, 0, 0},
-{6, 4, 6, 8, 10, 12, 14, 16, 18, 20, 0, 0, 0},
-{12, 5, 7, 9, 11, 13, 15, 17, 19, 0, 0, 0, 0},
-{13, 7, 9, 10, 12, 14, 16, 18, 20, 0, 0, 0, 0}}
+{2, 3, 5, 7, 9, 10, 0, 0, 0, 0, 0, 0, 0},
+{6, 4, 6, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0},
+{12, 5, 7, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0},
+{13, 7, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
     Public indirect_fire_strength(,) As Integer =
 {{0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 {0, 1, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11},

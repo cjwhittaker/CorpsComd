@@ -229,7 +229,7 @@
                 'Case 2 : smoke_barrage_phase(ph)
                 'Case 5 : deploy_air_missions()
                 'Case 6 : air_air_combat(ph, nph)
-                Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
+                'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
                 Case 10 : indirect_fire_phase(ph, nph)
                 Case 13 : direct_fire_phase(ph, nph)
                 '    'player 1
@@ -243,6 +243,7 @@
             End Select
             If phase = 2 Or phase = 10 Or phase = 7 Or phase = 13 Or phase = 16 Or phase = 18 Then
                 For Each u As cunit In orbat
+                    If u.comd = 0 And u.casualties > 0 And (phase = 10 Or phase = 13) Then u.apply_casualties()
                     If u.comd = 0 And u.fires And u.fired <> gt Then
                         u.fired = gt
                         If u.carrying <> "" Then orbat(u.carrying).fired = u.fired
@@ -251,6 +252,11 @@
             End If
             savedata(scenario)
             phase = phase + 1
+            If phase = 13 Or phase = 10 Or phase = 16 Or phase = 18 Then
+                For Each u As cunit In orbat
+                    If u.comd = 0 Then u.pre_mode = u.mode
+                Next
+            End If
             If ph <> initiative And phase <> 15 And phase <> 17 Then
                 swap_phasing_player(True)
             End If
@@ -274,8 +280,8 @@
         phase = 0
         playerphase = 1
         savedata(scenario)
-        My.Computer.FileSystem.CopyFile(Replace(scenario, ".sce", ".orb"), Replace(scenario, ".sce", "GT" + Str(gt) + ".orb"))
-        My.Computer.FileSystem.CopyFile(Replace(scenario, ".sce", ".ent"), Replace(scenario, ".sce", "GT" + Str(gt) + ".ent"))
+        My.Computer.FileSystem.CopyFile(Replace(scenario, ".sce", ".orb"), Replace(scenario, ".sce", " GT" + Str(gt) + ".orb"))
+        My.Computer.FileSystem.CopyFile(Replace(scenario, ".sce", ".ent"), Replace(scenario, ".sce", " GT" + Str(gt) + ".ent"))
 
         If Not Me.Visible Then Me.Show()
 
@@ -348,10 +354,21 @@
         savedata(scenario)
     End Sub
 
-    Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub Button1_Click_1(sender As Object, e As EventArgs)
         Stop
+        Dim r_test(11) As Integer, j As Integer
+        For i = 1 To 10000000
+            j = d10()
+            r_test(j) = r_test(j) + 1
+        Next
+        Stop
+
+
+
         For Each u As cunit In orbat
-            If u.parent = "1-115 MRR" Then u.arrives = True : u.mode = disp
+            If u.comd = 0 And u.nation = "WP" And u.indirect And u.fired = 3 And Not u.moved = 3 Then
+                If d10() > 7 Then u.eligibleCB = True
+            End If
         Next
     End Sub
 

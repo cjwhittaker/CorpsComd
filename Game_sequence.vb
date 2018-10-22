@@ -87,6 +87,7 @@
             .firesmoke.Visible = False
             .fire.Visible = True
             .range_not_needed = False
+            .swap.Visible = True
         End With
         If Not combat_2.Visible Then
             With combat_2
@@ -121,6 +122,7 @@
             .fire.Visible = True
             .firesmoke.Visible = False
             .range_not_needed = False
+            .swap.Visible = True
         End With
         If Not combat_2.Visible Then
             With combat_2
@@ -154,6 +156,7 @@
             .range_not_needed = True
             .reset_strength(combat_2.a1, .a2, .a3)
             .firer_strength(.a1, .a2, .a3, 0, False)
+            .swap.Visible = True
         End With
         If Not combat_2.Visible Then
             With combat_2
@@ -208,6 +211,7 @@
                 .fire.Visible = True
                 .firesmoke.Visible = False
                 .range_not_needed = True
+                .swap.Visible = True
             End With
             If Not combat_2.Visible Then
                 With combat_2
@@ -242,6 +246,7 @@
             .fire.Visible = True
             .firesmoke.Visible = False
             .range_not_needed = False
+            .swap.Visible = True
         End With
         If Not combat_2.Visible Then
             With combat_2
@@ -269,6 +274,7 @@
             .fire.Visible = True
             .firesmoke.Visible = False
             .range_not_needed = False
+            .swap.Visible = True
         End With
         If Not combat_2.Visible Then
             With combat_2

@@ -1,19 +1,28 @@
 ﻿Public Class assault
     Public defender As cunit, attacker As cunit, supporter As cunit
     Private Sub select_unit(ByVal sender As Object, ByVal e As System.EventArgs) Handles supports.Click, defenders.Click
+        reset_factors()
 
         If sender.FocusedItem.BackColor = golden Then
-            sender.FocusedItem.BackColor = nostatus
+            sender.FocusedItem.BackColor = orbat(sender.focuseditem.text).status("")
             If sender.name = "supports" Then supporter = New cunit Else defender = New cunit
             defender = New cunit
             d_arty.Items.Clear()
         Else
             For Each l As ListViewItem In sender.items
-                If l.BackColor = golden Then l.BackColor = nostatus
+                If l.BackColor = golden Then l.BackColor = orbat(l.Text).status("")
             Next
             sender.FocusedItem.BackColor = golden
             If sender.name = "supports" Then supporter = orbat(sender.FocusedItem.Text) Else defender = orbat(sender.FocusedItem.Text)
-            If sender.name = "defenders" Then populate_lists(d_arty, enemy, "Artillery Support", defender.parent)
+            If sender.name = "defenders" Then
+                d_arty.Items.Clear()
+                populate_lists(d_arty, enemy, "Artillery Support", defender.parent)
+                If enemy(defenders.FocusedItem.Text).cover > 0 Then
+                    cover.Text = "+" + Trim(Str(enemy(defenders.FocusedItem.Text).cover))
+                    cover.BackColor = golden
+                Else
+                End If
+            End If
 
         End If
         sender.SelectedItems.Clear()
@@ -21,6 +30,7 @@
 
     Private Sub conduct_close_assault() Handles fight.Click
         Dim modi As Integer = 0, odds As Single = 0
+        firing_result = ""
         attacker.assault = True : supporter.assault = True
         modi = close_assault_difference()
         odds = close_assault_ratio(attacker, supporter, defender)
@@ -33,21 +43,26 @@
         End If
         modi = modi + arty_support(a_arty, True)
         modi = modi - arty_support(d_arty, True)
-        If cover.Text <> "None" Then modi = modi - (1 + Val(cover.Text))
-        If attacker.engr Or supporter.engr Then modi = modi + 1 + Val(cover.Text)
+        modi = modi - defender.Cover
+        If attacker.engr Or supporter.engr Then modi = modi + defender.Cover
         'If uphill.Checked Then modi = modi - 1
-        If (attacker.Inf And supporter.afv) Or (supporter.Inf And attacker.afv) Then modi = modi + 2
-        If (attacker.afv Or supporter.afv) And atgw_spt.BackColor = golden Then modi = modi - 2
+        If Not supporter.title Is Nothing Then
+            If (attacker.Inf And supporter.afv) Or (supporter.Inf And attacker.afv) Then modi = modi + 2
+            If (attacker.afv Or supporter.afv) And atgw_spt.BackColor = golden Then modi = modi - 2
+        End If
         If afv_spt.BackColor = golden Then modi = modi - 1
-        If defender.disrupted Then modi = modi + 4
-        modi = modi + d6()
+        'If defender.disrupted Then modi = modi + 4
+        Dim r As Integer = d6()
+        firing_result = "(" + Trim(Str(modi)) + "," + Trim(Str(r)) + ")="
+        modi = modi + r
+        attacker.casualties = 0 : defender.casualties = 0
         Select Case modi
             Case Is <= 0
                 attacker.casualties = 2
             Case Is <= 2
                 attacker.casualties = 1
             Case Is <= 7
-                defender.casualties = 0
+
             Case Is <= 9
                 defender.casualties = 1
             Case Is <= 11
@@ -68,18 +83,19 @@
                 If supporter.strength <= 0 Then supporter.strength = 0
             End If
         End If
-        If modi >= 5 And defender.disrupted Then
-            With defender
-                .strength = 0
-                .casualties = 0
-                .hits = 0
-            End With
-        ElseIf modi >= 5 And Not defender.disrupted Then
-            defender.disrupted = True
-        Else
+        If modi >= 5 Then
+            If defender.disrupted Then
+                With defender
+                    .strength = 0
+                    .casualties = 0
+                    .hits = 0
+                End With
+            Else
+                defender.disrupted = True
+                defender.strength = defender.strength - defender.casualties
+                If defender.strength <= 0 Then defender.strength = 0
+            End If
         End If
-        defender.strength = defender.strength - defender.casualties
-        If defender.strength <= 0 Then defender.strength = 0
         If modi < 5 Then
             resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
             If Not supporter.title Is Nothing Then resultform_2.result.Text = resultform_2.result.Text + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
@@ -144,7 +160,7 @@
         If defender.disrupted Then
             dc = dc - 4
             If dc > 4 Then dc = 4
-        ElseIf defender.mode = disp And Not defender.dismounted And Not (attacker.armour Or supporter.armour) Then
+        ElseIf defender.mode = disp And Not (defender.dismounted And (attacker.armour Or supporter.armour)) Then
             dc = dc - 2
         Else
         End If
@@ -188,7 +204,7 @@
     Private Sub select_arty_spt(ByVal sender As Object, ByVal e As System.EventArgs) Handles a_arty.Click, d_arty.Click
         If sender.focuseditem.BackColor = golden Then
             sender.focuseditem.BackColor = nostatus
-        ElseIf sender.focuseditem.BackColor = nostatus Then
+        ElseIf sender.focuseditem.BackColor <> golden Then
             sender.focuseditem.BackColor = golden
             If arty_support(sender, False) > 4 Then sender.focuseditem.BackColor = nostatus
         Else

@@ -26,7 +26,7 @@
         End If
 
         If firer.effect > 0 And (firer.indirect Or firer.Airground) Then
-            If Not target.spotted Then unobserved = True Else unobserved = False
+            If Not target.spotted And Not firer.depth_fire Then unobserved = True Else unobserved = False
             firer.effective = True
         ElseIf stage = 1 And target.airborne And firer.airborne And target.tacticalpts = 3 And firer.tacticalpts = 2 Then
             firer.effective = False
@@ -95,7 +95,7 @@
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
             apply_result(target, firer.result)
             firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, True, False, False)
-        ElseIf oppfire Then
+        ElseIf combat_2.Tag = "Opportunity Fire" Then
             init_msg = "Opportunity Fire "
             If oppfire Then init_msg = firer.title + " conducts opportunity fire against " + target.title
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
@@ -189,16 +189,16 @@
         obr = 100 * eq_list(target.equipment).bor
         If spotter.task = "FFE" Then
             obr = 1200
-        ElseIf target.mode = travel Then
+        ElseIf target.pre_mode = travel Then
             obr = 1000
         ElseIf target.Inf And target.dismounted Then
-            If target.mode = disp Then
+            If target.pre_mode = disp Then
                 obr = 100
-            ElseIf target.mode = conc Then
+            ElseIf target.pre_mode = conc Then
                 obr = 200
             Else
             End If
-        ElseIf target.mode = disp And obr = 800 Then
+        ElseIf target.pre_mode = disp And obr = 800 Then
             obr = 600
         Else
         End If
@@ -220,11 +220,11 @@
         If smoked And InStr(LCase(eq_list(spotter.equipment).special), "t") = 0 Then om = om - 4
         If spotter.elevated And (Not spotter.airborne Or spotter.heli) Then om = om + 1
         If spotter.has_moved Or (spotter.airborne And Not spotter.heli) Then om = om - 1
-        If spotter.mode = travel Then om = om - 1
+        If spotter.pre_mode = travel Then om = om - 1
         If spotter.task <> "FFE" Then
             If gt - target.fired <= 1 Then om = om + 2
             If target.has_moved Then om = om + 1
-            If target.roadmove And Not target.mode = disp Then om = om + 1
+            If target.roadmove And Not target.pre_mode = disp Then om = om + 1
             If target.plains Then om = om + 1
         End If
         'If target.mode = disp Then om = om - 1
@@ -244,7 +244,7 @@
         firecasualties = 0
         Dim airtoair As Boolean = firer.airborne And target.airborne
         Dim airdefence As Boolean = firer.airdefence And target.airborne
-        Dim directfire As Boolean = IIf(combat_2.Tag = "Direct Fire" Or (combat_2.Tag = "Opportunity Fire" And Not airdefence), True, False)
+        Dim directfire As Boolean = IIf(combat_2.Tag = "Direct Fire" Or combat_2.Tag = "Half Fire" Or (combat_2.Tag = "Opportunity Fire" And Not airdefence), True, False)
         Dim indirectfire As Boolean = IIf(combat_2.Tag = "Indirect Fire", True, False)
 
         Dim modifiers As Integer = 0, col As Integer = 0, row As Integer = 0, dice As Integer = 0, fv As Integer = 0, fire_effect As Integer = 0, fire_strength As Integer = 0
@@ -288,19 +288,31 @@
         If directfire Then
             If target.armour And (target.mode = conc Or target.mode = travel) And (target.flanked Or target.rear) Then modifiers = modifiers + 2
             If target.armour And target.mode = disp And (target.flanked Or target.rear) Then modifiers = modifiers + 1
-            If oppfire And (target.smoke_discharger Or target.smoke_generator) Then modifiers = modifiers - 1
-            If oppfire And target.smoke_discharger Then modifiers = modifiers - 1
+            If (combat_2.Tag = "Opportunity Fire") Then
+                If target.smoke_discharger Or target.smoke_generator Then
+                    modifiers = modifiers - 1
+                ElseIf target.smoke_discharger Then
+                    modifiers = modifiers - 1
+                Else
+                End If
+            End If
             modifiers = modifiers + target.size
             If firer.heat And target.composite Then modifiers = modifiers - 2
             If firer.heat And target.spaced Then modifiers = modifiers - 1
-            If firer.mode = travel Then firer.firers = 1
+            If firer.pre_mode = travel Then firer.firers = 1
             'If firer.mode = disp And firer.conc Then modifiers = modifiers - 2
-            If combat_2.Tag = "Half Fire" And firer.stabilised Then modifiers = modifiers - 1
-            If combat_2.Tag = "Half Fire" And Not firer.stabilised Then modifiers = modifiers - 2
+            If combat_2.Tag = "Half Fire" Then
+                If firer.heli Then
+                ElseIf firer.stabilised Then
+                    modifiers = modifiers - 1
+                Else
+                    modifiers = modifiers - 2
+                End If
+            End If
             If target.mode <> disp And target.plains Then modifiers = modifiers + 2
         End If
         If indirectfire Then
-            If firer.has_moved Then modifiers = modifiers - 1
+            If firer.scoot Then modifiers = modifiers - 1
             If unobserved Then modifiers = modifiers - 2
             If target.mode <> disp And target.plains Then modifiers = modifiers + 1
         End If
@@ -314,43 +326,52 @@
             If target.mode = disp And target.Cover = 0 Then modifiers = modifiers - 1
             If firer.insmoke Then modifiers = modifiers - 2
             If target.insmoke Then modifiers = modifiers - 2
-            If firer.conc And firer.mode = disp Then modifiers = modifiers - 2
+            If firer.conc And firer.pre_mode = disp Then modifiers = modifiers - 2
         End If
+        Dim fs As Integer = firer.firers, r As Integer = 0
+        firing_result = ""
         If airdefence Or directfire Or airtoair Then
-            Dim fs As Integer = firer.firers
+            dice = d10() - 1
+            For i As Integer = 0 To 11
+                If direct_fire(defence, i) >= firer.effect Then
+                    col = i
+                    Exit For
+                End If
+                If i = 11 Then col = i
+            Next
+            col = col + modifiers - 1
+            col = IIf(col < 0, 0, col)
+            If firer.quality >= 8 Then dice = dice + 1
+            If firer.quality <= 3 Then dice = dice - 1
+            dice = dice + IIf(col > 11, col - 11, 0) + firer.fatigue
+            dice = IIf(dice < 0, 0, dice)
+            dice = IIf(dice > 9, 9, dice)
+            col = IIf(col > 11, 11, col)
             Do
-                dice = d10() - 1
-                For i As Integer = 0 To 11
-                    If direct_fire(defence, i) >= firer.effect Then
-                        col = i
-                        Exit For
-                    End If
-                    If i = 11 Then col = i
-                Next
-                col = col + modifiers - 1
-                col = IIf(col < 0, 0, col)
-                If firer.quality >= 8 Then dice = dice + 1
-                If firer.quality <= 3 Then dice = dice - 1
-                dice = dice + IIf(col > 11, col - 11, 0) + firer.fatigue
-                dice = IIf(dice < 0, 0, dice)
-                dice = IIf(dice > 9, 9, dice)
-                col = IIf(col > 11, 11, col)
                 fire_strength = IIf(fs > 9, 9, fs)
                 fv = direct_fire_strength(fire_strength - 1, col)
-                If fv <= 0 Then firecasualties = 0 : Exit Function
-                firecasualties = firecasualties + fire_loss_table(dice, IIf(fv > 19, 19, fv))
+                If fv <= 0 Then firecasualties = 0
+                If fv > 0 Then r = fire_loss_table(dice, IIf(fv > 19, 19, fv))
+                firing_result = firing_result + "((" + Str(fire_strength) + "," + Str(firer.effect) + "," + Str(defence) + ")=" + Str(fv) + "," + Str(dice) + ")=" + Str(r) + vbNewLine
+                If firecasualties < 0 And r > 0 Then
+                    firecasualties = r
+                ElseIf r < 0 And firecasualties = 0 Then
+                    firecasualties = r
+                ElseIf r > 0 And firecasualties >= 0 Then
+                    firecasualties = firecasualties + r
+                Else
+                End If
                 fs = fs - 9
             Loop Until fs <= 0
         ElseIf indirectfire Or airground Then
-
+            dice = d10() - 1
             Do
-                dice = d10() - 1
                 fire_effect = IIf(firer.effect > 10, 10, firer.effect)
                 For row = 0 To 4
                     If row = 4 Or defence <= indirect_fire(row, 0) Then Exit For
                 Next
                 For col = 1 To 11
-                    If firer.effect <= indirect_fire(row, col) Then Exit For
+                    If fire_effect <= indirect_fire(row, col) Then Exit For
                 Next
                 col = col + modifiers - 1
                 col = IIf(col < 0, 0, col)
@@ -361,6 +382,9 @@
                 dice = IIf(dice > 9, 9, dice)
                 col = (IIf(col > 11, 11, col))
                 fv = indirect_fire_strength(firer.firers, col)
+                If fv <= 0 Then firecasualties = 0
+                If fv > 0 Then r = fire_loss_table(dice, IIf(fv > 19, 19, fv))
+                firing_result = firing_result + "((" + Str(firer.firers) + "," + Str(firer.effect) + "," + Str(defence) + ")=" + Str(fv) + "," + Str(dice) + ")=" + Str(r) + vbNewLine
                 firecasualties = firecasualties + fire_loss_table(dice, IIf(fv > 19, 19, fv))
                 firer.effect = firer.effect - 10
             Loop Until firer.effect <= 0
@@ -420,7 +444,7 @@
             target.hits = target.hits + 1
         Else
         End If
-
+        generateresult = generateresult + vbNewLine + firing_result
     End Function
 
     Public Sub apply_result(victim As cunit, result As Integer)

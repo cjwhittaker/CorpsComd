@@ -17,6 +17,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private phalfstrength As Boolean
     Private pstrength As Integer
     Private pmode As String
+    Private ppre_mode As String
     Private pelevated As Boolean
     Private proadmove As Boolean
     Private pmoving As Boolean
@@ -175,6 +176,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End Get
         Set(ByVal Value As String)
             pmode = Value
+        End Set
+    End Property
+    Property pre_mode() As String
+        Get
+            Return ppre_mode
+        End Get
+        Set(ByVal Value As String)
+            ppre_mode = Value
         End Set
     End Property
     Property casualties() As Integer
@@ -645,6 +654,10 @@ Imports System.Runtime.Serialization.Formatters.Binary
         indirect = False
         If InStr("|ARTY|RL|MOR|", role) > 0 Then indirect = True
     End Function
+    Public Function depth_fire()
+        depth_fire = False
+        If InStr("|FFR|RL|", role) > 0 Then depth_fire = True
+    End Function
     Public Function root()
         If parent = "root" Then root = True Else root = False
     End Function
@@ -673,7 +686,16 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function cb()
         cb = False
-        If indirect() And task = "DS" And (orbat(parent).arty_int > 0 Or orbat(primary).arty_int > 0) Then cb = True
+        If indirect() And task = "DS" Then
+            If orbat(parent).arty_int > 0 Then
+                cb = True
+            ElseIf primary Is Nothing Then
+                cb = False
+            ElseIf orbat(primary).arty_int > 0 Then
+                cb = True
+            Else
+            End If
+        End If
     End Function
     Public Function can_embus(in_game As Boolean)
         can_embus = True
@@ -825,7 +847,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function engr()
         engr = False
-        If InStr("|AEV|Eng|", role) > 0 Then engr = True
+        If title Is Nothing Then
+            engr = False
+        ElseIf InStr("|AEV|Eng|", role) > 0 Then
+            engr = True
+        Else
+        End If
 
     End Function
 
@@ -1187,6 +1214,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub morale_checks()
         Dim r As Integer = 1000000
         msg = ""
+        If strength = 0 Then Exit Sub
         effective = False
         If nuclear_attack Then r = r + 1
         If chemical_attack Then r = r + 10
@@ -1213,6 +1241,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
                     End If
                 End If
             Next
+            'If title = "1-115 MRR" Then Stop
+
         ElseIf comd > 0 Then
             status = nostatus
         ElseIf fm <> "Orbat" And demoralised Then
@@ -1320,6 +1350,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         aborts = 0
         scoot = False
         casualties = 0
+        cas_gt = 0
         'sorties = IIf(aircraft() And sorties > 0, sorties - 1, sorties)
         disrupted_gt = False
         debussed_gt = False
@@ -1415,23 +1446,29 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If strength < 0 Then strength = 0
             If strength = 0 Or (fires And sead()) Then lands(False)
         Else
-            If hits >= 1 And casualties > 0 Then strength = strength - casualties : cas_gt = cas_gt + casualties : casualties = 0
-            If strength < 0 Then strength = 0
             If strength < firers_available Then firers_available = strength
-            If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
-        End If
-        If carrying <> "" Then
-            With orbat(carrying)
-                .strength = strength
-                .casualties = casualties
-                .mode = mode
-                .cas_gt = cas_gt
-                .disrupted = disrupted
-                .disrupted_gt = disrupted_gt
-            End With
         End If
         msg = ""
-        hits = 0
+            hits = 0
+    End Sub
+    Public Sub apply_casualties()
+        If ground_unit() And casualties > 0 Then
+            strength = strength - casualties
+            cas_gt = cas_gt + casualties
+            casualties = 0
+            If strength < 0 Then strength = 0
+            If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
+            If carrying <> "" Then
+                With orbat(carrying)
+                    .strength = strength
+                    .casualties = casualties
+                    .mode = mode
+                    .cas_gt = cas_gt
+                    .disrupted = disrupted
+                    .disrupted_gt = disrupted_gt
+                End With
+            End If
+        End If
     End Sub
     Public Function opp_fire_available()
         opp_fire_available = False
@@ -1499,7 +1536,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If title = "SAM/1-115 MRR" Then Stop
+        'If title = "HQ/1 Div Arty Group" Then Stop
         'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then
@@ -1572,7 +1609,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If parent = hq Or (primary = hq And task = "DS") Then
                 If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
             End If
-        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 Then
+        ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And (arrives = 0 Or role = "|Comd|") Then
             If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
         ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And emplaced And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
             validunit = True
@@ -1592,7 +1629,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If indirect() And task = "AF" Then validunit = True
         ElseIf phase = "CB Fire" Then
             If indirect() And task = "CB" Then validunit = True
-        ElseIf phase = "CB Targets" And indirect And sorties > 0 Then
+        ElseIf phase = "CB Targets" And indirect And fired = gt And Not scoot Then
             validunit = True
         ElseIf phase = "Ground Targets" And ground_unit() And arrives = 0 Then
             validunit = True
@@ -1698,9 +1735,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
         hvy_loss = False
         If airborne Then Exit Function
         If Not before_test Then
-            If (hits > 2 And mode = disp) Or (hits - 1 > 2 And mode <> disp) Or casualties + IIf(mode <> disp, -1, 0) > 4 Then hvy_loss = True
+            If (hits > 2 And mode = disp) Or (hits - 1 > 2 And mode <> disp) Or casualties + IIf(mode <> disp, -1, 0) >= 4 Then hvy_loss = True
         Else
-            If hits > 2 Or casualties > 4 Then hvy_loss = True
+            If hits > 2 Or casualties >= 4 Then hvy_loss = True
         End If
     End Function
     Public Function destroyed()

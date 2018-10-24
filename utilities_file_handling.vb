@@ -262,6 +262,8 @@
         file.WriteLine("gameturn=, " + scenariodefaults.gameturn.Text)
         file.WriteLine("ph=, " + ph)
         file.WriteLine("nph=, " + nph)
+        file.WriteLine("Initiative=, " + initiative)
+        file.WriteLine("First Player=, " + first_player)
         file.WriteLine("player phase=, " + Str(playerphase))
         file.WriteLine("game phase=, " + Str(phase))
         file.WriteLine("smoke fired=, " + Str(smokefiredthisturn))

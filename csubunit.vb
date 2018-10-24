@@ -4,6 +4,7 @@
     Private pequipment As String
     Private psub_units As Boolean
     Private ppassengers As Boolean
+    Private pairhq As Boolean
     Private pquantity As Integer
     Private pstrength As Integer
     Private pcomd As Integer
@@ -99,6 +100,14 @@
         End Get
         Set(ByVal Value As String)
             pdesig = Value
+        End Set
+    End Property
+    Property airhq() As Boolean
+        Get
+            Return pairhq
+        End Get
+        Set(ByVal Value As Boolean)
+            pairhq = Value
         End Set
     End Property
 

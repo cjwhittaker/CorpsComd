@@ -109,7 +109,7 @@
         update_title(commander.title)
         populate_lists(undercommand, ph_units, IIf(InStr(Tag, "Command") > 0, "Command", Tag), commander.title)
         If InStr(Tag, "Command") > 0 Then
-            If air_hq(commander.title) Then
+            If commander.role = "Air HQ" Then
                 populate_lists(undercommand, friend_air, "Command", commander.title)
                 undercommand.Columns(3).Text = "Msn"
             Else
@@ -159,7 +159,7 @@
             Dim lv As ListViewItem
             If Tag = "Movement" Then commander.comdpts = 0
             If undercommand.FocusedItem.BackColor = golden Then
-                undercommand.FocusedItem.BackColor = nostatus
+                undercommand.FocusedItem.BackColor = subject.status("movement")
                 lv = undercommand.FocusedItem
                 undercommand.FocusedItem.Remove()
                 undercommand.Items.Insert(undercommand.Items.Count, lv)
@@ -179,7 +179,7 @@
                 undercommand.FocusedItem.BackColor = golden
                 If Not subject.role = "|AH|" And tactical_actions.Text = "Helarm Tasking" Then options_for("Air Tasking")
                 If subject.role = "|AH|" And tactical_actions.Text <> "Helarm Tasking" Then options_for("Helarm Tasking")
-                If subject.heli And (subject.task = "Observation" Or subject.task = "DS") Then set_allocation(True)
+                If subject.heli And (subject.task = "Observation" Or subject.task = "DS") Then tactical_option = 5 : set_allocation(True)
             End If
             For Each c As RadioButton In flight_strength.Controls
                 If c.Checked Then c.Checked = False
@@ -366,6 +366,7 @@
         End If
         For Each l As ListViewItem In undercommand.Items
             If l.BackColor = golden Then
+                l.BackColor = orbat(l.Text).status("movement")
                 orbat(l.Text).cover = Val(cover.Text)
                 l.SubItems(3).Text = IIf(cover.Text <> "None", cover.Text, "")
             End If
@@ -395,26 +396,27 @@
                         .disrupted = True
                         .disrupted_gt = True
                         .effective = True
+                        .msg = ""
                     End With
-                    l.BackColor = ph_units(l.Text).status("")
+                    l.BackColor = ph_units(l.Text).status("Morale Recovery")
                 End If
             Next
             o9.BackColor = defa
             Exit Sub
         Else
-            Dim test_needed As Boolean = False, r As String = "Morale Test Results" + vbNewLine
-            If undercommand.FindItemWithText(subject.title).BackColor = may_test Then
+            Dim test_needed As Boolean = False, r As String = ""
+            If undercommand.FindItemWithText(subject.title).Tag = "may test" Then
                 test_needed = False
                 For i As Integer = 2 To 6
                     If Val(Mid(subject.msg, i, 1)) = 1 Then
                         If ((i = 2 Or i = 4) And o3.BackColor = golden) Or (i = 3 And o2.BackColor = golden) Or (i = 5 And o4.BackColor = golden) Or (i = 6 And o5.BackColor = golden) Then test_needed = True : Exit For
                     End If
                 Next
-            ElseIf (subject.disrupted And Not subject.effective) Or undercommand.FindItemWithText(subject.title).BackColor = must_test Then
+            ElseIf (subject.disrupted And Not subject.effective) Or undercommand.FindItemWithText(subject.title).tag = "must test" Then
                 test_needed = True
             End If
+            Dim modifier As Integer = 0
             If test_needed Then
-                Dim modifier As Integer = 0
                 For Each ctrl In Me.Controls
                     If ctrl.name = "disrupted_friends" Then
                         modifier = modifier + Val(Strings.Left(ctrl.text, 1))
@@ -423,15 +425,10 @@
                     Else
                     End If
                 Next
-                r = r + test_morale(subject, modifier, IIf(subject.disrupted, True, False))
+                test_morale(subject, modifier, IIf(subject.disrupted, True, False))
             Else
-                r = r + "No Morale Test Required"
+                test_morale(subject, -100, False)
             End If
-            r = r
-            With resultform_2
-                .result.Text = r
-                .ShowDialog()
-            End With
             subject.effective = True
             opp_fire.Text = ""
             If subject.strength = 0 Then
@@ -441,6 +438,7 @@
                     .SubItems(1).Text = subject.strength
                     .SubItems(2).Text = UCase(Strings.Left(subject.mode, 1))
                     .BackColor = subject.status("Morale Recovery")
+                    .Tag = ""
                 End With
             End If
         End If
@@ -633,7 +631,6 @@
                 For Each a As Control In tactical_actions.Controls
                     If a.BackColor = golden Then
                         tactical_option = Val(Strings.Right(a.Name, 1))
-                        l.BackColor = mover.status("")
                         Select Case tactical_option
                             Case 0
                                 'half fire
@@ -641,7 +638,7 @@
                                 conduct_fire(tactical_option)
                             Case 1
                                 'move
-                                If mover.has_fired Or mover.moved = gt Then Exit Select
+                                If mover.has_fired Then Exit Select
                                 If mover.ooc And d10() < 6 Then
                                     With resultform_2
                                         .result.Text = mover.title + " is out of command and has failed to move"
@@ -673,6 +670,7 @@
                                 change_mode_action(l)
                         End Select
                         'If tactical_option <> 16 Then l.BackColor = mover.status(Me.Name)
+                        l.BackColor = mover.status("movement")
                         If Not mover Is Nothing Or mover.title <> "" Then
                             If cover_selected Then mover.Cover = Val(cover.Text)
                         End If
@@ -846,7 +844,14 @@
                     i = i + 1
                 End If
             ElseIf Not select_all Then
-                If InStr(Tag, "Command") > 0 Then l.BackColor = orbat(l.Text).status(Tag) Else l.BackColor = nostatus
+                If InStr(Tag, "Command") > 0 Then
+                    l.BackColor = orbat(l.Text).status(Tag)
+                ElseIf Tag = "Movement" Then
+                    l.BackColor = orbat(l.Text).status("movement")
+                ElseIf Tag = "Morale Recovery" Then
+                    l.BackColor = orbat(l.Text).status(Tag)
+                Else
+                End If
                 l.Tag = ""
             Else
             End If

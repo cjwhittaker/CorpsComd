@@ -58,6 +58,10 @@
                         ph = currentRow(1)
                     ElseIf currentRow(0) = "nph=" Then
                         nph = currentRow(1)
+                    ElseIf currentRow(0) = "Initiative=" Then
+                        initiative = currentRow(1)
+                    ElseIf currentrow(0) = "First Player=" Then
+                        first_player = currentRow(1)
                     ElseIf currentRow(0) = "player phase=" Then
                         playerphase = currentRow(1)
                     ElseIf currentRow(0) = "game phase=" Then
@@ -226,10 +230,10 @@
         Do
             Select Case phase
                 Case 1 : determineinitiative()
-                'Case 2 : smoke_barrage_phase(ph)
-                'Case 5 : deploy_air_missions()
-                'Case 6 : air_air_combat(ph, nph)
-                'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
+                Case 2 : smoke_barrage_phase(ph)
+                Case 5 : deploy_air_missions()
+                Case 6 : air_air_combat(ph, nph)
+                Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
                 Case 10 : indirect_fire_phase(ph, nph)
                 Case 13 : direct_fire_phase(ph, nph)
                 '    'player 1
@@ -257,15 +261,7 @@
                     If u.comd = 0 Then u.pre_mode = u.mode
                 Next
             End If
-            If ph <> initiative And phase <> 15 And phase <> 17 Then
-                swap_phasing_player(True)
-            End If
-            If phase = 15 Or phase = 16 Then
-                If first_player <> ph Then swap_phasing_player(True)
-            End If
-            If phase = 17 Or phase = 18 Then
-                If first_player = ph Then swap_phasing_player(True)
-            End If
+            If (ph <> initiative And phase <= 13 And phase >= 20) Or (phase = 15 And first_player <> ph) Or (phase = 17 And first_player <> nph) Then swap_phasing_player(True)
 
         Loop Until phase = 22
         With resultform_2

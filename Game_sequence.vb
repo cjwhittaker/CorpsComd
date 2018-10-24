@@ -16,7 +16,9 @@
             Next
             savedata(scenario)
         End If
-        If phase <> 0 Then swap_phasing_player(False)
+        If phase <> 0 Then
+            If (ph <> initiative And phase <= 13 And phase >= 20) Or (phase = 15 And first_player <> ph) Or (phase = 17 And first_player <> nph) Then swap_phasing_player(True)
+        End If
         oppfire = False
         If phase <= 1 Then
             For Each u As cunit In orbat

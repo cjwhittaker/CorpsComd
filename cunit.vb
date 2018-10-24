@@ -1113,8 +1113,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
                     j = Int(j / 2)
                     weapon = orbat(carrying).equipment
                 ElseIf troopcarrier() And Not debussed_gt And i = 1 Then
+                    If (r > 300 And armour()) Or Not armour() Then Exit For
                     effect = j
-                    If armour() Then Exit For
                     weapon = orbat(carrying).equipment
                 ElseIf troopcarrier() And Not debussed_gt And i = 2 And r <= 300 Then
                     j = j / 3
@@ -1269,6 +1269,20 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 Else
                     status = nostatus
                 End If
+            ElseIf fm = "movement" Then
+                If fires And fired <> gt And moved = gt Then
+                    status = half_and_moved
+                ElseIf assault Then
+                    status = assaulting
+                ElseIf support Then
+                    status = supporting
+                ElseIf fires And fired <> gt Then
+                    status = half_fire
+                ElseIf moved = gt Then
+                    status = moved_now
+                Else
+                End If
+
             ElseIf strength <= 0 Then
                 status = dead
             ElseIf disrupted Then
@@ -1536,7 +1550,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function validunit(ByVal phase As String, ByVal hq As String)
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If title = "HQ/1 Div Arty Group" Then Stop
+        'If title = "2/A/QDG" Then Stop
         'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then

@@ -29,7 +29,7 @@
     End Sub
 
     Private Sub conduct_close_assault() Handles fight.Click
-        Dim modi As Integer = 0, odds As Single = 0
+        Dim modi As Integer = 0, odds As Single = 0, result_string = "Close Assault Results" + vbNewLine
         firing_result = ""
         attacker.assault = True : supporter.assault = True
         modi = close_assault_difference()
@@ -53,7 +53,7 @@
         If afv_spt.BackColor = golden Then modi = modi - 1
         'If defender.disrupted Then modi = modi + 4
         Dim r As Integer = d6()
-        firing_result = "(" + Trim(Str(modi)) + "," + Trim(Str(r)) + ")="
+        firing_result = "(" + Trim(Str(modi)) + "+" + Trim(Str(r)) + ")"
         modi = modi + r
         attacker.casualties = 0 : defender.casualties = 0
         Select Case modi
@@ -97,20 +97,21 @@
             End If
         End If
         If modi < 5 Then
-            resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
-            If Not supporter.title Is Nothing Then resultform_2.result.Text = resultform_2.result.Text + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
+            result_string = attacker.title + " " + generateresult(attacker, 2, False, False, True)
+            If Not supporter.title Is Nothing Then result_string = result_string + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
         ElseIf modi = 5 Then
-            resultform_2.result.Text = attacker.title + " " + generateresult(attacker, 2, False, False, True)
-            If Not supporter.title Is Nothing Then resultform_2.result.Text = resultform_2.result.Text + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
-            resultform_2.result.Text = resultform_2.result.Text + vbNewLine + defender.title + " " + generateresult(defender, 1, False, False, True)
+            result_string = attacker.title + " " + generateresult(attacker, 2, False, False, True)
+            If Not supporter.title Is Nothing Then result_string = result_string + vbNewLine + supporter.title + " " + generateresult(supporter, 2, False, False, True)
+            result_string = result_string + vbNewLine + defender.title + " " + generateresult(defender, 1, False, False, True)
         Else
-            resultform_2.result.Text = defender.title + " " + generateresult(defender, 2, False, False, True)
+            result_string = defender.title + " " + generateresult(defender, 2, False, False, True)
         End If
         With resultform_2
+            .result.Text = result_string
             .Tag = "ca"
             .ok_button.Visible = True
             .yb.Text = "Defender Destroyed"
-            .yb.Visible = IIf(InStr(resultform_2.result.Text, "retreat") > 0, True, False)
+            .yb.Visible = IIf(InStr(result_string, "retreat") > 0, True, False)
             .ShowDialog()
             .yb.Text = "Yes"
             .nb.Text = "No"

@@ -35,44 +35,73 @@
         End If
 
     End Sub
-    Public Function test_morale(subject As cunit, modifier As Integer, rallying As Boolean)
-        test_morale = ""
-        Dim dice As Integer = d10(), r As String = "", result As Integer
-        If subject.disrupted Then modifier = modifier + 2
-        If subject.disrupted_gt Then modifier = modifier + 2
-        If subject.halfstrength Then modifier = modifier + 1
-        If rallying And subject.halfstrength And rallying Then modifier = modifier + 2
-        If subject.cas_gt > 3 Then modifier = modifier + 2
-        result = dice + modifier - subject.quality
-        r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "=" + Trim(Str(dice + modifier)) + " X " + Trim(Str(subject.quality)) + "] "
-        If result < 0 And ((Not rallying And Not subject.disrupted) Or (rallying And subject.disrupted)) Then
-            r = Replace(r, "X", "<")
-            test_morale = subject.title + " has passed its Morale Test" + r
-            If rallying And subject.disrupted Then
-                test_morale = test_morale + " and has rallied from being disrupted"
-                subject.disrupted = False
+    Public Sub test_morale(subject As cunit, modifier As Integer, rallying As Boolean)
+        Dim dice As Integer = d10(), r As String = "", result As Integer, result_string As String = IIf(morale_test.Visible, "Immediate Morale Test", "Morale Test") + vbNewLine
+        If modifier <> -100 Then
+            If subject.disrupted Then modifier = modifier + 2
+            If subject.disrupted_gt Then modifier = modifier + 2
+            If subject.halfstrength Then modifier = modifier + 1
+            If rallying And subject.halfstrength And rallying Then modifier = modifier + 2
+            If subject.cas_gt > 3 Then modifier = modifier + 2
+            result = dice + modifier - subject.quality
+            r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "=" + Trim(Str(dice + modifier)) + " X " + Trim(Str(subject.quality)) + "] "
+            If result < 0 And ((Not rallying And Not subject.disrupted) Or (rallying And subject.disrupted)) Then
+                r = Replace(r, "X", "<")
+                result_string = subject.title + " has passed its Morale Test" + r
+                If rallying And subject.disrupted Then
+                    result_string = result_string + " and has rallied from being disrupted"
+                    subject.disrupted = False
+                    subject.mode = disp
+                End If
+            ElseIf result <= 4 And subject.disrupted Then
+                r = Replace(r, "X", ">=")
+                result_string = subject.title + IIf(rallying, " has failed its Morale Test to rally and ", "") + " remains disrupted" + r
+            ElseIf result >= 5 Then
+                r = Replace(r, "X", ">=")
+                result_string = subject.title + " has failed its Morale Test." + vbNewLine + "If it is contact or has enemy advancing within 600m it surrenders and is removed from the table." + vbNewLine + "If not it must retire 2000m away from all enemy" + vbNewLine + r
+                subject.strength = 0
+            ElseIf result = 0 Then
+                r = Replace(r, "X", "=")
+                result_string = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
                 subject.mode = disp
+            ElseIf result <= 4 And Not subject.disrupted Then
+                r = Replace(r, "X", ">=")
+                result_string = subject.title + " has failed its Morale Test and is now disrupted" + r
+                subject.disrupted = True
+                subject.disrupted_gt = True
+            Else
             End If
-        ElseIf result <= 4 And subject.disrupted Then
-            r = Replace(r, "X", ">=")
-            test_morale = subject.title + IIf(rallying, " has failed its Morale Test to rally and ", "") + " remains disrupted" + r
-        ElseIf result >= 5 Then
-            r = Replace(r, "X", ">=")
-            test_morale = subject.title + " has failed its Morale Test and surrenders. Remove the unit from the table. " + r
-            subject.strength = 0
-        ElseIf result = 0 Then
-            r = Replace(r, "X", "=")
-            test_morale = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
-            subject.mode = disp
-        ElseIf result <= 4 And Not subject.disrupted Then
-            r = Replace(r, "X", ">=")
-            test_morale = subject.title + " has failed its Morale Test and is now disrupted" + r
-            subject.disrupted = True
-            subject.disrupted_gt = True
         Else
+            result_string = result_string + "No Morale Test Required"
         End If
+        result_option = ""
+        With resultform_2
+            .result.Text = result_string
+            .Tag = "Morale Test"
+            .ok_button.Visible = True
+            .yb.Visible = False
+            .hvy1.Visible = False
+            .nb.Text = IIf(result >= 5, "Surrender", "")
+            .nb.Visible = IIf(result > 5, True, False)
+            .nb.Enabled = .nb.Visible
+            .hvy2.Visible = False
+            .ShowDialog()
+            .Tag = ""
+            .yb.Text = "Yes"
+            .nb.Text = "No"
+            .yb.Visible = False
+            .nb.Visible = False
+        End With
+        If result_option = "surrender" Then subject.strength = 0
+        If morale_test.Visible Then
+            With morale_test
+                .get_result.Enabled = False
+                .ok_button.Visible = True
+                .Close()
+            End With
 
-    End Function
+        End If
+    End Sub
 
     Public Sub populate_lists(ByVal l As ListView, ByVal c As Collection, ByVal purpose As String, ByVal hq As String)
         Dim listitem As ListViewItem, j As Integer = 0, info As String = ""
@@ -98,6 +127,17 @@
                     If purpose = "Movement" Or InStr(purpose, "Command") > 0 Or purpose = "Morale Recovery" Then
                         info = UCase(Strings.Left(u.mode, 1))
                         listitem.BackColor = u.status(purpose)
+                        If purpose = "Morale Recovery" Then
+                            If listitem.BackColor = may_test Then
+                                listitem.Tag = "may test"
+                            ElseIf listitem.BackColor = must_test Then
+                                listitem.Tag = "must test"
+                            Else
+                                listitem.Tag = ""
+                            End If
+                        Else
+                            listitem.Tag = ""
+                        End If
                     End If
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(info)
@@ -152,18 +192,6 @@
         If func = "Air units" And p.primary <> func Then p.primary = func
         If func = "Arty units" And p.carrying <> func Then p.carrying = func
     End Sub
-    Public Function air_hq(hq As String)
-        air_hq = False
-        If orbat(hq).primary = "Air Units" Then air_hq = True : Exit Function
-        For Each u As cunit In orbat
-            If u.aircraft And hq = u.parent Then
-                air_hq = True
-                orbat(u.parent).primary = "Air Units"
-                Exit Function
-            End If
-        Next
-        'orbat(u.parent).primary = "Ground Units"
-    End Function
     Public Sub ewsupport(ByVal candidates As Collection, ByVal phase As String)
         Dim ewac As Boolean = False
         For Each subject As cunit In candidates
@@ -272,7 +300,6 @@
                     p2_Units.Add(u, u.title)
                 End If
             End If
-            Dim tmp As Boolean = IIf(u.comd > 0, air_hq(u.title), False)
         Next
 
     End Sub

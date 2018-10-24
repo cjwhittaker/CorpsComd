@@ -17,8 +17,9 @@
     Public qtypinned As Integer, qtyrepulsed As Integer, qtydestroyed As Integer
     Public topserial As Integer, oppfire As Boolean, result_option As String
     Public lowammo As Color = Color.Blue, in_ds As Color = Color.Yellow, can_observe As Color = Color.LightGreen, no_action_pts As Color = Color.LightGray, sel As Color = can_observe
-    Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, emcon As Color = Color.DarkOrange, take_off As Color = Color.Aquamarine
-    Public assaulting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen, must_test As Color = Color.Violet, may_test As Color = Color.Lavender, tested_and_disrupted As Color = Color.DarkRed
+    Public nostatus As Color = Color.White, disruptedstatus As Color = Color.Red, dead As Color = Color.DarkGray, emcon As Color = Color.Gray, take_off As Color = Color.Aquamarine
+    Public assaulting As Color = Color.Salmon, supporting As Color = Color.LightSalmon, not_on_net As Color = Color.YellowGreen, must_test As Color = Color.Violet
+    Public may_test As Color = Color.Lavender, tested_and_disrupted As Color = Color.DarkRed, half_fire As Color = Color.PowderBlue, moved_now As Color = Color.DeepSkyBlue, half_and_moved As Color = Color.DodgerBlue
     Public opportunityfire As New unit_selection, airground As New unit_selection, groundair As New unit_selection
     Public night As Boolean, dawn As Integer, dusk As Integer, twilight As Boolean
     Public temp_firing As String = "((s,e,d)=fv,col,i)=a)", firing_result As String = ""

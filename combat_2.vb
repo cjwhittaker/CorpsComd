@@ -231,10 +231,10 @@
             sender.backcolor = defa
             If sender.name = "f_aspect" Then
                 firer.flanked = False
-                firer.rear = True
+                firer.rear = False
             Else
                 target.flanked = False
-                target.rear = True
+                target.rear = False
             End If
 
         End If
@@ -795,6 +795,9 @@
     End Sub
 
     Private Sub swap_Click(sender As Object, e As EventArgs) Handles swap.Click
+        'For Each u As cunit In enemy
+        '    If u.comd = 0 And u.arrives = 6 Then u.arrives = 0
+        'Next
         targets.Items.Clear()
         firers.Items.Clear()
 

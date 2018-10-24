@@ -29,7 +29,6 @@ Partial Class morale_test
         Me.ok_button = New System.Windows.Forms.Button()
         Me.friends_in_sight = New System.Windows.Forms.Label()
         Me.hq_in_sight = New System.Windows.Forms.Label()
-        Me.test_result = New System.Windows.Forms.Label()
         Me.nuclear = New System.Windows.Forms.Label()
         Me.disrupted_friends = New System.Windows.Forms.Label()
         Me.en_visible = New System.Windows.Forms.Label()
@@ -74,7 +73,7 @@ Partial Class morale_test
         'ok_button
         '
         Me.ok_button.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ok_button.Location = New System.Drawing.Point(410, 549)
+        Me.ok_button.Location = New System.Drawing.Point(410, 385)
         Me.ok_button.Name = "ok_button"
         Me.ok_button.Size = New System.Drawing.Size(51, 40)
         Me.ok_button.TabIndex = 14
@@ -107,20 +106,6 @@ Partial Class morale_test
         Me.hq_in_sight.Tag = "-2"
         Me.hq_in_sight.Text = "Undisrupted HQ within 1000m"
         Me.hq_in_sight.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'test_result
-        '
-        Me.test_result.BackColor = System.Drawing.Color.White
-        Me.test_result.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.test_result.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.test_result.Location = New System.Drawing.Point(95, 390)
-        Me.test_result.Name = "test_result"
-        Me.test_result.Size = New System.Drawing.Size(300, 149)
-        Me.test_result.TabIndex = 41
-        Me.test_result.Tag = ""
-        Me.test_result.Text = "result"
-        Me.test_result.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.test_result.Visible = False
         '
         'nuclear
         '
@@ -167,10 +152,9 @@ Partial Class morale_test
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(473, 601)
+        Me.ClientSize = New System.Drawing.Size(473, 440)
         Me.Controls.Add(Me.disrupted_friends)
         Me.Controls.Add(Me.en_visible)
-        Me.Controls.Add(Me.test_result)
         Me.Controls.Add(Me.nuclear)
         Me.Controls.Add(Me.hq_in_sight)
         Me.Controls.Add(Me.friends_in_sight)
@@ -190,7 +174,6 @@ Partial Class morale_test
     Friend WithEvents ok_button As System.Windows.Forms.Button
     Friend WithEvents friends_in_sight As System.Windows.Forms.Label
     Friend WithEvents hq_in_sight As System.Windows.Forms.Label
-    Friend WithEvents test_result As System.Windows.Forms.Label
     Friend WithEvents nuclear As System.Windows.Forms.Label
     Friend WithEvents disrupted_friends As Label
     Friend WithEvents en_visible As Label

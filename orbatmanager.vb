@@ -607,6 +607,7 @@
         'Next
         For Each s As csubunit In TOE
             If s.title = unittype.SelectedItem Then
+                If s.airhq Then orbat(orbattitle).role = "Air HQ"
                 If s.quantity > 9 Or sub_a.BackColor = golden Then
                     ch = 65
                 Else

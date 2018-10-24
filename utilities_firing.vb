@@ -104,29 +104,35 @@
             target.msg = ""
         Else
             init_msg = "Direct Fire "
-            If firer.effective Then firer.result = firecasualties(firer, target, tgtrange, unobserved)
-            If target.fires And target.effective Then target.result = firecasualties(target, firer, tgtrange, unobserved)
-            apply_result(target, firer.result)
-            firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, firer.indirect, airtoair, False)
-            If target.fires And target.effective Then
-                apply_result(target, firer.result)
-                target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
+            If firer.effective Then
+                firer.result = firecasualties(firer, target, tgtrange, unobserved)
+                firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, firer.indirect, airtoair, False)
             End If
+            If target.fires And target.effective Then
+                firing_result = ""
+                target.result = firecasualties(target, firer, tgtrange, unobserved)
+                target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
+                apply_result(firer, target.result)
+            End If
+            apply_result(target, firer.result)
         End If
         result_option = ""
         Dim f As Boolean = firer.hvy_loss(True) And Not firer.destroyed And init_msg = "Direct Fire ", t As Boolean = Not airtoair And ((target.hvy_loss(True) And Not target.destroyed) Or (Not target.destroyed And firer.heavy_fire))
+        Dim show_yb As Boolean = IIf((InStr(target.msg, "disperse") > 0 Or abort_firer) And Not firer.destroyed, True, False), show_nb As Boolean = IIf((InStr(firer.msg, "disperse") > 0 Or abort_target) And Not target.destroyed, True, False)
         With resultform_2
             .result.Text = "Results" + vbNewLine + init_msg + vbNewLine + firer.msg + vbNewLine + target.msg
             .Tag = "firing"
             .ok_button.Visible = True
             .yb.Text = IIf(abort_firer, "Abort Firer", "Disperse Firer")
-            .yb.Visible = IIf((InStr(target.msg, "disperse") > 0 Or abort_firer) And Not firer.destroyed, True, False)
+            .yb.Visible = show_yb
+            .yb.Enabled = show_yb
             .hvy1.Text = "Hvy Loss Firer"
             .hvy1.Visible = IIf(f, True, False)
             .hvy1.BackColor = IIf(f, golden, defa)
             .hvy1.Enabled = IIf(f, False, True)
             .nb.Text = IIf(abort_target, "Abort Target", "Disperse Target")
-            .nb.Visible = IIf((InStr(firer.msg, "disperse") > 0 Or abort_target) And Not target.destroyed, True, False)
+            .nb.Visible = show_nb
+            .nb.Enabled = show_nb
             .hvy2.Text = "Hvy Loss Target"
             .hvy2.Visible = IIf(t, True, False)
             .hvy2.BackColor = IIf(t, golden, defa)

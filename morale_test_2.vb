@@ -1,5 +1,5 @@
 ﻿Public Class morale_test
-    Public rally_ends As Boolean = False, rallied As Boolean = False, tester As cunit, immediate As Boolean, modifier As Integer = 0, rallying As Boolean
+    Public rally_ends As Boolean = False, rallied As Boolean = False, tester As cunit, immediate As Boolean, modifier As Integer = 0, rallying As Boolean, result As String = ""
     Private Sub select_modifiers(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles hq_in_sight.Click, nuclear.Click, friends_in_sight.Click, chemical.Click, en_visible.Click
         If sender.backcolor = golden Then sender.backcolor = defa Else sender.backcolor = golden
     End Sub
@@ -19,11 +19,7 @@
             Else
             End If
         Next
-        test_result.Text = test_morale(tester, modifier, False)
-        test_result.Visible = True
-        get_result.Enabled = False
-        ok_button.Visible = True
-        log_entry("Game Turn" + Str(gt) + " " + scenariodefaults.Current_time.Text + " Immediate Morale Test for " + tester.title + " " + Replace(test_result.Text, vbNewLine, " ",))
+        test_morale(tester, modifier, False)
     End Sub
 
     Private Sub ok_button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ok_button.Click
@@ -36,8 +32,6 @@
             ctrl.enabled = True
             ctrl.visible = True
         Next
-        test_result.Visible = False
-        test_result.Text = ""
         subject.Text = ""
     End Sub
 

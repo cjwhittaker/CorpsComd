@@ -118,7 +118,7 @@
         visrange.Visible = enable
         vis_range_select.Visible = enable
         For Each c As Control In indirectfirepanel.Controls
-            If Strings.Left(c.Name, 3) = "obs" Then c.Enabled = enable
+            If Strings.Left(c.Name, 4) = "obs_" Then c.Enabled = enable
         Next
     End Sub
 
@@ -262,10 +262,14 @@
             f2.Enabled = True
             f3.Enabled = True
         End If
-        Dim air_strength As Integer = 0
+        Dim air_strength As Integer = 0, arty_strength As Integer = strength
         If airunit Then air_strength = strength : strength = 5
         If Tag = "Ground to Air" And (Not firer.missile_armed Or (firer.missile_armed And firer.missiles > 0)) Then firer.firers_available = firer.strength : strength = firer.firers_available
+        If Tag = "Indirect Fire" Then strength = -1
+
         Select Case strength
+            Case -1
+                f1.Text = arty_strength : f2.Text = "" : f3.Text = ""
             Case 1, 2, 3, 4, 5
                 f1.Text = IIf(airunit, air_strength, strength) : f2.Text = "" : f3.Text = ""
             Case 6
@@ -368,37 +372,37 @@
             End If
         ElseIf opt = "targets" Then
             reset_unit_options(targetpanel)
-            If target.title Is Nothing Then Exit Sub
+            If target.title Is Nothing Or target.title = "No Effect" Then Exit Sub
             If target.Cover > 0 Then t_cover.BackColor = golden : t_cover.Text = "+" + Trim(Str(target.Cover))
-                If target.elevated Then elevation(t_elevation, Nothing)
-                If target.roadmove Then roadmove(t_roadmove, Nothing)
-                If target.plains Then plains(t_plains, Nothing)
-                If target.insmoke Then in_smoke(t_insmoke, Nothing)
-                'If gt - target.moved <= 1 Then target.moving= True Else target.moving= False
-                If target.has_moved Then t_moving.Text = "Moved" : t_moving.BackColor = golden
-                If target.aircraft Then
-                    ta_altitude.Text = target.mode
-                    If target.mode <> "Low" Then ta_altitude.BackColor = golden Else ta_altitude.BackColor = defa
-                Else
-                    t_mode.Text = target.mode
-                    If target.mode <> conc Then t_mode.BackColor = golden Else t_mode.BackColor = defa
-                End If
-                If target.helarm Then twpn.Text = target.helarm_select_wpn(target.equipment) Else twpn.Text = target.equipment
-                If target.w2 <> "" And Tag = "Direct Fire" Then twpn.Enabled = True Else twpn.Enabled = False
-                If Not target.troopcarrier Then t_dismounted.Enabled = False Else t_dismounted.Enabled = True
-            ElseIf opt = "observers" Then
-                If observer.elevated Then elevation(obs_elevation, Nothing)
-                If observer.insmoke Then in_smoke(obs_insmoke, Nothing)
-                'If gt - observer.moved <= 1 Then observer.moving = True Else observer.moving = False
-                If observer.has_moved Then obs_moving.Text = "Moved" : obs_moving.BackColor = golden
-                obs_mode.Text = observer.mode
-                If observer.mode <> conc Then obs_mode.BackColor = golden Else obs_mode.BackColor = defa
+            If target.elevated Then elevation(t_elevation, Nothing)
+            If target.roadmove Then roadmove(t_roadmove, Nothing)
+            If target.plains Then plains(t_plains, Nothing)
+            If target.insmoke Then in_smoke(t_insmoke, Nothing)
+            'If gt - target.moved <= 1 Then target.moving= True Else target.moving= False
+            If target.has_moved Then t_moving.Text = "Moved" : t_moving.BackColor = golden
+            If target.aircraft Then
+                ta_altitude.Text = target.mode
+                If target.mode <> "Low" Then ta_altitude.BackColor = golden Else ta_altitude.BackColor = defa
             Else
+                t_mode.Text = target.mode
+                If target.mode <> conc Then t_mode.BackColor = golden Else t_mode.BackColor = defa
             End If
+            If target.helarm Then twpn.Text = target.helarm_select_wpn(target.equipment) Else twpn.Text = target.equipment
+            If target.w2 <> "" And Tag = "Direct Fire" Then twpn.Enabled = True Else twpn.Enabled = False
+            If Not target.troopcarrier Then t_dismounted.Enabled = False Else t_dismounted.Enabled = True
+        ElseIf opt = "observers" Then
+            If observer.elevated Then elevation(obs_elevation, Nothing)
+            If observer.insmoke Then in_smoke(obs_insmoke, Nothing)
+            'If gt - observer.moved <= 1 Then observer.moving = True Else observer.moving = False
+            If observer.has_moved Then obs_moving.Text = "Moved" : obs_moving.BackColor = golden
+            obs_mode.Text = observer.mode
+            If observer.mode <> conc Then obs_mode.BackColor = golden Else obs_mode.BackColor = defa
+        Else
+        End If
     End Sub
 
     Private Sub select_units(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles targets.Click, firers.Click, observers.Click, artillery.Click
-        If sender.focuseditem.backcolor = golden And Not Tag = "Smoke Barrage" Then
+        If sender.focuseditem.backcolor = golden And Not Tag = "Smoke Barrage" And sender.name <> "observers" Then
             sender.focuseditem.backcolor = orbat(sender.focuseditem.text).status("")
             sender.focuseditem.selected = False
             If sender.name = "targets" Then
@@ -413,9 +417,16 @@
             'If Not Tag = "Smoke Barrage" Then set_sel_color(sender, False, False)
         Else
             If firer.title Is Nothing Then area_fire = False
-            If Not Tag = "Smoke Barrage" Then set_sel_color(sender, False, False)
+            If Not Tag = "Smoke Barrage" Then
+                set_sel_color(sender, False, False)
+            End If
 
             If sender.name = "targets" Then
+                If sender.FocusedItem.Text = "No Effect" Then
+                    target = New cunit
+                    target.title = sender.FocusedItem.Text
+                    Exit Sub
+                End If
                 target = orbat(sender.FocusedItem.Text)
                 nt = targets.FocusedItem.Index
                 set_sel_color(sender, True, True)
@@ -434,8 +445,14 @@
             ElseIf sender.name = "artillery" And Tag = "Smoke Barrage" Then
                 scoot.Text = scoot.Tag
                 scoot.BackColor = defa
-                firer = ph_units(sender.FocusedItem.Text)
-                If sender.focuseditem.backcolor <> golden Then sender.focuseditem.backcolor = golden Else sender.focuseditem.backcolor = ph_units(sender.focuseditem.text).status("")
+                If sender.focuseditem.backcolor <> golden And ph_units(sender.FocusedItem.Text).valid_arty_observer(observer) Then
+                    sender.focuseditem.backcolor = golden
+                    firer = ph_units(sender.FocusedItem.Text)
+                Else
+                    If Not observer.title Is Nothing Then
+                        If observer.valid_arty_observer(ph_units(sender.focuseditem.text)) Then sender.focuseditem.BackColor = in_ds Else sender.focuseditem.BackColor = nostatus
+                    End If
+                End If
                 sender.focuseditem.selected = False
             ElseIf sender.name = "artillery" And Not observer.title Is Nothing Then
                 firer = orbat(sender.FocusedItem.Text)
@@ -458,12 +475,14 @@
                     Exit Sub
                 End If
             ElseIf sender.name = "observers" Then
+                If sender.focuseditem.backcolor <> golden Then sender.focuseditem.backcolor = golden
+                If Not observer.title Is Nothing Then observers.FindItemWithText(observer.title).BackColor = nostatus
                 observer = orbat(sender.FocusedItem.Text)
+                sender.focuseditem.selected = False
                 For Each l As ListViewItem In artillery.Items
                     If observer.valid_arty_observer(ph_units(l.Text)) Then l.BackColor = in_ds Else l.BackColor = nostatus
                 Next
                 no = observers.FocusedItem.Index
-                set_sel_color(sender, True, False)
                 'If observer.indirect Then firer = observer Else Exit Sub
             Else
                 Exit Sub
@@ -517,7 +536,7 @@
 
     Private Sub dismounted(sender As Object, e As EventArgs) Handles f_dismounted.Click, t_dismounted.Click
         If sender.name = "t_dismounted" Then
-            If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
+            If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then Exit Sub
             If (sender.backcolor = golden And Not target.Inf) Then Exit Sub
         Else
             If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
@@ -529,11 +548,19 @@
             sender.text = "Mount"
             sender.backcolor = golden
             If sender.name = "f_dismounted" Then
+                Dim l As ListViewItem
+                l.Text = firer.carrying
+                l.SubItems(1).Text = firer.strength
+                l.SubItems(2).Text = firer.equipment
+                firers.Items.Insert(firers.FindItemWithText(firer.title).Index, l)
                 firer.debus()
-                populate_lists(firers, orbat, "Direct Fire", firer.nation)
             Else
+                Dim l As ListViewItem
+                l.Text = target.carrying
+                l.SubItems(1).Text = target.strength
+                l.SubItems(2).Text = target.equipment
+                targets.Items.Insert(targets.FindItemWithText(target.title).Index, l)
                 target.debus()
-                populate_lists(targets, orbat, "Direct Fire", target.nation)
             End If
         Else
             If sender.name = "f_dismounted" Then firer.embus() Else target.embus()
@@ -548,7 +575,7 @@
     End Sub
 
     Private Sub mode(sender As Object, e As EventArgs) Handles f_mode.Click, t_mode.Click, obs_mode.Click
-        If target.title Is Nothing Or targets.Items.Count = 0 Then If sender.name = "t_mode" Then Exit Sub
+        If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then If sender.name = "t_mode" Then Exit Sub
         If firer.title Is Nothing Or firers.Items.Count = 0 Then If sender.name = "f_mode" Then Exit Sub
         If Tag = "Indirect Fire" Then If observer.title Is Nothing Then If sender.name = "obs_mode" Then Exit Sub
 
@@ -591,7 +618,7 @@
     End Sub
 
     Private Sub roadmove(sender As Object, e As EventArgs) Handles t_roadmove.Click, f_roadmove.Click
-        If sender.name = "t_roadmove" Then If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
+        If sender.name = "t_roadmove" Then If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then Exit Sub
         If sender.name = "f_roadmove" Then If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
         If sender.backcolor = defa Then
             sender.text = "Road Move"
@@ -607,7 +634,7 @@
     End Sub
 
     Private Sub plains(sender As Object, e As EventArgs) Handles t_plains.Click, f_plains.Click
-        If sender.name = "t_plains" Then If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
+        If sender.name = "t_plains" Then If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then Exit Sub
         If sender.name = "f_plains" Then If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
         If sender.backcolor = defa Then
             sender.text = "Plains/Steppes"
@@ -623,7 +650,7 @@
     End Sub
 
     Private Sub in_smoke(sender As Object, e As EventArgs) Handles f_insmoke.Click, t_insmoke.Click, obs_insmoke.Click
-        If sender.name = "t_insmoke" Then If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
+        If sender.name = "t_insmoke" Then If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then Exit Sub
         If sender.name = "f_insmoke" Then If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
         If sender.name = "obs_insmoke" Then If observer.title Is Nothing Or observers.Items.Count = 0 Then Exit Sub
         If sender.backcolor = defa Then
@@ -678,7 +705,7 @@
     End Sub
 
     Private Sub moved(sender As Object, e As EventArgs) Handles f_moving.Click, t_moving.Click, obs_moving.Click
-        If sender.name = "t_moving" Then If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
+        If sender.name = "t_moving" Then If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then Exit Sub
         If sender.name = "f_moving" Then If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
         If sender.name = "obs_moving" Then If observer.title Is Nothing Then Exit Sub
 
@@ -708,7 +735,7 @@
     End Sub
 
     Private Sub elevation(sender As Object, e As EventArgs) Handles f_elevation.Click, t_elevation.Click, obs_elevation.Click
-        If sender.name = "t_elevation" Then If target.title Is Nothing Or targets.Items.Count = 0 Then Exit Sub
+        If sender.name = "t_elevation" Then If target.title Is Nothing Or targets.Items.Count = 0 Or target.title = "No Effect" Then Exit Sub
         If sender.name = "f_elevation" Then If firer.title Is Nothing Or firers.Items.Count = 0 Then Exit Sub
         If sender.name = "obs_elevation" Then If observer.title Is Nothing Then Exit Sub
 
@@ -866,6 +893,7 @@
         firesmoke.Enabled = False
         firer.spotted = False
         target.spotted = False
+        If target.title = "No Effect" Then fire.Enabled = True : Exit Sub
         If Not range_not_needed And tgt_range_select.SelectedIndex = -1 And Tag <> "Indirect Fire" Then return_fire_disable() : Exit Sub
         If (target.title Is Nothing And Not Tag = "Smoke Barrage") Or firer.title Is Nothing Then return_fire_disable() : Exit Sub
         tgt_range.Text = tgt_range_select.SelectedItem
@@ -1014,8 +1042,10 @@
                 firer.firers = firer.aborts
             End If
             firer.fires = True
-            resolvefire(firer, target, i)
-            target.update_after_firing(False)
+            If target.title <> "No Effect" Then
+                resolvefire(firer, target, i)
+                target.update_after_firing(False)
+            End If
             If oppfire Then firer.update_after_firing(True) Else firer.update_after_firing(False)
             If firer.heli And (Tag = "Direct Fire" Or InStr(Text, "Moving Fire") > 0) Then
                 If firer.ordnance And firer.hel_atgw Then
@@ -1071,7 +1101,7 @@
                 If Not firer.airborne Or Not target.airborne Or firer.strength = 0 Or target.strength = 0 Then Exit For
             Else
                 If area_fire Then targets.FindItemWithText(target.title).Tag = ""
-                reset_target()
+                If target.title <> "No Effect" Then reset_target()
                 If i = stages Then reset_firer()
             End If
         Next
@@ -1234,10 +1264,10 @@
             If airunit.fires Then airunit.tacticalpts = airunit.tacticalpts - 1
             If f Then
                 firers.FindItemWithText(airunit.title).BackColor = nostatus
-                If Tag = "Air to Air" Then firers.FindItemWithText(airunit.title).SubItems(3).Text = 4 - airunit.tacticalpts
+                'If Tag = "Air to Air" Then firers.FindItemWithText(airunit.title).SubItems(3).Text = 4 - airunit.tacticalpts
             Else
                 targets.FindItemWithText(airunit.title).BackColor = nostatus
-                If Tag = "Air to Air" Then targets.FindItemWithText(airunit.title).SubItems(3).Text = 4 - airunit.tacticalpts
+                'If Tag = "Air to Air" Then targets.FindItemWithText(airunit.title).SubItems(3).Text = 4 - airunit.tacticalpts
             End If
             reset_strength(s1, s2, s3)
             reset_strength(t1, t2, t3)

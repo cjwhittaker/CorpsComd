@@ -20,7 +20,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Private ppre_mode As String
     Private pelevated As Boolean
     Private proadmove As Boolean
-    Private pmoving As Boolean
+    Private pfire_phase As Boolean
     Private pdisrupted_gt As Boolean
     Private pdisrupted As Boolean
     Private pcover As Integer
@@ -291,12 +291,12 @@ Imports System.Runtime.Serialization.Formatters.Binary
             proadmove = Value
         End Set
     End Property
-    Property moving() As Boolean
+    Property fire_phase() As Boolean
         Get
-            Return pmoving
+            Return pfire_phase
         End Get
         Set(ByVal Value As Boolean)
-            pmoving = Value
+            pfire_phase = Value
         End Set
     End Property
     Property elevated() As Boolean
@@ -1371,7 +1371,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
         reset_helarm()
         assault = False
         support = False
-        moving = False
+        fire_phase = False
         If airborne Then
             If task = "CAP" Then
                 tacticalpts = 3
@@ -1497,31 +1497,16 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Sub set_opp_fire_available()
         If firers_available = 0 Then
-            If opp_move = 0 Then
-                If movement.tactical_option = 1 Then
-                ElseIf movement.tactical_option = 2 Then
-                    If opp_ca <= strength Then firers_available = opp_ca Else firers_available = opp_ca - strength
-                Else
-                    If opp_mode <= strength Then firers_available = opp_mode Else firers_available = opp_mode - strength
-                End If
-            ElseIf opp_ca = 0 Then
-                If movement.tactical_option = 1 Then
-                    If opp_move <= strength Then firers_available = opp_move Else firers_available = opp_move - strength
-                ElseIf movement.tactical_option = 2 Then
-                Else
-                    If opp_mode <= strength Then firers_available = opp_mode Else firers_available = opp_mode - strength
-                End If
-            ElseIf opp_mode = 0 Then
-                If movement.tactical_option = 1 Then
-                    If opp_move <= strength Then firers_available = opp_move Else firers_available = opp_move - strength
-                ElseIf movement.tactical_option = 2 Then
-                    If opp_ca <= strength Then firers_available = opp_ca Else firers_available = opp_ca - strength
-                Else
-                End If
+            If movement.tactical_option = 1 Then
+                If opp_move <= strength Then firers_available = opp_move Else firers_available = opp_move - strength
+            ElseIf movement.tactical_option = 2 Then
+                If opp_ca <= strength Then firers_available = opp_ca Else firers_available = opp_ca - strength
+            ElseIf movement.tactical_option >= 3 Then
+                If opp_mode <= strength Then firers_available = opp_mode Else firers_available = opp_mode - strength
             Else
+                firers_available = 0
             End If
         End If
-
     End Sub
     Public Function valid_arty_observer(obs As cunit)
         valid_arty_observer = False
@@ -1598,8 +1583,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf phase = "Opportunity Fire" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And (Not aircraft() Or (airborne And heli())) And Not (embussed() And Inf()) Then
             If (movement.tactical_option = 1 And opp_move > 0) Or (movement.tactical_option = 2 And opp_ca > 0) Or (movement.tactical_option >= 3 And opp_mode > 0) Then
-                validunit = True
                 set_opp_fire_available()
+                validunit = True
             Else
                 validunit = False
             End If
@@ -1609,7 +1594,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If ground_unit() Then validunit = True
         ElseIf phase = "CA Supports" And arrives = 0 And Not disrupted And Not demoralised And Not airdefence() And Not (embussed() And Inf()) And Not assault And Not support Then
             If ground_unit() And title <> My.Forms.assault.attacker.title Then validunit = True
-        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 Then
+        ElseIf phase = "Smoke Barrage" And Not disrupted And Not demoralised And firers_available > 0 And Not (embussed() And Inf()) And indirect() And gt - smoke >= 4 And Not mode = travel And emplaced Then
             validunit = True
         ElseIf phase = "Indirect Fire" And indirect() And emplaced() And Not disrupted And firers_available > 0 Then
             If indirect() And emplaced() Then
@@ -1625,6 +1610,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
             End If
         ElseIf phase = "Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And (arrives = 0 Or role = "|Comd|") Then
             If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
+        ElseIf phase = "Smoke Observers" And Not disrupted And Not demoralised And Not lostcomms And observer() And arrives = 0 And role = "|Comd|" Then
+            If orbat(parent).ooc Or orbat(orbat(parent).title).ooc Then validunit = False Else validunit = True
         ElseIf phase = "Ground to Air" And airdefence() And Not disrupted And emplaced And (Not missile_armed() Or (missile_armed() And missiles > 0)) Then
             validunit = True
         ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
@@ -1635,7 +1622,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             '    validunit = False
         ElseIf phase = "Transport" Then
             If troopcarrier() And carrying = "" And parent = hq Then validunit = True
-        ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And (Not has_fired() Or (has_fired And scoot)) Then
+        ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And (Not fire_phase Or (fire_phase And scoot)) Then
             validunit = True
         ElseIf phase = "Morale Recovery" And ground_unit() And parent = hq Then
             validunit = True

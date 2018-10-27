@@ -81,9 +81,9 @@
             .ok_button.Visible = True
             .yb.Visible = False
             .hvy1.Visible = False
-            .nb.Text = IIf(result >= 5, "Surrender", "")
+            .nb.Text = IIf(result >= 5, "Surender", "")
             .nb.Visible = IIf(result > 5, True, False)
-            .nb.Enabled = .nb.Visible
+            .nb.Enabled = IIf(result > 5, True, False)
             .hvy2.Visible = False
             .ShowDialog()
             .Tag = ""

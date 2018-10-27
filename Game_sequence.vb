@@ -104,6 +104,9 @@
         combat_2.targets.Items.Clear()
         combat_2.artillery.Items.Clear()
         combat_2.observers.Items.Clear()
+        Dim l As New ListViewItem
+        l.Text = "No Effect"
+        combat_2.targets.Items.Add(l)
         populate_lists(combat_2.targets, enemy, "Ground Targets", second)
         populate_lists(combat_2.targets, enemy, "Off Table Targets", second)
         populate_lists(combat_2.artillery, ph_units, "Indirect Fire", first)
@@ -141,7 +144,10 @@
     Public Sub smoke_barrage_phase(first As String)
         combat_2.targets.Items.Clear()
         combat_2.artillery.Items.Clear()
+        combat_2.observers.Items.Clear()
         populate_lists(combat_2.artillery, ph_units, "Smoke Barrage", first)
+        populate_lists(combat_2.observers, ph_units, "Smoke Observers", first)
+        populate_lists(combat_2.observers, friend_air, "Smoke Observers", first)
         With combat_2
             .directfirepanel.Visible = False
             .indirectfirepanel.Visible = True
@@ -150,10 +156,11 @@
             .Tag = "Smoke Barrage"
             .enable_controls(False, combat_2.indirectfirepanel)
             .enable_controls(True, combat_2.targetpanel)
-            .observers.Enabled = False
+            .observers.Enabled = True
             .observation(False)
             .firer = New cunit
             .target = New cunit
+            .observer = New cunit
             .firesmoke.Visible = True
             .range_not_needed = True
             .reset_strength(combat_2.a1, .a2, .a3)

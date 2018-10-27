@@ -50,7 +50,7 @@
             End If
             button_press = sender.text
         ElseIf Me.Tag = "Morale Test" And sender.name = "nb" Then
-            If sender.name = "nb" Then
+            If sender.backcolor = defa Then
                 sender.backcolor = golden
                 result_option = "surrender"
                 button_press = result_option

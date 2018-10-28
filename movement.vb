@@ -250,6 +250,7 @@
         If setting Then
             For Each c As Control In tactical_actions.Controls
                 c.BackColor = defa
+                If c.Name = "o2" Then c.Text = "0 disrupted friends within 1000m"
             Next
         End If
 

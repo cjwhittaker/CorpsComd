@@ -249,7 +249,9 @@
             .enable_controls(False, combat_2.targetpanel)
             .observation(False)
             .abort_firer.Visible = False
-            .abort_target.Visible = True
+            .abort_target.Visible = False
+            .reset_strength(.s1, .s2, .s3)
+            .reset_strength(.t1, .t2, .t3)
             .firer = New cunit
             .target = New cunit
             .fire.Visible = True

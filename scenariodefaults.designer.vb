@@ -162,6 +162,7 @@ Partial Class scenariodefaults
         '
         'player1
         '
+        Me.player1.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.player1.Enabled = False
         Me.player1.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.player1.Location = New System.Drawing.Point(254, 295)
@@ -172,6 +173,7 @@ Partial Class scenariodefaults
         '
         'player2
         '
+        Me.player2.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.player2.Enabled = False
         Me.player2.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.player2.Location = New System.Drawing.Point(413, 295)

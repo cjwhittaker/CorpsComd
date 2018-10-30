@@ -117,9 +117,9 @@
             End If
             If arty_allocation.Visible Then arty_allocation.Visible = False
         ElseIf Tag = "Movement" Then
-                populate_lists(undercommand, friend_air, Tag, commander.title)
-            Else
-            End If
+            populate_lists(undercommand, friend_air, Tag, commander.title)
+        Else
+        End If
         k = -1
         reset_unit_options()
     End Sub
@@ -379,13 +379,13 @@
         If Tag = "Movement" Then
             movement_orders()
         ElseIf Tag = "Morale Recovery" Then
-            morale_tests
-        ElseIf instr(Tag, "Command") > 0 And (tactical_actions.text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking") Then
+            morale_tests()
+        ElseIf InStr(Tag, "Command") > 0 And (tactical_actions.Text = "Air Tasking" Or tactical_actions.Text = "Helarm Tasking") Then
             air_tasks()
         ElseIf Tag = "Command" Then
             command_orders()
         ElseIf Tag = "Initial Command" Then
-            initial_orders
+            initial_orders()
         Else
         End If
     End Sub
@@ -413,7 +413,7 @@
                         If ((i = 2 Or i = 4) And o3.BackColor = golden) Or (i = 3 And o2.BackColor = golden) Or (i = 5 And o4.BackColor = golden) Or (i = 6 And o5.BackColor = golden) Then test_needed = True : Exit For
                     End If
                 Next
-            ElseIf (subject.disrupted And Not subject.effective) Or undercommand.FindItemWithText(subject.title).tag = "must test" Then
+            ElseIf (subject.disrupted And Not subject.effective) Or undercommand.FindItemWithText(subject.title).Tag = "must test" Then
                 test_needed = True
             End If
             Dim modifier As Integer = 0
@@ -476,8 +476,18 @@
                         break_emcon()
                     Case 8
                         off_table(True)
+                    Case 9
+                        For Each l As ListViewItem In undercommand.Items
+                            If l.BackColor = golden Then
+                                l.BackColor = defa
+                                With orbat(l.Text)
+                                    .arrives = 25
+                                    .moved = gt
 
-
+                                End With
+                                log_entry("Game Turn" + Str(gt) + " " + scenariodefaults.Current_time.Text + " " + l.Text + " Leaves the Table")
+                            End If
+                        Next
                 End Select
             End If
         Next
@@ -606,7 +616,7 @@
         With l
             .Text = ac.title
             .SubItems.Add(ac.strength)
-            .SubItems.Add(strings.Left(ac.mode,1))
+            .SubItems.Add(Strings.Left(ac.mode, 1))
             .SubItems.Add(ac.abbrev_air_mission)
             .SubItems.Add(ac.equipment)
             .BackColor = take_off
@@ -659,11 +669,11 @@
                                 conduct_assault()
                             Case 3
                                 'dismount
-                                If Not mover.embussed Or mover.debussed_gt Or mover.dismounted Then Exit Select
+                                If Not mover.embussed Or mover.debussed_gt <> 0 Or mover.dismounted Then Exit Select
                                 dismount_action(l)
                             Case 4
                                 'embuss
-                                If mover.embussed Or mover.debussed_gt Or Not mover.dismounted Then Exit Select
+                                If mover.embussed Or mover.debussed_gt <> 0 Or Not mover.dismounted Then Exit Select
                                 embus_action(l)
                             Case 5, 6, 7
                                 'change modes
@@ -714,6 +724,7 @@
             Else
             End If
         End If
+
         l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
         'End If
         mover.pre_mode = mover.mode
@@ -736,7 +747,7 @@
         undercommand.Items.Insert(l.Index + 1, listitem)
     End Sub
     Private Sub embus_action(l As ListViewItem)
-        If Not mover.can_embus(IIf(Tag = "Initial Command", False, True)) Then Exit Sub
+        If Not mover.can_embus() Then Exit Sub
         If oppfire Then conduct_fire(tactical_option)
         mover.embus()
         If mover.carrying = "" Then Exit Sub
@@ -987,7 +998,7 @@
             o6.Text = "Break EMCON"
             o7.Text = "Artillery Location Finding"
             o8.Text = "Release Off table Units"
-            o9.Text = ""
+            o9.Text = "Leave the Table"
         ElseIf purpose = "Initial Command" Then
             o0.Text = "Travel<>Conc "
             o1.Text = "Conc<>Disp "

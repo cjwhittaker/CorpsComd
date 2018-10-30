@@ -60,8 +60,8 @@
                 r = Replace(r, "X", ">=")
                 result_string = subject.title + " has failed its Morale Test." + vbNewLine + "If it is contact or has enemy advancing within 600m it surrenders and is removed from the table." + vbNewLine + "If not it must retire 2000m away from all enemy" + vbNewLine + r
                 subject.mode = disp
+                If Not subject.disrupted Then subject.disrupted_gt = True
                 subject.disrupted = True
-                subject.disrupted_gt = True
             ElseIf result = 0 Then
                 r = Replace(r, "X", "=")
                 result_string = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
@@ -69,8 +69,8 @@
             ElseIf result <= 4 And Not subject.disrupted Then
                 r = Replace(r, "X", ">=")
                 result_string = subject.title + " has failed its Morale Test and is now disrupted" + r
+                If Not subject.disrupted Then subject.disrupted_gt = True
                 subject.disrupted = True
-                subject.disrupted_gt = True
             Else
             End If
         Else

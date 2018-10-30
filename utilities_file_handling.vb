@@ -22,7 +22,6 @@
                 i = 1
                 For Each cfield As String In currentRow
                     p = myType.GetProperty(pnames(i))
-
                     If cfield = "" Then
 
                     ElseIf p.PropertyType.Name = "Int32" Then

@@ -1,6 +1,7 @@
 ﻿Module Utilities_air_ops
     Public Function abort_option(f As cunit, t As cunit, stage As Integer)
         abort_option = False
+        If t.title Is Nothing Or f.title Is Nothing Then Exit Function
         If f.strength - f.aborts - f.casualties > 0 Then
             If stage = 3 Then
                 If eq_list(f.equipment).gun_def + 2 >= eq_list(t.equipment).gun_def Then abort_option = True

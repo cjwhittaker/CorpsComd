@@ -362,7 +362,7 @@ Partial Class combat_2
         Me.f_dismounted.Name = "f_dismounted"
         Me.f_dismounted.Size = New System.Drawing.Size(132, 30)
         Me.f_dismounted.TabIndex = 89
-        Me.f_dismounted.Tag = "Dismount"
+        Me.f_dismounted.Tag = "N/A"
         Me.f_dismounted.Text = "Dismount"
         Me.f_dismounted.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
@@ -668,7 +668,7 @@ Partial Class combat_2
         Me.t_dismounted.Name = "t_dismounted"
         Me.t_dismounted.Size = New System.Drawing.Size(132, 30)
         Me.t_dismounted.TabIndex = 90
-        Me.t_dismounted.Tag = "Dismount"
+        Me.t_dismounted.Tag = "N/A"
         Me.t_dismounted.Text = "Dismount"
         Me.t_dismounted.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '

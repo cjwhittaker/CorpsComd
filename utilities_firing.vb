@@ -249,7 +249,7 @@
     Function firecasualties(ByVal firer As cunit, ByVal target As cunit, ByVal rng As Integer, ByVal unobserved As Boolean)
         firecasualties = 0
         Dim airtoair As Boolean = firer.airborne And target.airborne
-        Dim airdefence As Boolean = firer.airdefence And target.airborne
+        Dim airdefence As Boolean = firer.valid_air_defence(rng, target.mode) And target.airborne
         Dim directfire As Boolean = IIf(combat_2.Tag = "Direct Fire" Or combat_2.Tag = "Half Fire" Or (combat_2.Tag = "Opportunity Fire" And Not airdefence), True, False)
         Dim indirectfire As Boolean = IIf(combat_2.Tag = "Indirect Fire", True, False)
 
@@ -257,7 +257,7 @@
         Dim airground As Boolean = firer.Airground
         Dim defence As Integer = 0
 
-        If firer.effect = 0 Then firecasualties = 0 : Exit Function
+        If firer.effect = 0 Then firecasualties = 0 : firing_result = "((" + Str(firer.firers) + "," + Str(firer.effect) + ",0)=0,0)=0" + vbNewLine : Exit Function
         If airdefence Then
             If firer.role = "|AAA|" Then defence = eq_list(target.equipment).gun_def Else defence = eq_list(target.equipment).miss_def
         Else
@@ -345,7 +345,7 @@
                 End If
                 If i = 11 Then col = i
             Next
-            col = col + modifiers - 1
+            col = col + modifiers
             col = IIf(col < 0, 0, col)
             If firer.quality >= 8 Then dice = dice + 1
             If firer.quality <= 3 Then dice = dice - 1
@@ -390,7 +390,7 @@
                 fv = indirect_fire_strength(firer.firers, col)
                 If fv <= 0 Then firecasualties = 0
                 If fv > 0 Then r = fire_loss_table(dice, IIf(fv > 19, 19, fv))
-                firing_result = firing_result + "((" + Str(firer.firers) + "," + Str(firer.effect) + "," + Str(defence) + ")=" + Str(fv) + "," + Str(dice) + ")=" + Str(r) + vbNewLine
+                firing_result = firing_result + "((" + Str(firer.firers) + "," + Str(fire_effect) + "," + Str(defence) + ")=" + Str(fv) + "," + Str(dice + 1) + ")=" + Str(r) + vbNewLine
                 firecasualties = firecasualties + fire_loss_table(dice, IIf(fv > 19, 19, fv))
                 firer.effect = firer.effect - 10
             Loop Until firer.effect <= 0

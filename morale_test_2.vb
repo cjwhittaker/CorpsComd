@@ -28,7 +28,7 @@
 
     Private Sub reset_form()
         For Each ctrl In Me.Controls
-            If TypeOf ctrl Is Label And ctrl.backcolor = golden Then ctrl.backcolor = defa
+            If TypeOf ctrl Is Label And ctrl.backcolor = golden Then ctrl.backcolor = defa : ctrl.text = ctrl.tag
             ctrl.enabled = True
             ctrl.visible = True
         Next

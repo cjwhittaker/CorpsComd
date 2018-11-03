@@ -417,19 +417,7 @@
                 test_needed = True
             End If
             Dim modifier As Integer = 0
-            If test_needed Then
-                For Each ctrl In Me.Controls
-                    If ctrl.name = "disrupted_friends" Then
-                        modifier = modifier + Val(Strings.Left(ctrl.text, 1))
-                    ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
-                        modifier = modifier + Val(ctrl.tag)
-                    Else
-                    End If
-                Next
-                test_morale(subject, modifier, IIf(subject.disrupted, True, False))
-            Else
-                test_morale(subject, -100, False)
-            End If
+            If test_needed Then test_morale(subject, Me.Controls, False) Else test_morale(subject, Me.Controls, True)
             subject.effective = True
             opp_fire.Text = ""
             If subject.strength = 0 Then
@@ -602,6 +590,7 @@
             .equipment = .equipment + .air_package
             .role = "|" + eq_list(ac.equipment).role + "|"
             .airborne = False
+            .initial = 0
             .arrives = gt + 1
             .mode = ac.set_altitude
             .strength = s
@@ -977,17 +966,6 @@
             o7.Text = ""
             o8.Text = ""
             o9.Text = "Voluntarily Disrupt"
-        ElseIf purpose = "Area Fire" Or purpose = "CB Fire" Then
-            o0.Text = ""
-            o1.Text = "Fire (2)"
-            o2.Text = "Shoot and Scoot (4)"
-            o3.Text = ""
-            o4.Text = ""
-            o5.Text = ""
-            o6.Text = ""
-            o7.Text = ""
-            o8.Text = ""
-            o9.Text = ""
         ElseIf purpose = "Command" Then
             o0.Text = "Out of Command"
             o1.Text = "Line of Supply broken"

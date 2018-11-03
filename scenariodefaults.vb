@@ -285,9 +285,22 @@
     End Sub
 
     Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        Dim x As Integer, y As Integer
         For Each u As cunit In orbat
-            If u.parent = "1-115 MRR" Then u.arrives = 0
+            If u.comd > 0 Then
+                x = 0 : y = 0
+                For Each uc As cunit In orbat
+                    If uc.comd = 0 And uc.parent = u.title Then
+                        x = x + uc.strength
+                        y = y + uc.initial
+                    End If
+                Next
+                u.initial = y
+                u.strength = x
+            End If
         Next
+
+
     End Sub
 
     Private Sub lock_orbats(sender As Object, e As EventArgs) Handles lock_1.Click, lock_2.Click

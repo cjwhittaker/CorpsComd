@@ -1335,9 +1335,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function missile_armed()
         missile_armed = False
         If Not equipment Is Nothing Then
-            If InStr(eq_list(equipment).special, "1") + InStr(eq_list(equipment).special, "2") + InStr(eq_list(equipment).special, "3") > 0 Then missile_armed = True
+            If eq_list(equipment).payload > 0 Then missile_armed = True
         End If
-
     End Function
     Public Sub reset_unit()
         ooc = False
@@ -1393,17 +1392,55 @@ Imports System.Runtime.Serialization.Formatters.Binary
         If Not equipment Is Nothing Then
             If helarm() Then
                 missiles = Val(Mid(task, 4, 1))
-            ElseIf InStr(eq_list(equipment).special, "1") > 0 Then
-                missiles = 1
-            ElseIf InStr(eq_list(equipment).special, "2") > 0 Then
-                missiles = 2
-            ElseIf InStr(eq_list(equipment).special, "3") > 0 Then
-                missiles = 3
             Else
-                missiles = 0
+                missiles = eq_list(equipment).payload
             End If
         End If
     End Sub
+    Public Function check_demoralization()
+        Dim morale As Integer, loss_rate As Integer = Int(100 * casualties / initial), r As Single
+        Dim result_string As String
+        If loss_rate > 80 Then loss_rate = 80
+        If loss_rate < 30 Then
+            r = 0
+        Else
+            morale = (quality * 10) + modifier - (-0.0002 * loss_rate ^ 3 + 0.0267 * loss_rate ^ 2 - 0.172 * loss_rate + 6.1)
+            r = d100() - morale
+        End If
+        pre_mode = ""
+        If r <= 0 And mode = "regroup" Then
+            mode = "mission"
+        ElseIf r <= 0 And mode = "defend" Then
+            mode = "regroup"
+        ElseIf r <= 0 And mode = "withdraw" Then
+            mode = "recover"
+        ElseIf r <= 0 And mode = "recover" Then
+            mode = "regroup"
+        ElseIf r <= 50 And mode = "mission" Then
+            mode = "defend"
+        ElseIf r > 50 And (mode = "mission" Or mode = "defend") Then
+            mode = "withdraw"
+        Else
+            pre_mode = "no change"
+        End If
+        If pre_mode <> "no_change" Then
+            If mode = "mission" Then
+                result_string = title + vbNewLine + "resumes the mission"
+            ElseIf mode = "withdraw" Then
+                result_string = title + vbNewLine + "must withdraw for one rout move and regroup"
+            ElseIf mode = "recover" Then
+                result_string = title + vbNewLine + "is recovering from withdrawing"
+            ElseIf mode = "defend" Then
+                result_string = title + vbNewLine + "must halt forward movement and adopt a defensive position in place in cover. Where necessary units must withdraw to cover"
+            ElseIf u.mode = "regroup" Then
+                result_string = title + vbNewLine + "is regrouping before continuing its mission"
+            Else
+            End If
+        Else
+            result_string = pre_mode
+        End If
+        check_demoralization = result_string
+    End Function
     Public Sub update_after_firing(opp_firer As Boolean)
         If fires Then
             firers_available = firers_available - firers
@@ -1411,8 +1448,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 If carrying <> "" Then carrying = ""
                 sorties = sorties + 1
             End If
-
-            If missile_armed() Then missiles = missiles - 1
             If heli() Then
                 If secondary = "RP" Then
                     rockets = rockets - 1
@@ -1423,6 +1458,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
                     missiles = missiles - 1
                     hel_atgw = True
                 End If
+            Else
+                If missile_armed() Then missiles = missiles - 1
             End If
             If opp_firer Then
                 If movement.tactical_option = 1 Then
@@ -1438,11 +1475,11 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 End If
             End If
             If missile_armed() And missiles = 0 Then firers_available = 0
-            If helarm() And Val(Mid(task, 6, 1)) > 0 And rockets = 0 And Not opp_firer Then firers_available = 0
-            firers = 0
-            If firers_available <= 0 Then firers_available = 0
-        End If
-        msg = ""
+                If helarm() And Val(Mid(task, 6, 1)) > 0 And rockets = 0 And Not opp_firer Then firers_available = 0
+                firers = 0
+                If firers_available <= 0 Then firers_available = 0
+            End If
+            msg = ""
         If aircraft() Then
             If hits = 1 And casualties = 0 Then
                 strength = strength - 1
@@ -1458,14 +1495,14 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If strength < firers_available Then firers_available = strength
         End If
         msg = ""
-            hits = 0
+        hits = 0
     End Sub
     Public Sub apply_casualties()
         If ground_unit() And casualties > 0 Then
+            If strength - casualties < 0 Then casualties = strength
+            update_parent("casualties")
             strength = strength - casualties
             cas_gt = cas_gt + casualties
-            casualties = 0
-            If strength < 0 Then strength = 0
             If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
             If carrying <> "" Then
                 With orbat(carrying)
@@ -1477,6 +1514,31 @@ Imports System.Runtime.Serialization.Formatters.Binary
                     .disrupted_gt = disrupted_gt
                 End With
             End If
+        End If
+    End Sub
+    Public Sub update_parent(why As String)
+        Dim x As Integer = 0
+        If InStr(why, "disrupted") > 0 Then
+            x = +strength
+        ElseIf InStr(why, "rallied") > 0 Then
+            x = -strength
+        ElseIf why = "destroyed" Then
+            x = +strength
+        ElseIf why = "casualties" Then
+            x = +casualties
+        Else
+        End If
+        orbat(parent).casualties = orbat(parent).casualties + x
+        If InStr(why, "rallied") > 0 Then
+            orbat(parent).modifier = orbat(parent).modifier + IIf(InStr(why, "HQ") > 0, 4, 2)
+        ElseIf InStr(why, "routed") > 0 Or why = "failed CA" Then
+            orbat(parent).modifier = orbat(parent).modifier - 5
+        ElseIf why = "successful CA" Then
+            orbat(parent).modifier = orbat(parent).modifier + 5
+        ElseIf InStr(why, "inflicted") > 0 Then
+            orbat(parent).modifier = orbat(parent).modifier + Val(Mid(why, 10))
+        Else
+
         End If
     End Sub
     Public Function opp_fire_available()
@@ -1543,9 +1605,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 validunit = True
             ElseIf phase = "Air Tasking" And hq = parent And Not demoralised And primary = "Air units" Then
                 validunit = True
-            ElseIf InStr("Arty TaskingArea Fire", phase) > 0 And hq = parent And Not demoralised And carrying = "Arty units" Then
-                validunit = True
-            ElseIf phase = "CB Fire" And hq = parent And Not demoralised And carrying = "Arty units" And arty_int > 0 Then
+            ElseIf InStr("Arty Tasking", phase) > 0 And hq = parent And Not demoralised And carrying = "Arty units" Then
                 validunit = True
             ElseIf phase = "Observer" And hq = "" And Not demoralised And carrying = "Arty units" And arty_int > 0 Then
                 validunit = True
@@ -1615,67 +1675,30 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
             'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             '    validunit = False
-        ElseIf phase = "Transport" Then
-            If troopcarrier() And carrying = "" And parent = hq Then validunit = True
-        ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And (Not fire_phase Or (fire_phase And scoot)) Then
+        ElseIf phase = "Movement" And (ground_unit() Or (heli() And airborne)) And Not demoralised And Not disrupted And parent = hq And arrives = 0 And (Not fire_phase Or (fire_phase And scoot) Or (fire_phase And helarm)) Then
             validunit = True
         ElseIf phase = "Morale Recovery" And ground_unit() And parent = hq Then
             validunit = True
-        ElseIf phase = "Area Fire" Then
-            If indirect() And task = "AF" Then validunit = True
-        ElseIf phase = "CB Fire" Then
-            If indirect() And task = "CB" Then validunit = True
         ElseIf phase = "CB Targets" And indirect And fired = gt And Not scoot Then
             validunit = True
         ElseIf phase = "Ground Targets" And ground_unit() And arrives = 0 Then
             validunit = True
         ElseIf phase = "Off Table Targets" And ground_unit() And arrives > 0 Then
             validunit = True
-        ElseIf phase = "Transport" Then
-            If parent = hq And carrying = "" And Not disrupted Then validunit = True
-            ElseIf phase = "Air Tasking" Then
-                If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
-            ElseIf phase = "Arty Tasking" Then
-                If indirect() Then
-                    If (parent = hq Or primary = hq) And Not disrupted And emplaced() Then validunit = True
-                End If
-            ElseIf phase = "SEAD" Then
-                If sead() Then validunit = True
-            ElseIf phase = "SEAD Targets" Then
-                If airdefence() And Not aircraft() Then validunit = True
-            ElseIf phase = "CAP Missions" Then
-                If airborne And Airsuperiority() And tacticalpts >= 2 Then validunit = True
-            ElseIf phase = "CAP Targets" Then
-                If airborne And task = "CAP" And strength - aborts > 0 And tacticalpts >= 2 Then validunit = True
-            ElseIf phase = "CAP AD Targets" Then
-                If airborne And task = "CAP" And strength - aborts > 0 Then validunit = True
-            ElseIf phase = "Air to Air" Then
-                If airborne And task <> "CAP" Then validunit = True
-            ElseIf phase = "Deploy Aircraft" Then
-                If airborne Then validunit = True
-            ElseIf phase = "Abort Aircraft" And task = "Abort" Then
-                validunit = True : task = ""
-            ElseIf phase = "Radar On" Then
-                If airdefence() And radar() Then validunit = True
-            ElseIf phase = "Air Defence" Then
-                If airdefence() Then
-                    If missile_armed() And missiles = 0 Then
-                        validunit = False
-                    ElseIf CorpsComd.phase = 8 Then
-                        validunit = False
-                        If Not equipment Is Nothing Then If eq_list(equipment).maxrange >= 30000 Then validunit = True
-                    Else
-                        validunit = True
-                    End If
-                End If
-            ElseIf phase = "SEAD Defence Targets" Then
-                If airborne And Not heli() And task = "SEAD" Then validunit = True
-            ElseIf phase = "Ground Attack Targets" And ground_unit() Then
-                validunit = True
-            ElseIf phase = "Air Targets" Then
-                If aircraft() And airborne And Not heli() And task <> "CAP" Then validunit = True
-            Else
+        ElseIf phase = "Air Tasking" Then
+            If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True
+        ElseIf phase = "Arty Tasking" Then
+            If indirect() Then
+                If (parent = hq Or primary = hq) And Not disrupted And emplaced() Then validunit = True
             End If
+        ElseIf phase = "SEAD" Then
+            If sead() Then validunit = True
+        ElseIf phase = "Air to Air" Then
+            If airborne And task <> "CAP" Then validunit = True
+        ElseIf phase = "Deploy Aircraft" Then
+            If airborne Then validunit = True
+        Else
+        End If
     End Function
     Public Sub set_fire_parameters()
         result = 0

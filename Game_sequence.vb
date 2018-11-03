@@ -6,6 +6,19 @@
             initialise_collections()
             scenariodefaults.enable_data_entry(False)
             For Each u As cunit In orbat
+                Dim x As Integer, y As Integer
+                If u.comd > 0 Then
+                    x = 0 : y = 0
+                    For Each uc As cunit In orbat
+                        If uc.comd = 0 And uc.parent = u.title Then
+                            x = x + uc.strength
+                            y = y + uc.initial
+                        End If
+                    Next
+                    u.initial = y
+                    u.strength = x
+                    u.mode = "mission"
+                End If
                 If u.comd = 0 Then
                     'If Not u.conc Then u.mode = disp Else u.mode = conc
                     u.fired = -1
@@ -67,6 +80,7 @@
             .ShowDialog()
         End With
         test_for_events(ph, gamedate)
+        test_for_demoralisation(ph_hqs)
     End Sub
 
     Public Sub direct_fire_phase(first As String, second As String)
@@ -421,6 +435,7 @@
         For i As Integer = 1 To 2
             For Each u As cunit In ph_units
                 u.morale_checks()
+
             Next
 
             With movement

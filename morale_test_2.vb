@@ -10,16 +10,18 @@
 
     Public Sub testing(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles get_result.Click
         'If immediate Then rallying = False
-        modifier = 0
-        For Each ctrl In Me.Controls
-            If ctrl.name = "disrupted_friends" Then
-                modifier = modifier + Val(Strings.Left(ctrl.text, 1))
-            ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
-                modifier = modifier + Val(ctrl.tag)
-            Else
-            End If
-        Next
-        test_morale(tester, modifier, False)
+        'Dim hq_action As Boolean = False
+        'modifier = 0
+        'For Each ctrl In Me.Controls
+        '    If ctrl.name = "disrupted_friends" Then
+        '        modifier = modifier + Val(Strings.Left(ctrl.text, 1))
+        '    ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
+        '        modifier = modifier + Val(ctrl.tag)
+        '        If InStr(ctrl.text, "HQ") > 0 Then hq_action = True
+        '    Else
+        '    End If
+        'Next
+        test_morale(tester, Me.Controls, False)
     End Sub
 
     Private Sub ok_button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ok_button.Click

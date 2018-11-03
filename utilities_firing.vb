@@ -97,10 +97,10 @@
             firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, True, False, False)
         ElseIf combat_2.Tag = "Opportunity Fire" Then
             init_msg = "Opportunity Fire "
-            If oppfire Then init_msg = firer.title + " conducts opportunity fire against " + target.title
+            If oppfire Then init_msg = init_msg + vbNewLine + firer.title + " conducts opportunity fire against " + target.title
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
             apply_result(target, firer.result)
-            firer.msg = target.title + " " + generateresult(target, firer.result, firer.indirect, airtoair, False)
+            firer.msg = vbNewLine + " " + generateresult(target, firer.result, firer.indirect, airtoair, False)
             target.msg = ""
         Else
             init_msg = "Direct Fire "
@@ -143,9 +143,11 @@
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If InStr(result_option, "Abort Firer") > 0 Then firer.lands(True)
-        If InStr(result_option, "Abort Target") > 0 Then target.lands(True)
-        If airtoair Then Exit Sub
+        If airtoair Then
+            If InStr(result_option, "Abort Firer") > 0 Then firer.lands(True)
+            If InStr(result_option, "Abort Target") > 0 Then target.lands(True)
+            Exit Sub
+        End If
         If InStr(result_option, "Disperse Firer") > 0 Then
             With firer
                 .casualties = firer.casualties - 1
@@ -159,6 +161,12 @@
                 .hits = target.hits - 1
                 .mode = disp
             End With
+        End If
+        target.update_parent("inflicted" + Str(firer.hits))
+        If firer.indirect And firer.spotted Then
+            orbat(firer.primary).update_parent("inflicted" + Str(target.hits))
+        Else
+            firer.update_parent("inflicted" + Str(target.hits))
         End If
         f = firer.hvy_loss(False) And Not firer.destroyed
         t = (target.hvy_loss(False) And Not target.destroyed) Or (Not target.destroyed And firer.heavy_fire)

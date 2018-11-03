@@ -72,29 +72,40 @@
         End Select
         attacker.cas_gt = attacker.cas_gt + attacker.casualties
         defender.cas_gt = defender.cas_gt + defender.casualties
-
         If modi <= 5 Then
-            attacker.disrupted = True
-            supporter.disrupted = True
-            attacker.strength = attacker.strength - attacker.casualties
-            If attacker.strength <= 0 Then
-                supporter.strength = supporter.strength + attacker.strength
-                attacker.strength = 0
-                If supporter.strength <= 0 Then supporter.strength = 0
+            If attacker.strength - attacker.casualties <= 0 Then
+                supporter.casualties = supporter.casualties + attacker.strength - attacker.casualties
+                attacker.casualties = attacker.strength
+            Else
+                supporter.casualties = 0
             End If
+            With attacker
+                .disrupted = True
+                .apply_casualties()
+                .update_parent("failed CA")
+            End With
+            If Not supporter.title Is Nothing Then
+                With supporter
+                    .disrupted = True
+                    .apply_casualties()
+                End With
+            End If
+            If modi < 5 Then defender.update_parent("successful CA")
         End If
         If modi >= 5 Then
             If defender.disrupted Then
                 With defender
-                    .strength = 0
-                    .casualties = 0
-                    .hits = 0
+                    .casualties = defender.strength
+                    .apply_casualties()
                 End With
             Else
-                defender.disrupted = True
-                defender.strength = defender.strength - defender.casualties
-                If defender.strength <= 0 Then defender.strength = 0
+                With defender
+                    .disrupted = True
+                    .apply_casualties()
+                End With
+                defender.update_parent("failed CA")
             End If
+            If modi > 5 Then attacker.update_parent("successful CA")
         End If
         If modi < 5 Then
             result_string = attacker.title + " " + generateresult(attacker, 2, False, False, True)
@@ -118,7 +129,12 @@
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If resultform_2.Tag = "ca destroyed" Then defender.strength = 0
+        If resultform_2.Tag = "ca destroyed" Then
+            With defender
+                .casualties = defender.strength
+                .apply_casualties()
+            End With
+        End If
         'If modi <= 2 Then applyresult(attacker)
         'If modi >= 8 And defender.strength > 0 Then applyresult(defender)
         For Each l As ListViewItem In movement.undercommand.Items

@@ -35,13 +35,24 @@
         End If
 
     End Sub
-    Public Sub test_morale(subject As cunit, modifier As Integer, rallying As Boolean)
-        Dim dice As Integer = d10(), r As String = "", result As Integer, result_string As String = IIf(morale_test.Visible, "Immediate Morale Test", "Morale Test") + vbNewLine
-        If modifier <> -100 Then
+    Public Sub test_morale(subject As cunit, modifiers As Control.ControlCollection, no_test As Boolean)
+        Dim dice As Integer = d10(), r As String = "", result As Integer, result_string As String = IIf(morale_test.Visible, "Immediate Morale Test", "Morale Test") + vbNewLine, modifier As Integer = 0, rallying As Boolean = subject.disrupted
+        If no_test Then
+            Dim hq_action As Boolean = False
+            modifier = 0
+            For Each ctrl In modifiers
+                If ctrl.name = "disrupted_friends" Then
+                    modifier = modifier + Val(Strings.Left(ctrl.text, 1))
+                ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
+                    modifier = modifier + Val(ctrl.tag)
+                    If InStr(ctrl.text, "HQ") > 0 Then hq_action = True
+                Else
+                End If
+            Next
             If subject.disrupted Then modifier = modifier + 2
             If subject.disrupted_gt Then modifier = modifier + 2
             If subject.halfstrength Then modifier = modifier + 1
-            If rallying And subject.halfstrength And rallying Then modifier = modifier + 2
+            If rallying And subject.halfstrength Then modifier = modifier + 2
             If subject.cas_gt > 3 Then modifier = modifier + 2
             result = dice + modifier - subject.quality
             r = vbNewLine + " [" + Trim(Str(dice)) + IIf(modifier < 0, "-", "+") + Trim(Str(Math.Abs(modifier))) + "=" + Trim(Str(dice + modifier)) + " X " + Trim(Str(subject.quality)) + "] "
@@ -50,8 +61,11 @@
                 result_string = subject.title + " has passed its Morale Test" + r
                 If rallying And subject.disrupted Then
                     result_string = result_string + " and has rallied from being disrupted"
-                    subject.disrupted = False
-                    subject.mode = disp
+                    With subject
+                        .disrupted = False
+                        .mode = disp
+                        .update_parent(IIf(hq_action, "HQ rallied", "rallied"))
+                    End With
                 End If
             ElseIf result <= 4 And subject.disrupted Then
                 r = Replace(r, "X", ">=")
@@ -59,9 +73,12 @@
             ElseIf result >= 5 Then
                 r = Replace(r, "X", ">=")
                 result_string = subject.title + " has failed its Morale Test." + vbNewLine + "If it is contact or has enemy advancing within 600m it surrenders and is removed from the table." + vbNewLine + "If not it must retire 2000m away from all enemy" + vbNewLine + r
-                subject.mode = disp
-                If Not subject.disrupted Then subject.disrupted_gt = True
-                subject.disrupted = True
+                With subject
+                    .mode = disp
+                    .update_parent(IIf(Not subject.disrupted, "routed and disrupted", "routed"))
+                    .disrupted_gt = IIf(Not subject.disrupted, True, False)
+                    .disrupted = True
+                End With
             ElseIf result = 0 Then
                 r = Replace(r, "X", "=")
                 result_string = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
@@ -69,8 +86,12 @@
             ElseIf result <= 4 And Not subject.disrupted Then
                 r = Replace(r, "X", ">=")
                 result_string = subject.title + " has failed its Morale Test and is now disrupted" + r
-                If Not subject.disrupted Then subject.disrupted_gt = True
-                subject.disrupted = True
+                With subject
+                    .mode = disp
+                    .disrupted_gt = True
+                    .update_parent("disrupted")
+                    .disrupted = True
+                End With
             Else
             End If
         Else
@@ -94,14 +115,18 @@
             .yb.Visible = False
             .nb.Visible = False
         End With
-        If result_option = "surrender" Then subject.strength = 0
+        If result_option = "surrender" Then
+            With subject
+                .casualties = subject.strength
+                .apply_casualties()
+            End With
+        End If
         If morale_test.Visible Then
             With morale_test
                 .get_result.Enabled = False
                 .ok_button.Visible = True
                 .Close()
             End With
-
         End If
     End Sub
 
@@ -123,7 +148,7 @@
             If u.validunit(purpose, hq) Then
                 listitem = New ListViewItem
                 listitem.Text = u.title
-                If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty TaskingArea FireCB Fire", purpose) > 0 Then
+                If hq = "commanders" And InStr("ObserveeCommandMorale RecoveryMovementAir TaskingArty Tasking", purpose) > 0 Then
 
                 ElseIf l.Name = "undercommand" Then
                     If purpose = "Movement" Or InStr(purpose, "Command") > 0 Or purpose = "Morale Recovery" Then
@@ -145,7 +170,7 @@
                     listitem.SubItems.Add(info)
                     listitem.SubItems.Add(IIf(u.aircraft, u.abbrev_air_mission, IIf(u.Cover > 0, "+" + Trim(Str(u.Cover)), "")))
                     listitem.SubItems.Add(u.equipment + IIf(u.embussed, "*", ""))
-                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportOff Table TargetsSmoke BarrageCA DefendersCA SupportsGround TargetsIndirect FireDirect FireMovementArea FireCB FireOpportunity FireRadar OnSEAD TargetsIntercept TargetsCAP Combat", purpose) > 0 Then
+                ElseIf InStr("Air to AirGround to AirAir to GroundAir Defence TargetsOpportunity AA FireADSAM FireArtillery SupportOff Table TargetsSmoke BarrageCA DefendersCA SupportsGround TargetsIndirect FireDirect FireMovementOpportunity FireRadar OnIntercept TargetsCAP Combat", purpose) > 0 Then
                     listitem.SubItems.Add(u.strength)
                     listitem.SubItems.Add(u.equipment)
                     If (purpose = "Ground Targets" Or purpose = "Off Table Targets") And u.indirect And u.eligibleCB Then
@@ -164,7 +189,7 @@
                     listitem.SubItems.Add(u.equipment)
                 ElseIf InStr("DemoralisationMorale Recovery", purpose) > 0 Then
                     listitem.SubItems.Add(u.comdpts)
-                ElseIf InStr("TransportCAP TargetsAir TargetsSEAD TargetsSEAD Defence TargetsObserver", purpose) > 0 Then
+                ElseIf InStr("Air TargetsSEAD Defence TargetsObserver", purpose) > 0 Then
                     listitem.SubItems.Add(u.equipment)
                 Else
                 End If
@@ -210,27 +235,7 @@
         Next
     End Sub
 
-    Public Sub check_demoralisation(ByVal candidates As Collection, ByVal x As String, ByVal y As String)
-        Randomize()
-        Dim disrupted As Integer = 0, destroyed As Integer = 0, totalunits As Integer = 0
-        For Each temp As cunit In candidates
-            If temp.parent = x And temp.comd = 0 Then
-                totalunits = totalunits + temp.initial
-                destroyed = destroyed + (temp.initial - temp.strength)
-                If temp.disrupted Then
-                    disrupted = disrupted + temp.strength
-                End If
-            End If
-        Next
-        Dim percentdisrupted As Single = (disrupted + destroyed) / totalunits
-        Dim d As Integer = d10()
-        If d > y And percentdisrupted >= 0.333 Then
-            With resultform_2
-                .result.Text = parent(candidates, x)
-                .ShowDialog()
-            End With
-        End If
-    End Sub
+
     Public Function parent(ByVal candidates As Collection, ByVal x As String)
         parent = ""
         Dim fail_text As String = ""
@@ -427,5 +432,42 @@
             End If
         Next
     End Sub
+    Public Sub test_for_demoralisation(hqs As Collection)
+        For Each u As cunit In hqs
+            Dim demoralisation As String = u.check_demoralization()
+            If demoralisation <> "no change" Then
+                With resultform_2
+                    .result.Text = demoralisation
+                    .Tag = "Unit Morale Test"
+                    .ok_button.Visible = True
+                    .nb.Visible = False
+                    .yb.Visible = False
+                    .hvy1.Visible = False
+                    .hvy2.Visible = False
+                    .ShowDialog()
+                    .Tag = ""
+                End With
+            End If
+        Next
 
+    End Sub
+    Public Sub print_orbat_inventory()
+        Dim file As System.IO.StreamWriter, nation As String, inventory As Collection
+        For i As Integer = 1 To 2
+            If i = 1 Then nation = p1 Else nation = p2
+            inventory = New Collection
+            file = My.Computer.FileSystem.OpenTextFileWriter(Strings.Left(scenario, (Len(scenario) - 4)) + "_" + nation + "_inventory.txt", False)
+            file.WriteLine(String.Format("{0,-20}{1,-10}{2,-10}{3,-8}{4,-8}", "Eqpt", "Role", "Mobility", "Range", "Opp"))
+            For Each u As cunit In orbat
+                If u.comd = 0 And u.nation = nation Then
+                    If Not inventory.Contains(u.equipment) Then
+                        inventory.Add(u.equipment, u.equipment)
+                        file.WriteLine(String.Format("{0,-20}{1,-10}{2,-10}{3,-8}{4,-8}", u.equipment, eq_list(u.equipment).role, eq_list(u.equipment).mobility, eq_list(u.equipment).maxrange, eq_list(u.equipment).opr))
+                    End If
+                End If
+            Next
+            file.Close()
+        Next
+
+    End Sub
 End Module

@@ -67,28 +67,6 @@
             t_plains.Enabled = True
             t_cover.Enabled = True
             t_roadmove.Enabled = True
-        ElseIf Me.Tag = "Air Defence" Then
-            target = New cunit
-            'selectedtarget.Text = target.title
-            targets.Visible = False
-            ta_altitude_label.Visible = True
-            ta_altitude.Visible = True
-
-            For Each c As Control In targetpanel.Controls
-                If c.Tag = "2" Then c.Enabled = False
-            Next
-            If combatmode = "Air Defence against CAP Missions" Then
-                tgt_range.Enabled = False
-                tgt_range_select.Enabled = False
-                tgt_range.Text = "30000"
-                range_not_needed = True
-                With ta_altitude
-                    .Text = "Medium"
-                    .BackColor = golden
-                    .Enabled = False
-                End With
-                fire.Enabled = True
-            End If
 
         ElseIf Me.Tag = "CAP" Or Me.Tag = "Intercept" Then
             targets.Visible = True

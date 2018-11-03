@@ -1,10 +1,11 @@
 ﻿Public Class cequipment
     Private ptitle As String
     Private pdefence As Integer
+    Private prole As String
     Private pspecial As String
     Private ppayload As Integer
     Private pweapon_2 As String
-    Private prole As String
+    Private pmobility As String
     Private pbor As Integer
     Private pSize As Integer
     Private pe_time As Integer
@@ -63,6 +64,14 @@
         End Get
         Set(ByVal value As String)
             prole = value
+        End Set
+    End Property
+    Property mobility() As String
+        Get
+            Return pmobility
+        End Get
+        Set(ByVal value As String)
+            pmobility = value
         End Set
     End Property
     Property bor() As Integer

@@ -417,7 +417,7 @@
                 test_needed = True
             End If
             Dim modifier As Integer = 0
-            If test_needed Then test_morale(subject, Me.Controls, False) Else test_morale(subject, Me.Controls, True)
+            If test_needed Then test_morale(subject, Me.Controls, True) Else test_morale(subject, Me.Controls, False)
             subject.effective = True
             opp_fire.Text = ""
             If subject.strength = 0 Then
@@ -634,11 +634,11 @@
                         Select Case tactical_option
                             Case 0
                                 'half fire
-                                If mover.has_fired Then Exit Select
+                                If mover.fire_phase and not mover.helarm Then Exit Select
                                 conduct_fire(tactical_option)
                             Case 1
                                 'move
-                                If mover.has_fired Then Exit Select
+                                If mover.fire_phase And Not mover.helarm Then Exit Select
                                 If mover.ooc And d10() < 6 Then
                                     With resultform_2
                                         .result.Text = mover.title + " is out of command and has failed to move"

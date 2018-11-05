@@ -1446,6 +1446,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
                 result_string = title + vbNewLine + "is regrouping before continuing its mission"
             Else
             End If
+            If mode = "mission" Then demoralised = False Else demoralised = True
         Else
             result_string = pre_mode
         End If
@@ -1510,10 +1511,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub apply_casualties()
         If ground_unit() And casualties > 0 Then
             If strength - casualties < 0 Then casualties = strength
-            update_parent("casualties")
             strength = strength - casualties
             cas_gt = cas_gt + casualties
-            If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
             If carrying <> "" Then
                 With orbat(carrying)
                     .strength = strength
@@ -1524,18 +1523,25 @@ Imports System.Runtime.Serialization.Formatters.Binary
                     .disrupted_gt = disrupted_gt
                 End With
             End If
+            update_parent("casualties")
+            casualties = 0
+            If strength / initial <= 0.5 Then halfstrength = True Else halfstrength = False
         End If
     End Sub
     Public Sub update_parent(why As String)
-        Dim x As Integer = 0
-        If InStr(why, "disrupted") > 0 Then
-            x = +strength
+        Dim x As Integer = 0, y As Integer = 0, z As Integer = 0
+        If carrying <> "" Then
+            y = orbat(carrying).strength
+            z = orbat(carrying).casualties
+        End If
+        If InStr(why, "disrupted") > 0 Or why = "failed CA" Then
+            x = +strength + y
         ElseIf InStr(why, "rallied") > 0 Then
-            x = -strength
+            x = -strength - y
         ElseIf why = "destroyed" Then
-            x = +strength
+            x = +strength + y
         ElseIf why = "casualties" Then
-            x = +casualties
+            x = +casualties + z
         Else
         End If
         orbat(parent).casualties = orbat(parent).casualties + x
@@ -1602,7 +1608,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function validunit(ByVal phase As String, ByVal hq As String) As Boolean
         validunit = False
         'If Not (arrives = "" Or arrives = "25") And comd = 0 And phase <> "Orbat" Then Exit Function
-        'If title = "SAM/1-115 MRR" Then Stop
+        'If title = "A#/ATK/1 CG" Then Stop
         'If indirect() And nation = hq Then Stop
         If comd > 0 Then
             If phase = "Command" Or phase = "Observee" Then

@@ -35,9 +35,9 @@
         End If
 
     End Sub
-    Public Sub test_morale(subject As cunit, modifiers As Control.ControlCollection, no_test As Boolean)
+    Public Sub test_morale(subject As cunit, modifiers As Control.ControlCollection, test_required As Boolean)
         Dim dice As Integer = d10(), r As String = "", result As Integer, result_string As String = IIf(morale_test.Visible, "Immediate Morale Test", "Morale Test") + vbNewLine, modifier As Integer = 0, rallying As Boolean = subject.disrupted
-        If no_test Then
+        If test_required Then
             Dim hq_action As Boolean = False
             modifier = 0
             For Each ctrl As Control In modifiers
@@ -66,6 +66,7 @@
                         .mode = disp
                         .update_parent(IIf(hq_action, "HQ rallied", "rallied"))
                     End With
+                    If subject.carrying <> "" Then orbat(subject.carrying).disrupted = False
                 End If
             ElseIf result <= 4 And subject.disrupted Then
                 r = Replace(r, "X", ">=")
@@ -79,6 +80,7 @@
                     .disrupted_gt = IIf(Not subject.disrupted, True, False)
                     .disrupted = True
                 End With
+                If subject.carrying <> "" Then orbat(subject.carrying).disrupted = True
             ElseIf result = 0 Then
                 r = Replace(r, "X", "=")
                 result_string = subject.title + " has failed its Morale Test" + r + " and is now dispersed. If not in cover it must retreat one move"
@@ -92,6 +94,7 @@
                     .update_parent("disrupted")
                     .disrupted = True
                 End With
+                If subject.carrying <> "" Then orbat(subject.carrying).disrupted = True
             Else
             End If
         Else

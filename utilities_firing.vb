@@ -181,6 +181,7 @@
         If f Then
             With morale_test
                 .tester = firer
+                .subject.Text = firer.title
                 .immediate = True
                 .rallying = False
                 .ShowDialog()
@@ -189,6 +190,7 @@
         If t Then
             With morale_test
                 .tester = target
+                .subject.Text = target.title
                 .immediate = True
                 .rallying = False
                 .ShowDialog()
@@ -353,6 +355,7 @@
         firing_result = ""
         If airdefence Or directfire Or airtoair Then
             dice = d10() - 1
+            If defence = -4 Then defence = 4
             For i As Integer = 0 To 11
                 If direct_fire(defence, i) >= firer.effect Then
                     col = i

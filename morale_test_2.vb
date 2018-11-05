@@ -21,7 +21,7 @@
         '    Else
         '    End If
         'Next
-        test_morale(tester, Me.Controls, False)
+        test_morale(tester, Me.Controls, True)
     End Sub
 
     Private Sub ok_button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ok_button.Click
@@ -30,20 +30,11 @@
 
     Private Sub reset_form()
         For Each ctrl As Control In Me.Controls
-            If TypeOf ctrl Is Label And ctrl.BackColor = golden Then ctrl.BackColor = defa : ctrl.Text = ctrl.Tag
+            If TypeOf ctrl Is Label And ctrl.BackColor = golden Then ctrl.BackColor = defa
             ctrl.Enabled = True
             ctrl.Visible = True
         Next
-        subject.Text = ""
-    End Sub
-
-    Private Sub rally_FormClosed(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles Me.FormClosed
-        reset_form()
-    End Sub
-
-    Private Sub rally_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
-        reset_form()
-        subject.Text = tester.title
+        disrupted_friends.Text = "0 disrupted friends within 1000m"
         en_visible.Enabled = True
         If tester.Inf Then
             en_visible.Text = "Enemy AFVs visible within 1000m"
@@ -54,6 +45,14 @@
             en_visible.Enabled = False
         End If
         ok_button.Visible = False
+    End Sub
+
+    Private Sub rally_FormClosed(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles Me.FormClosed
+        reset_form()
+    End Sub
+
+    Private Sub rally_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        reset_form()
     End Sub
 
 End Class

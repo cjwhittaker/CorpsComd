@@ -30,6 +30,7 @@
             savedata(scenario)
         End If
         If phase <> 0 Then
+            If ph_units Is Nothing Then swap_phasing_player(False)
             If (ph <> initiative And phase <= 13 And phase >= 20) Or (phase = 15 And first_player <> ph) Or (phase = 17 And first_player <> nph) Then swap_phasing_player(True)
         End If
         oppfire = False
@@ -394,9 +395,11 @@
         unit_selection.units.Items.Clear()
         For j As Integer = 1 To 2
             For Each ac As cunit In friend_air
-                If ac.sorties > 1 Then
+                If ac.airbase = "" Or ac.comd > 0 Then
+
+                ElseIf ac.sorties > 1 Then
                     ac.sorties = ac.sorties - 1
-                ElseIf ac.sorties = 1 And ac.comd = 0 Then
+                ElseIf ac.sorties = 1 Then
                     ac.sorties = -1
                     friend_air(ac.airbase).strength = friend_air(ac.airbase).strength + ac.strength
                     ac.strength = 0

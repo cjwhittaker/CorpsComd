@@ -136,7 +136,10 @@
             .target = New cunit
             .observer = New cunit
             .indirectfirepanel.Visible = True
+            .indirectfirepanel.Enabled = True
             .directfirepanel.Visible = False
+            .directfirepanel.Enabled = False
+            .targetpanel.Enabled = True
             .firesmoke.Visible = False
             .fire.Visible = True
             .firesmoke.Visible = False

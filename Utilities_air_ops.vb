@@ -1,5 +1,5 @@
 ﻿Module Utilities_air_ops
-    Public Function abort_option(f As cunit, t As cunit, stage As Integer)
+    Public Function abort_option(f As cunit, t As cunit, stage As Integer) As Boolean
         abort_option = False
         If t.title Is Nothing Or f.title Is Nothing Then Exit Function
         If f.strength - f.aborts - f.casualties > 0 Then
@@ -13,7 +13,7 @@
         End If
     End Function
 
-    Public Function air_assessment(subphase As Integer, curr As String)
+    Public Function air_assessment(subphase As Integer, curr As String) As String
         air_assessment = ""
         Dim x As Integer = 0, y As Integer = 0, x_ad As Integer = 0, y_ad As Integer = 0, x1 As Integer = 0, y1 As Integer = 0, x2 As Integer = 0, y2 As Integer = 0
         For Each ac As cunit In p1_air
@@ -65,13 +65,13 @@
         End If
 
     End Function
-    Public Function ground_air_required(initial)
+    Public Function ground_air_required(initial As Boolean) As Boolean
         ground_air_required = False
         Dim x As Integer = 0, y As Integer = 0
         For Each ac As cunit In p1_air
             If ac.airborne Then
                 If initial And ac.abbrev_air_mission = "CAS" Then
-                    ac.tacticalpts = IIf(ac.loiter, 3, 2)
+                    ac.tacticalpts = CInt(IIf(ac.loiter, 3, 2))
                 ElseIf initial And ac.abbrev_air_mission = "PGM" Or ac.abbrev_air_mission = "SEAD" Then
                     ac.tacticalpts = 1
                 Else
@@ -92,19 +92,19 @@
         Next
         If x > 0 Or y > 0 Then ground_air_required = True
     End Function
-    Public Function arty_fire_mission(mission As String, side As Collection)
+    Public Function arty_fire_mission(mission As String, side As Collection) As Boolean
         arty_fire_mission = False
         For Each u As cunit In side
             If u.comd = 0 And u.indirect And u.task = mission Then arty_fire_mission = True : Exit For
         Next
     End Function
-    Public Function cb_capable(side As Collection)
+    Public Function cb_capable(side As Collection) As Boolean
         cb_capable = False
         For Each u As cunit In side
             If u.arty_int > 0 Then cb_capable = True : Exit For
         Next
     End Function
-    Public Function cb_targets(side As Collection)
+    Public Function cb_targets(side As Collection) As Boolean
         cb_targets = False
         For Each u As cunit In side
             If u.sorties > 0 And u.indirect Then cb_targets = True : Exit For

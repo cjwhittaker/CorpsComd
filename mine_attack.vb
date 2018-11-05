@@ -94,10 +94,10 @@
     End Sub
 
     Private Sub reset_form()
-        For Each ctrl In Me.Controls
-            If TypeOf ctrl Is Label And ctrl.backcolor = golden Then ctrl.backcolor = defa
-            ctrl.enabled = True
-            ctrl.visible = True
+        For Each ctrl As Control In Me.Controls
+            If TypeOf ctrl Is Label And ctrl.BackColor = golden Then ctrl.BackColor = defa
+            ctrl.Enabled = True
+            ctrl.Visible = True
         Next
         mine_type.Text = "Barrier"
         engineers.Text = "No Support"

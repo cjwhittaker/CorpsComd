@@ -184,7 +184,7 @@
             .arty_int = Val(arty_rating.Text)
         End With
 
-        For Each i In orbat
+        For Each i As cunit In orbat
             If i.parent = t Then i.parent = title.Text
         Next
         orbat.Add(a, a.title)
@@ -487,7 +487,7 @@
         Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
         file.WriteLine(Space(indentlevel * 5) + n) 'Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
 
-        For x = 1 To orbat.Count
+        For x As Integer = 1 To orbat.Count
             If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
                 printunit(orbat(x).title, indentlevel + 1)
             End If

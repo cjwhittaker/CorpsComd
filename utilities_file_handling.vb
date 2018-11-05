@@ -3,51 +3,47 @@
 
     Public Sub load_orbat()
         If Not My.Computer.FileSystem.FileExists(Replace(scenario, ".sce", ".orb")) Then Exit Sub
-        Dim myType As Type = GetType(cunit), pval As String = "", i As Integer
-        Dim p As System.Reflection.PropertyInfo
-        MyReader = New Microsoft.VisualBasic.FileIO.TextFieldParser(Strings.Left(scenario, (Len(scenario) - 4)) + ".orb")
         orbat = New Collection
+        Dim myType As Type = GetType(cunit), pval As String = "", i As Integer, pnames As New Collection
+        Dim p As System.Reflection.PropertyInfo
+        pnames = New Collection
+        MyReader = New Microsoft.VisualBasic.FileIO.TextFieldParser(Strings.Left(scenario, (Len(scenario) - 4)) + ".orb")
         'Using MyReader
         MyReader.TextFieldType = FileIO.FieldType.Delimited
         MyReader.SetDelimiters(",")
         Dim currentRow As String()
-        'currentRow = MyReader.ReadFields()
-        'For Each cfield As String In currentRow
-        '    pnames.Add(cfield)
-        'Next
+        currentRow = MyReader.ReadFields()
+        For Each cfield As String In currentRow
+            pnames.Add(cfield)
+        Next
         While Not MyReader.EndOfData
             u = New cunit
-            Try
-                currentRow = MyReader.ReadFields()
-                i = 1
-                For Each cfield As String In currentRow
-                    p = myType.GetProperty(pnames(i))
-                    If cfield = "" Then
+            currentRow = MyReader.ReadFields()
+            i = 1
+            For Each cfield As String In currentRow
+                p = myType.GetProperty(pnames(i))
+                If cfield = "" Then
 
-                    ElseIf p.PropertyType.Name = "Int32" Then
-                        p.SetValue(u, CInt(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
-                    ElseIf p.PropertyType.Name = "DateTime" Then
-                        p.SetValue(u, CDate(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
-                    ElseIf p.PropertyType.Name = "Single" Then
-                        p.SetValue(u, CSng(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
-                    ElseIf p.PropertyType.Name = "Boolean" Then
-                        p.SetValue(u, CBool(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
-                    Else
-                        p.SetValue(u, cfield, Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
-                    End If
-                    i = i + 1
-                Next
-                If orbat.Contains(u.title) Then orbat.Remove(u.title)
-                orbat.Add(u, Key:=u.title)
-
-            Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
-                MsgBox("Line " & ex.Message &
-                "is not valid and will be skipped.")
-            End Try
+                ElseIf p.PropertyType.Name = "Int32" Then
+                    p.SetValue(u, CInt(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                ElseIf p.PropertyType.Name = "DateTime" Then
+                    p.SetValue(u, CDate(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                ElseIf p.PropertyType.Name = "Single" Then
+                    p.SetValue(u, CSng(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                ElseIf p.PropertyType.Name = "Boolean" Then
+                    p.SetValue(u, CBool(cfield), Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                Else
+                    p.SetValue(u, cfield, Reflection.BindingFlags.SetField, Nothing, Nothing, Nothing)
+                End If
+                i = i + 1
+                If i > pnames.Count Then Exit For
+            Next
+            'If orbat.Contains(u.title) Then orbat.Remove(u.title)
+            orbat.Add(u, u.title)
         End While
-        For Each u As cunit In orbat
-            If u.comd = 0 Then u.role = "|" + eq_list(u.equipment).role + "|"
-        Next
+        'For Each u As cunit In orbat
+        '    If u.comd = 0 Then u.role = "|" + eq_list(u.equipment).role + "|"
+        'Next
         initialise_collections()
     End Sub
     Public Sub save_orbat()
@@ -55,11 +51,13 @@
         order_command_structure(p1)
         order_command_structure(p2)
         file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".orb"), False)
-        'Dim y As String = "", n As String = ""
-        'For Each p As System.Reflection.PropertyInfo In properties
-        '    y = y + p.Name + ","
-        'Next
-        'file.WriteLine(y)
+        Dim y As String = "", n As String = ""
+        Dim myType As Type = GetType(cunit)
+        Dim properties As System.Reflection.PropertyInfo() = myType.GetProperties()
+        For Each p As System.Reflection.PropertyInfo In properties
+            y = y + IIf(y <> "", ",", "") + p.Name
+        Next
+        file.WriteLine(y)
         save_command_structure(p1_tree)
         save_command_structure(p2_tree)
         file.Close()
@@ -165,24 +163,24 @@
 
     End Sub
     Public Sub load_orbat_properties()
-        If Not My.Computer.FileSystem.FileExists(d_dir + "properties.dat") Then Exit Sub
-        'Dim myType As Type = GetType(cequipment), pval As String = ""
-        Dim MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(d_dir + "properties.dat")
-        'Using MyReader
-        MyReader.TextFieldType = FileIO.FieldType.Delimited
-        MyReader.SetDelimiters(",")
-        Dim currentRow As String()
-        While Not MyReader.EndOfData
-            Try
-                currentRow = MyReader.ReadFields()
-                For Each cfield As String In currentRow
-                    pnames.Add(cfield)
-                Next
-            Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
-                MsgBox("Line " & ex.Message &
-                "is not valid and will be skipped.")
-            End Try
-        End While
+        'If Not My.Computer.FileSystem.FileExists(d_dir + "properties.dat") Then Exit Sub
+        ''Dim myType As Type = GetType(cequipment), pval As String = ""
+        'Dim MyReader As New Microsoft.VisualBasic.FileIO.TextFieldParser(d_dir + "properties.dat")
+        ''Using MyReader
+        'MyReader.TextFieldType = FileIO.FieldType.Delimited
+        'MyReader.SetDelimiters(",")
+        'Dim currentRow As String()
+        'While Not MyReader.EndOfData
+        '    Try
+        '        currentRow = MyReader.ReadFields()
+        '        For Each cfield As String In currentRow
+        '            pnames.Add(cfield)
+        '        Next
+        '    Catch ex As Microsoft.VisualBasic.FileIO.MalformedLineException
+        '        MsgBox("Line " & ex.Message &
+        '        "is not valid and will be skipped.")
+        '    End Try
+        'End While
 
     End Sub
 

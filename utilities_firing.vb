@@ -1,14 +1,15 @@
 ﻿Module utilities_firing
     Public Sub resolvefire(ByVal firer As cunit, ByVal target As cunit, stage As Integer)
         Dim unobserved As Boolean = Not target.spotted, abort_firer As Boolean = False, abort_target As Boolean = False
-        Dim airtoair As Boolean = IIf(combat_2.Tag = "Air to Air", True, False)
+        Dim airtoair As Boolean
+        If fire_type = "Air to Air" Then airtoair = True Else airtoair = False
         firer.set_fire_parameters()
         target.set_fire_parameters()
 
-        Dim tgtrange As Integer = Val(combat_2.tgt_range.Text)
+        Dim tgtrange As Integer = CInt(Val(combat_2.tgt_range.Text))
         If target.firers = 0 Then
             target.fires = False
-            target.msg = IIf(combat_2.directfirepanel.Visible, target.title + " does not return fire", "")
+            target.msg = CType(IIf(fire_type = "Direct ire", target.title + " does not return fire", ""), String)
         ElseIf stage = 1 And target.airborne And firer.airborne And target.tacticalpts = 2 And firer.tacticalpts = 3 Then
             target.fires = False
             target.msg = target.title + " does not return fire"
@@ -30,16 +31,16 @@
             firer.effective = True
         ElseIf stage = 1 And target.airborne And firer.airborne And target.tacticalpts = 3 And firer.tacticalpts = 2 Then
             firer.effective = False
-            firer.msg = IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing")
+            firer.msg = CType(IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing"), String)
         ElseIf firer.effect > 0 Then
             firer.effective = True
         Else
             firer.effective = False
-            firer.msg = IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing")
+            firer.msg = CType(IIf(firer.aircraft, firer.title + " has no effect", " spotted their target but no effect firing"), String)
         End If
 
         If target.fires And target.effect = 0 And firer.spotted Then
-            target.msg = IIf(target.aircraft, target.title + " has no effect", " spotted the firer but no effect firing")
+            target.msg = CType(IIf(target.aircraft, target.title + " has no effect", " spotted the firer but no effect firing"), String)
             target.effective = False
         ElseIf target.fires And target.effect > 0 Then
             target.effective = True
@@ -53,7 +54,13 @@
 
         'Else
         If airtoair Then
-            init_msg = "Air-to-Air" + IIf(stage = 1, " LRAAM ", IIf(stage = 2, " SRAAM  ", " Gun ")) + "combat Result "
+            Dim air_air_stage As String = ""
+            Select Case stage
+                Case 1 : air_air_stage = "LRAAM"
+                Case 2 : air_air_stage = "SRAAM"
+                Case 3 : air_air_stage = "Guns"
+            End Select
+            init_msg = "Air-to-Air" + air_air_stage + "combat Result "
             If firer.effective Then
                 firer.result = firecasualties(firer, target, tgtrange, False)
                 apply_result(target, firer.result) : firer.result = 0
@@ -68,7 +75,7 @@
             End If
             abort_firer = abort_option(firer, target, stage)
             abort_target = abort_option(target, firer, stage)
-        ElseIf combat_2.Tag = "Ground to Air" Or target.heli Then
+        ElseIf fire_type = "Ground to Air" Or target.heli Then
             init_msg = "Air Defence Result "
             firer.result = firecasualties(firer, target, tgtrange, True)
             apply_result(target, firer.result)
@@ -78,7 +85,7 @@
                 target.result = firecasualties(target, firer, tgtrange, False)
                 target.msg = target.title + "(" + target.title + ")" + " fired at " + firer.title + generateresult(firer, target.result, False, False, False)
             End If
-        ElseIf combat_2.Tag = "SEAD" Then
+        ElseIf fire_type = "SEAD" Then
             init_msg = "SEAD Attack Result "
             firer.result = firecasualties(firer, target, tgtrange, True)
             apply_result(target, firer.result) : firer.result = 0
@@ -95,7 +102,7 @@
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
             apply_result(target, firer.result)
             firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, True, False, False)
-        ElseIf combat_2.Tag = "Opportunity Fire" Then
+        ElseIf fire_type = "Opportunity Fire" Then
             init_msg = "Opportunity Fire "
             If oppfire Then init_msg = init_msg + vbNewLine + firer.title + " conducts opportunity fire against " + target.title
             firer.result = firecasualties(firer, target, tgtrange, unobserved)
@@ -189,7 +196,7 @@
         End If
 
     End Sub
-    Function spotting(range As Integer, spotter As cunit, target As cunit)
+    Function spotting(range As Integer, spotter As cunit, target As cunit) As Boolean
         spotting = False
         If target Is Nothing Or target.equipment = "" Then Exit Function
         If spotter Is Nothing Or spotter.title = "" Then Exit Function
@@ -254,12 +261,12 @@
         If range <= obr * om Then spotting = True
     End Function
 
-    Function firecasualties(ByVal firer As cunit, ByVal target As cunit, ByVal rng As Integer, ByVal unobserved As Boolean)
+    Function firecasualties(ByVal firer As cunit, ByVal target As cunit, ByVal rng As Integer, ByVal unobserved As Boolean) As Integer
         firecasualties = 0
         Dim airtoair As Boolean = firer.airborne And target.airborne
         Dim airdefence As Boolean = firer.valid_air_defence(rng, target.mode) And target.airborne
-        Dim directfire As Boolean = IIf(combat_2.Tag = "Direct Fire" Or combat_2.Tag = "Half Fire" Or (combat_2.Tag = "Opportunity Fire" And Not airdefence), True, False)
-        Dim indirectfire As Boolean = IIf(combat_2.Tag = "Indirect Fire", True, False)
+        Dim directfire As Boolean = IIf(fire_type = "Direct Fire" Or fire_type = "Half Fire" Or (fire_type = "Opportunity Fire" And Not airdefence), True, False)
+        Dim indirectfire As Boolean = IIf(fire_type = "Indirect Fire", True, False)
 
         Dim modifiers As Integer = 0, col As Integer = 0, row As Integer = 0, dice As Integer = 0, fv As Integer = 0, fire_effect As Integer = 0, fire_strength As Integer = 0
         Dim airground As Boolean = firer.Airground
@@ -271,7 +278,7 @@
         Else
             defence = eq_list(target.equipment).defence
         End If
-        If combat_2.Tag = "SEAD" Then
+        If fire_type = "SEAD" Then
             directfire = True
             modifiers = modifiers - target.modifier
         End If
@@ -302,7 +309,7 @@
         If directfire Then
             If target.armour And (target.mode = conc Or target.mode = travel) And (target.flanked Or target.rear) Then modifiers = modifiers + 2
             If target.armour And target.mode = disp And (target.flanked Or target.rear) Then modifiers = modifiers + 1
-            If (combat_2.Tag = "Opportunity Fire") Then
+            If (fire_type = "Opportunity Fire") Then
                 If target.smoke_discharger Or target.smoke_generator Then
                     modifiers = modifiers - 1
                 ElseIf target.smoke_discharger Then
@@ -310,12 +317,12 @@
                 Else
                 End If
             End If
-            modifiers = modifiers + target.size
+            modifiers = modifiers + CInt(target.size)
             If firer.heat And target.composite Then modifiers = modifiers - 2
             If firer.heat And target.spaced Then modifiers = modifiers - 1
             If firer.pre_mode = travel Then firer.firers = 1
             'If firer.mode = disp And firer.conc Then modifiers = modifiers - 2
-            If combat_2.Tag = "Half Fire" Then
+            If fire_type = "Half Fire" Then
                 If firer.heli Then
                 ElseIf firer.stabilised Then
                     modifiers = modifiers - 1
@@ -406,7 +413,7 @@
         End If
     End Function
 
-    Function generateresult(ByVal target As cunit, ByVal c As Integer, ByVal indirect As Boolean, airtoair As Boolean, ByVal assault As Boolean)
+    Function generateresult(ByVal target As cunit, ByVal c As Integer, ByVal indirect As Boolean, airtoair As Boolean, ByVal assault As Boolean) As String
         generateresult = ""
         If Not assault And Not target.hit Then target.hit = True
         If Not assault And Not airtoair And target.mode = travel And Not target.recon Then

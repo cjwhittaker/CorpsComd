@@ -992,10 +992,10 @@
         Else
 
         End If
-        For Each ctrl In tactical_actions.Controls
-            If Strings.Left(ctrl.name, 1) = "o" Then
-                ctrl.backcolor = defa
-                If ctrl.text = "" Then ctrl.visible = False Else ctrl.visible = True
+        For Each ctrl As Control In tactical_actions.Controls
+            If Strings.Left(ctrl.Name, 1) = "o" Then
+                ctrl.BackColor = defa
+                If ctrl.Text = "" Then ctrl.Visible = False Else ctrl.Visible = True
             End If
         Next
 

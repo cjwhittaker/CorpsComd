@@ -29,10 +29,10 @@
     End Sub
 
     Private Sub reset_form()
-        For Each ctrl In Me.Controls
-            If TypeOf ctrl Is Label And ctrl.backcolor = golden Then ctrl.backcolor = defa : ctrl.text = ctrl.tag
-            ctrl.enabled = True
-            ctrl.visible = True
+        For Each ctrl As Control In Me.Controls
+            If TypeOf ctrl Is Label And ctrl.BackColor = golden Then ctrl.BackColor = defa : ctrl.Text = ctrl.Tag
+            ctrl.Enabled = True
+            ctrl.Visible = True
         Next
         subject.Text = ""
     End Sub

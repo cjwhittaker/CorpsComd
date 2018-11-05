@@ -1,36 +1,36 @@
 ﻿Module Utilities
-    Function d6()
-        d6 = Int(6 * Rnd + 1)
+    Function d6() As Integer
+        d6 = CInt(Int(6 * Rnd() + 1))
     End Function
-    Function daverage()
-        Dim Dice As Integer = Int(6 * Rnd() + 1)
+    Function daverage() As Integer
+        Dim Dice As Integer = CInt(Int(6 * Rnd() + 1))
         If Dice = 1 Then Dice = 3
         If Dice = 6 Then Dice = 4
         daverage = Dice
     End Function
-    Function d4()
-        d4 = Int(4 * Rnd + 1)
+    Function d4() As Integer
+        d4 = CInt(Int(4 * Rnd() + 1))
     End Function
-    Function d10()
-        d10 = Int(10 * Rnd + 1)
+    Function d10() As Integer
+        d10 = CInt(Int(10 * Rnd() + 1))
     End Function
-    Function d100()
-        d100 = Int(100 * Rnd + 1)
+    Function d100() As Integer
+        d100 = CInt(Int(100 * Rnd() + 1))
     End Function
-    Function d20()
-        d20 = Int(20 * Rnd + 1)
+    Function d20() As Integer
+        d20 = CInt(Int(20 * Rnd() + 1))
     End Function
-    Public Sub change_disrupted_friends(sender As Object)
-        If Strings.Left(sender.text, 1) = "0" Then
-            sender.text = "1 disrupted friends within 1000m"
-            sender.backcolor = golden
-        ElseIf Strings.Left(sender.text, 1) = "1" Then
-            sender.text = "2 disrupted friends within 1000m"
-        ElseIf Strings.Left(sender.text, 1) = "2" Then
-            sender.text = "3 disrupted friends within 1000m"
-        ElseIf Strings.Left(sender.text, 1) = "3" Then
-            sender.text = "0 disrupted friends within 1000m"
-            sender.backcolor = defa
+    Public Sub change_disrupted_friends(sender As Label)
+        If Strings.Left(sender.Text, 1) = "0" Then
+            sender.Text = "1 disrupted friends within 1000m"
+            sender.BackColor = golden
+        ElseIf Strings.Left(sender.Text, 1) = "1" Then
+            sender.Text = "2 disrupted friends within 1000m"
+        ElseIf Strings.Left(sender.Text, 1) = "2" Then
+            sender.Text = "3 disrupted friends within 1000m"
+        ElseIf Strings.Left(sender.Text, 1) = "3" Then
+            sender.Text = "0 disrupted friends within 1000m"
+            sender.BackColor = defa
         Else
         End If
 
@@ -40,12 +40,12 @@
         If no_test Then
             Dim hq_action As Boolean = False
             modifier = 0
-            For Each ctrl In modifiers
-                If ctrl.name = "disrupted_friends" Then
-                    modifier = modifier + Val(Strings.Left(ctrl.text, 1))
-                ElseIf TypeOf ctrl Is Label And ctrl.backcolor = golden Then
-                    modifier = modifier + Val(ctrl.tag)
-                    If InStr(ctrl.text, "HQ") > 0 Then hq_action = True
+            For Each ctrl As Control In modifiers
+                If ctrl.Name = "disrupted_friends" Then
+                    modifier = modifier + Val(Strings.Left(ctrl.Text, 1))
+                ElseIf TypeOf ctrl Is Label And ctrl.BackColor = golden Then
+                    modifier = modifier + Val(ctrl.Tag)
+                    If InStr(ctrl.Text, "HQ") > 0 Then hq_action = True
                 Else
                 End If
             Next
@@ -435,7 +435,8 @@
     Public Sub test_for_demoralisation(hqs As Collection)
         For Each u As cunit In hqs
             Dim demoralisation As String = u.check_demoralization()
-            If demoralisation <> "no change" Then
+            If demoralisation <> "no change" And Not u.primary = "Air Units" Then
+
                 With resultform_2
                     .result.Text = demoralisation
                     .Tag = "Unit Morale Test"

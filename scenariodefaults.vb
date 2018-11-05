@@ -230,12 +230,12 @@
         Do
             Select Case phase
                 Case 1 : determineinitiative()
-                Case 2 : smoke_barrage_phase(ph)
-                Case 5 : deploy_air_missions()
-                Case 6 : air_air_combat(ph, nph)
-                Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
-                Case 10 : indirect_fire_phase(ph, nph)
-                Case 13 : direct_fire_phase(ph, nph)
+                'Case 2 : smoke_barrage_phase(ph)
+                'Case 5 : deploy_air_missions()
+                'Case 6 : air_air_combat(ph, nph)
+                'Case 7 : If ground_air_required(True) Then ground_to_air(ph_units, enemy_air)
+                'Case 10 : indirect_fire_phase(ph, nph)
+                'Case 13 : direct_fire_phase(ph, nph)
                 '    'player 1
                 Case 15 : command_and_control()
                 Case 16 : movement_phase()
@@ -285,18 +285,20 @@
     End Sub
 
     Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
-        Dim x As Integer, y As Integer
+        Dim x As Integer, y As Integer, z As Integer
         For Each u As cunit In orbat
             If u.comd > 0 Then
-                x = 0 : y = 0
+                x = 0 : y = 0 : z = 0
                 For Each uc As cunit In orbat
                     If uc.comd = 0 And uc.parent = u.title Then
                         x = x + uc.strength
                         y = y + uc.initial
+                        If uc.disrupted Then z = z + uc.strength
                     End If
                 Next
                 u.initial = y
                 u.strength = x
+                u.casualties = y - x + z
             End If
         Next
 
@@ -367,7 +369,7 @@
     Private Sub Button1_Click_1(sender As Object, e As EventArgs)
         Stop
         Dim r_test(11) As Integer, j As Integer
-        For i = 1 To 10000000
+        For i As Integer = 1 To 10000000
             j = d10()
             r_test(j) = r_test(j) + 1
         Next
@@ -390,8 +392,8 @@
         'g_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Graphics\"
         'd_dir = Strings.Left(currdir, InStrRev(sys_dir, "\") - 1) + "\Data\"
         eq_list = New Collection
-        pnames = New Collection
-        load_orbat_properties()
+        'pnames = New Collection
+        'load_orbat_properties()
         load_equipment()
         TOE = New Collection
         load_subunits()

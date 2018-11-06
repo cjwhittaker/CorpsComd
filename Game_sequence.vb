@@ -18,6 +18,7 @@
                     u.initial = y
                     u.strength = x
                     u.mode = "mission"
+                    u.hit = False
                 End If
                 If u.comd = 0 Then
                     'If Not u.conc Then u.mode = disp Else u.mode = conc
@@ -36,7 +37,7 @@
         oppfire = False
         If phase <= 1 Then
             For Each u As cunit In orbat
-                If u.comd = 0 Then u.reset_unit()
+                u.reset_unit()
             Next
         End If
     End Sub
@@ -80,7 +81,7 @@
             .options_for("Command")
             .ShowDialog()
         End With
-        test_for_events(ph, gamedate)
+        test_for_events(ph)
         test_for_demoralisation(ph_hqs)
     End Sub
 
@@ -99,6 +100,8 @@
             .enable_controls(True, combat_2.directfirepanel)
             .enable_controls(True, combat_2.targetpanel)
             .observation(False)
+            .abort_firer.Visible = False
+            .abort_target.Visible = False
             .firer = New cunit
             .target = New cunit
             .firesmoke.Visible = False
@@ -141,6 +144,8 @@
             .directfirepanel.Visible = False
             .directfirepanel.Enabled = False
             .targetpanel.Enabled = True
+            .abort_firer.Visible = False
+            .abort_target.Visible = False
             .firesmoke.Visible = False
             .fire.Visible = True
             .firesmoke.Visible = False
@@ -397,6 +402,8 @@
             For Each ac As cunit In friend_air
                 If ac.airbase = "" Or ac.comd > 0 Then
 
+                ElseIf ac.strength = 0 Then
+                    ac.sorties = -1
                 ElseIf ac.sorties > 1 Then
                     ac.sorties = ac.sorties - 1
                 ElseIf ac.sorties = 1 Then
@@ -415,8 +422,6 @@
                         End With
                         unit_selection.units.Items.Add(l)
                     Else
-                        orbat.Remove(ac.title)
-                        If UCase(p1) = UCase(ac.nation) Then p1_air.Remove(ac.title) Else p2_air.Remove(ac.title)
                     End If
                 Else
                 End If

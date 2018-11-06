@@ -905,22 +905,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Function nondetect() As Boolean
         If airdefence() Or Airsuperiority() Or sead() Then nondetect = True Else nondetect = False
     End Function
-    Public Function text_status()
-        text_status = ""
-        If demoralised Then
-            text_status = "- Demoralised"
-        ElseIf strength = 0 And comd = 0 Then
-            text_status = "- Destroyed"
-        ElseIf disrupted Then
-            text_status = "- Routing"
-        ElseIf moved Then
-            text_status = "- Moving"
-        ElseIf hit Then
-            text_status = "- Under Fire " + IIf(Cover > 0, "in cover +" + Trim(Str(Cover)), "")
-        Else
-            text_status = "- Static " + IIf(Cover > 0, "in cover +" + Trim(Str(Cover)), "")
-        End If
-    End Function
     Public Function valid_air_mission(mission As String)
         valid_air_mission = False
         Dim x As String = ""
@@ -1243,51 +1227,55 @@ Imports System.Runtime.Serialization.Formatters.Binary
             'If title = "1-115 MRR" Then Stop
 
         ElseIf comd > 0 Then
-            status = nostatus
+            If demoralised Then
+                status = demoralise
+            Else
+                status = nostatus
+            End If
         ElseIf fm <> "Orbat" And demoralised Then
             status = emcon
             ElseIf comd = 0 Then
-            If fm = "Orbat" Then
-                If mode = travel Then
-                    status = Color.DeepSkyBlue
-                ElseIf mode = disp Then
-                    status = Color.DarkKhaki
-                Else
-                End If
-            ElseIf fm = "Morale Recovery" Then
-                If disrupted And Not effective Then
-                    status = disruptedstatus
-                ElseIf disrupted And effective Then
-                    status = tested_and_disrupted
-                ElseIf Val(msg) >= 100000 And Not effective Then
-                    status = must_test
-                ElseIf Val(msg) > 0 And Not effective Then
-                    status = may_test
-                ElseIf effective Then
-                    status = no_action_pts
-                Else
-                    status = nostatus
-                End If
-            ElseIf fm = "movement" Then
-                If fires And fired <> gt And moved = gt Then
-                    status = half_and_moved
-                ElseIf assault Then
-                    status = assaulting
-                ElseIf support Then
-                    status = supporting
-                ElseIf fires And fired <> gt Then
-                    status = half_fire
-                ElseIf moved = gt Then
-                    status = moved_now
-                Else
-                End If
+                If fm = "Orbat" Then
+                    If mode = travel Then
+                        status = Color.DeepSkyBlue
+                    ElseIf mode = disp Then
+                        status = Color.DarkKhaki
+                    Else
+                    End If
+                ElseIf fm = "Morale Recovery" Then
+                    If disrupted And Not effective Then
+                        status = disruptedstatus
+                    ElseIf disrupted And effective Then
+                        status = tested_and_disrupted
+                    ElseIf Val(msg) >= 100000 And Not effective Then
+                        status = must_test
+                    ElseIf Val(msg) > 0 And Not effective Then
+                        status = may_test
+                    ElseIf effective Then
+                        status = no_action_pts
+                    Else
+                        status = nostatus
+                    End If
+                ElseIf fm = "movement" Then
+                    If fires And fired <> gt And moved = gt Then
+                        status = half_and_moved
+                    ElseIf assault Then
+                        status = assaulting
+                    ElseIf support Then
+                        status = supporting
+                    ElseIf fires And fired <> gt Then
+                        status = half_fire
+                    ElseIf moved = gt Then
+                        status = moved_now
+                    Else
+                    End If
 
-            ElseIf strength <= 0 Then
-                status = dead
-            ElseIf disrupted Then
-                status = disruptedstatus
-            ElseIf airborne Or (aircraft() And arrives = gt + 1) Then
-                status = take_off
+                ElseIf strength <= 0 Then
+                    status = dead
+                ElseIf disrupted Then
+                    status = disruptedstatus
+                ElseIf airborne Or (aircraft() And arrives = gt + 1) Then
+                    status = take_off
                 ElseIf Not eligibleCB And InStr(UCase(eq_list(equipment).special), "E") > 0 Then
                     status = emcon
                 ElseIf eligibleCB And InStr(UCase(eq_list(equipment).special), "E") > 0 Then
@@ -1348,6 +1336,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
     Public Sub reset_unit()
         ooc = False
         lostcomms = False
+        hit = False
+        If comd > 0 Then Exit Sub
         If aircraft() And arrives = gt Then airborne = True : arrives = 0
         If atgw() Then reset_missiles()
         rockets = IIf(helarm, Val(Mid(task, 6, 1)), 0)
@@ -1360,8 +1350,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
         hits = 0
         firers_available = strength
         fires = False
-        hits = 0
-        'hit = False
         aborts = 0
         scoot = False
         casualties = 0
@@ -1426,9 +1414,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
             mode = "recover"
         ElseIf r <= 0 And mode = "recover" Then
             mode = "regroup"
-        ElseIf r > 0 And r <= 50 And mode = "mission" Then
+        ElseIf r > 0 And r <= 50 And mode = "mission" And hit Then
             mode = "defend"
-        ElseIf r > 50 And (mode = "mission" Or mode = "defend") Then
+        ElseIf r > 50 And (mode = "mission" Or mode = "defend") And hit Then
             mode = "withdraw"
         Else
             pre_mode = "no change"
@@ -1699,7 +1687,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf phase = "Ground Targets" And ground_unit() And arrives = 0 Then
             validunit = True
-        ElseIf phase = "Off Table Targets" And ground_unit() And arrives > 0 Then
+        ElseIf phase = "Off Table Targets" And ground_unit() And arrives <> 0 Then
             validunit = True
         ElseIf phase = "Air Tasking" Then
             If parent = hq And Not airborne And sorties = 0 And aircraft() Then validunit = True

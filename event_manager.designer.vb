@@ -57,7 +57,7 @@ Partial Class event_manager
         Me.Label1.AutoSize = True
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(138, 407)
+        Me.Label1.Location = New System.Drawing.Point(138, 410)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(98, 23)
         Me.Label1.TabIndex = 5
@@ -66,26 +66,24 @@ Partial Class event_manager
         '
         'event_time
         '
-        Me.event_time.AutoSize = True
         Me.event_time.BackColor = System.Drawing.Color.White
         Me.event_time.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.event_time.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.event_time.Location = New System.Drawing.Point(253, 407)
-        Me.event_time.MaximumSize = New System.Drawing.Size(125, 30)
+        Me.event_time.Location = New System.Drawing.Point(242, 407)
         Me.event_time.MinimumSize = New System.Drawing.Size(125, 30)
         Me.event_time.Name = "event_time"
-        Me.event_time.Size = New System.Drawing.Size(125, 30)
+        Me.event_time.Size = New System.Drawing.Size(178, 30)
         Me.event_time.TabIndex = 4
         Me.event_time.Text = "0"
-        Me.event_time.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.event_time.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'event_time_inc
         '
         Me.event_time_inc.BackColor = System.Drawing.SystemColors.Control
-        Me.event_time_inc.Location = New System.Drawing.Point(384, 400)
+        Me.event_time_inc.Location = New System.Drawing.Point(423, 400)
         Me.event_time_inc.Maximum = 23
         Me.event_time_inc.Name = "event_time_inc"
-        Me.event_time_inc.Size = New System.Drawing.Size(288, 45)
+        Me.event_time_inc.Size = New System.Drawing.Size(249, 45)
         Me.event_time_inc.TabIndex = 3
         Me.event_time_inc.TickStyle = System.Windows.Forms.TickStyle.Both
         '
@@ -105,9 +103,9 @@ Partial Class event_manager
         '
         Me.side_options.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.side_options.FormattingEnabled = True
-        Me.side_options.Location = New System.Drawing.Point(253, 273)
+        Me.side_options.Location = New System.Drawing.Point(242, 273)
         Me.side_options.Name = "side_options"
-        Me.side_options.Size = New System.Drawing.Size(324, 31)
+        Me.side_options.Size = New System.Drawing.Size(335, 31)
         Me.side_options.TabIndex = 11
         '
         'Label2
@@ -125,18 +123,18 @@ Partial Class event_manager
         'detail
         '
         Me.detail.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.detail.Location = New System.Drawing.Point(253, 320)
+        Me.detail.Location = New System.Drawing.Point(242, 320)
         Me.detail.Multiline = True
         Me.detail.Name = "detail"
         Me.detail.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.detail.Size = New System.Drawing.Size(406, 74)
+        Me.detail.Size = New System.Drawing.Size(417, 74)
         Me.detail.TabIndex = 13
         '
         'Label4
         '
         Me.Label4.BackColor = System.Drawing.Color.Transparent
         Me.Label4.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(-92, 459)
+        Me.Label4.Location = New System.Drawing.Point(-103, 456)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(339, 28)
         Me.Label4.TabIndex = 14
@@ -148,16 +146,16 @@ Partial Class event_manager
         Me.dice_type.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.dice_type.FormattingEnabled = True
         Me.dice_type.Items.AddRange(New Object() {"None", "D6", "D10"})
-        Me.dice_type.Location = New System.Drawing.Point(253, 456)
+        Me.dice_type.Location = New System.Drawing.Point(242, 456)
         Me.dice_type.Name = "dice_type"
-        Me.dice_type.Size = New System.Drawing.Size(125, 31)
+        Me.dice_type.Size = New System.Drawing.Size(178, 31)
         Me.dice_type.TabIndex = 15
         '
         'Label5
         '
         Me.Label5.BackColor = System.Drawing.Color.Transparent
         Me.Label5.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(-47, 551)
+        Me.Label5.Location = New System.Drawing.Point(-58, 551)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(294, 28)
         Me.Label5.TabIndex = 16
@@ -169,18 +167,18 @@ Partial Class event_manager
         Me.dec_dice.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.dec_dice.FormattingEnabled = True
         Me.dec_dice.Items.AddRange(New Object() {"Yes", "No"})
-        Me.dec_dice.Location = New System.Drawing.Point(253, 551)
+        Me.dec_dice.Location = New System.Drawing.Point(242, 551)
         Me.dec_dice.Name = "dec_dice"
-        Me.dec_dice.Size = New System.Drawing.Size(125, 31)
+        Me.dec_dice.Size = New System.Drawing.Size(178, 31)
         Me.dec_dice.TabIndex = 17
         '
         'Label6
         '
         Me.Label6.BackColor = System.Drawing.Color.Transparent
         Me.Label6.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(-92, 496)
+        Me.Label6.Location = New System.Drawing.Point(-103, 502)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(339, 40)
+        Me.Label6.Size = New System.Drawing.Size(339, 32)
         Me.Label6.TabIndex = 14
         Me.Label6.Text = "Dice Score for Event to occur"
         Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight
@@ -188,10 +186,10 @@ Partial Class event_manager
         'dice_score
         '
         Me.dice_score.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dice_score.Location = New System.Drawing.Point(253, 504)
+        Me.dice_score.Location = New System.Drawing.Point(242, 504)
         Me.dice_score.Multiline = True
         Me.dice_score.Name = "dice_score"
-        Me.dice_score.Size = New System.Drawing.Size(125, 32)
+        Me.dice_score.Size = New System.Drawing.Size(178, 32)
         Me.dice_score.TabIndex = 18
         '
         'new_event
@@ -274,23 +272,25 @@ Partial Class event_manager
         '
         Me.ColumnHeader3.Text = "Dice"
         Me.ColumnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.ColumnHeader3.Width = 44
         '
         'ColumnHeader4
         '
         Me.ColumnHeader4.Text = "Score"
         Me.ColumnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.ColumnHeader4.Width = 46
         '
         'ColumnHeader5
         '
         Me.ColumnHeader5.Text = "Dec"
         Me.ColumnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.ColumnHeader5.Width = 65
+        Me.ColumnHeader5.Width = 39
         '
         'ColumnHeader6
         '
         Me.ColumnHeader6.Text = "Time"
         Me.ColumnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.ColumnHeader6.Width = 109
+        Me.ColumnHeader6.Width = 164
         '
         'ColumnHeader7
         '

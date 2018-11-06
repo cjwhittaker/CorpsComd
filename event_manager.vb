@@ -1,9 +1,19 @@
 ﻿Public Class event_manager
     Dim selected_event As String = "", new_e As Boolean, nation As String, sel_row As Integer
     Private Sub event_time_inc_ValueChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles event_time_inc.ValueChanged
-        Dim hrs As Integer
-        hrs = (1 * event_time_inc.Value)
-        event_time.Text = Format(TimeSerial(hrs, 0, 0), "HH:mm")
+        Dim hrs As Integer = 0, inc As Integer = IIf(night, 2, 1)
+        For i As Integer = 1 To event_time_inc.Value
+            If Hour(DateAdd(DateInterval.Hour, inc, gamedate)) = dusk Then
+                inc = 2
+            ElseIf Hour(DateAdd(DateInterval.Hour, inc, gamedate)) = dawn Then
+                inc = 1
+            Else
+                inc = inc
+            End If
+            hrs = hrs + inc
+        Next
+        'hrs = (1 * event_time_inc.Value)
+        event_time.Text = Format(DateAdd(DateInterval.Hour, hrs, gamedate), "dd/MMM/yyyy HH:mm")
     End Sub
 
     Private Sub dice_type_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles dice_type.SelectedIndexChanged
@@ -74,7 +84,7 @@
     Private Sub reset_fields(ByVal setting As Boolean)
         With Me
             .side_options.Text = ""
-            .event_time.Text = scenariodefaults.Current_time.Text
+            .event_time.Text = Format(gamedate, "dd/MMM/yyyy HH:mm")
             .detail.Text = ""
             .dice_type.SelectedItem = "None"
             .dice_score.Text = "O"
@@ -94,7 +104,7 @@
             With event_list(selected_event)
                 .side = nation
                 .unit = side_options.Text
-                .time = IIf(LCase(detail.Text) = "off table", "25", Replace(event_time.Text, ":00", ""))
+                .time = IIf(LCase(detail.Text) = "off table", "-1", event_time.Text)
                 .text = detail.Text
                 .die = dice_type.Text
                 ' .score = IIf(.die = "D6" And .score > 6, 6, Val(dice_score.Text))
@@ -128,9 +138,14 @@
             Dim v As New cevents
             v = event_list(selected_event)
             reset_fields(True)
+            event_time_inc.Value = 0
+            Do Until event_time.Text = v.time
+                event_time_inc.Value = event_time_inc.Value + 1
+                event_time.Text = Format(DateAdd(DateInterval.Hour, event_time_inc.Value, gamedate), "dd/MMM/yyyy HH:mm")
+            Loop
             With Me
                 .side_options.Text = v.unit
-                .event_time.Text = v.time + ":00"
+                .event_time.Text = v.time
                 .detail.Text = v.text
                 .dice_type.SelectedItem = v.die
                 .dice_score.Enabled = IIf(v.die = "None", False, True)
@@ -156,6 +171,8 @@
         dice_score.Enabled = False
         new_e = True
     End Sub
+
+
 
     Private Sub enable_edits(ByVal setting As Boolean)
         event_table.Enabled = Not setting

@@ -388,16 +388,32 @@
         Next
     End Sub
     Public Sub link_event_to_unit(unit_name As String, t As String)
-        If t <> "" Then t = Replace(t, ":00", "")
+        Dim a As Integer = 0
+        If t = "-1" Then a = Val(t) Else a = convert_time_to_gt(t)
         For Each u As cunit In orbat
-            If (u.parent = orbat(unit_name).title And u.comd = 0 And Not u.aircraft) Or u.title = unit_name Then u.arrives = Val(t)
+            If (u.parent = orbat(unit_name).title And u.comd = 0 And Not u.aircraft) Or u.title = unit_name Then u.arrives = a
         Next
     End Sub
+    Public Function convert_time_to_gt(x As String) As Integer
+        Dim turns As Integer = 0, inc As Integer = IIf(night, 2, 1), hrs As Integer = 0
+        Do
+            If Hour(DateAdd(DateInterval.Hour, hrs, gamedate)) = dusk Then
+                inc = 2
+            ElseIf Hour(DateAdd(DateInterval.Hour, hrs, gamedate)) = dawn Then
+                inc = 1
+            Else
+                inc = inc
+            End If
+            hrs = hrs + inc
+            turns = turns + 1
+        Loop Until Format(DateAdd(DateInterval.Hour, hrs, gamedate), "dd/MMM/yyyy HH:mm") = x
+        convert_time_to_gt = val(scenariodefaults.gameturn.text)+turns
+    End Function
 
-    Public Sub test_for_events(ByVal s As String, ByVal t As Date)
+    Public Sub test_for_events(ByVal s As String)
         For Each e As cevents In event_list
             If Not e.tested Then
-                If Format(t, "HH:mm") >= e.time And UCase(s) = UCase(e.side) Then
+                If Format(gamedate, "dd/MMM/yyyy HH:mm") = e.time And UCase(s) = UCase(e.side) Then
                     If e.die = "None" Then
                         e.tested = True
                     Else
@@ -474,4 +490,5 @@
         Next
 
     End Sub
+
 End Module

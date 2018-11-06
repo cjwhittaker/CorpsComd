@@ -150,15 +150,17 @@
     Private Function close_assault_ratio(a As cunit, s As cunit, d As cunit)
         close_assault_ratio = 1
         Dim at As Integer = 0, dt As Integer = 0
-        If a.Inf And a.dismounted And a.carrying <> "" Then
-            at = a.strength + s.strength
+        If a.Inf And a.dismounted And a.atgw Then
+            at = a.strength / 3 + s.strength
+        ElseIf s.Inf And s.dismounted And s.atgw Then
+            at = a.strength + s.strength / 3
         ElseIf s Is Nothing Or s.title = "" Then
             at = a.strength
         Else
             at = a.strength + s.strength
         End If
         If defile.backcolor = golden Then at = at / 2
-        If d.Inf And d.dismounted And d.carrying <> "" Then dt = d.strength + orbat(d.carrying).strength Else dt = d.strength
+        If d.Inf And d.dismounted And d.atgw Then dt = d.strength / 3 Else dt = d.strength
         close_assault_ratio = at / dt
     End Function
     Private Function close_assault_difference()

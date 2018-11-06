@@ -469,7 +469,7 @@
                             If l.BackColor = golden Then
                                 l.BackColor = defa
                                 With orbat(l.Text)
-                                    .arrives = 25
+                                    .arrives = -1
                                     .moved = gt
 
                                 End With
@@ -519,7 +519,7 @@
         ElseIf on_table Then
             link_event_to_unit(commander.title, Str(Hour(DateAdd(DateInterval.Hour, 1, gamedate))))
         ElseIf Not on_table Then
-            link_event_to_unit(commander.title, "25")
+            link_event_to_unit(commander.title, "-1")
         Else
         End If
         For Each l As ListViewItem In undercommand.Items

@@ -270,8 +270,15 @@
             .ShowDialog()
         End With
         smokefiredthisturn = False
-        gameturn.Text = gameturn.Text + 1
-        gamedate = DateAdd(DateInterval.Hour, 1, gamedate)
+        Dim inc As Integer = 1
+        If Strings.Left(Current_time.Text, 2) = dawn Then
+            inc = 1
+        ElseIf Strings.Left(Current_time.Text, 2) = dusk Then
+            inc = 2
+        Else
+        End If
+        gameturn.Text = gameturn.Text + inc
+        gamedate = DateAdd(DateInterval.Hour, inc, gamedate)
         gt = Val(gameturn.Text)
         Current_time.Text = Format(gamedate, "HH:mm")
         phase = 0
@@ -285,6 +292,7 @@
     End Sub
 
     Private Sub test(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+
         Dim x As Integer, y As Integer, z As Integer
         For Each u As cunit In orbat
             If u.comd > 0 Then
@@ -334,14 +342,12 @@
     End Sub
 
     Private Sub calcdawn()
-
         Dim yr As Integer
         If DateAndTime.Day(gamedate) < 23 And DateAndTime.Month(gamedate) <= 9 Then yr = Year(gamedate) - 1 Else yr = Year(gamedate)
         dawn = Int(0.5 + (6 + 2 * Math.Sin(2 * Math.PI * DateDiff(DateInterval.Day, DateSerial(yr, 9, 23), gamedate) / 365)))
         sunrise.Text = Format(TimeSerial(dawn, 0, 0), "HH:mm")
         dusk = Int(0.5 + (18 - 2 * Math.Sin(2 * Math.PI * DateDiff(DateInterval.Day, DateSerial(yr, 9, 23), gamedate) / 365)))
         sunset.Text = Format(TimeSerial(dusk, 0, 0), "HH:mm")
-
     End Sub
 
 

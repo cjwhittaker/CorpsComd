@@ -418,7 +418,7 @@
 
     Function generateresult(ByVal target As cunit, ByVal c As Integer, ByVal indirect As Boolean, airtoair As Boolean, ByVal assault As Boolean) As String
         generateresult = ""
-        If Not assault And Not target.hit Then target.hit = True
+        If Not target.hit Then target.hit = True : orbat(target.parent).hit = True
         If Not assault And Not airtoair And target.mode = travel And Not target.recon Then
             If c = -1 Then
                 c = 1

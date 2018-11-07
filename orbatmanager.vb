@@ -111,10 +111,20 @@
             End If
         Next
     End Function
-
+    Public Sub clear_selected_unit()
+        title.Text = ""
+        arty_rating.Text = ""
+        equip.Text = ""
+        strength.Text = ""
+        comd.SelectedIndex = -1
+        quality.SelectedIndex = -1
+    End Sub
     Private Sub finish_edit(sender As Object, e As EventArgs) Handles confirm.Click, reject.Click
-        If mgt = "edit" And sender.name = "confirm" Then
-            currcomd = orbat(orbat(no.Text).parent).comd
+        If sender.name = "reject" Or title.Text = "" Then
+            group_edit()
+            clear_selected_unit()
+        ElseIf mgt = "edit" And sender.name = "confirm" Then
+            'currcomd = orbat(orbat(no.Text).parent).comd
             orbat.Remove(no.Text)
             If orbat.Contains(title.Text) Or nullentry() Then
                 orbat.Add(n, n.title)
@@ -128,9 +138,8 @@
                 no.Text = title.Text
             End If
             group_edit()
-        ElseIf sender.name = "reject" Then
-            group_edit()
         ElseIf mgt = "insert" And sender.name = "confirm" Then
+            currcomd = orbat(n.parent).comd
             If orbat.Contains(title.Text) Or nullentry() Then Exit Sub
             accept_unit_properties(n)
             comdtree.SelectedNode.Nodes.Add(n.title, n.title)
@@ -138,6 +147,7 @@
             comdtree.Enabled = True
             selectedunit.Enabled = False
             purpose.Text = ""
+            clear_selected_unit()
         ElseIf mgt = "clone" And sender.name = "confirm" Then
             If orbat.Contains(title.Text) Then title.Text = renamed(title.Text)
             cloneorbat(no, no.Text, orbat(no.Text).parent)
@@ -149,6 +159,7 @@
         Else
 
         End If
+        mgt = ""
     End Sub
 
     Private Sub cloneorbat(nt As TreeNode, origin As String, newpar As String)
@@ -173,7 +184,7 @@
         Next
     End Sub
 
-    Private Sub accept_unit_properties(ByVal a As cUnit)
+    Private Sub accept_unit_properties(ByVal a As cunit)
         Dim t As String = a.title
         With a
             .title = title.Text
@@ -192,7 +203,7 @@
 
     End Sub
 
-    Private Sub selectunit(ByVal u As cUnit)
+    Private Sub selectunit(ByVal u As cunit)
         title.Text = u.title
         comd.SelectedIndex = 6 - u.comd
         comd.Enabled = True
@@ -201,42 +212,55 @@
         arty_rating.Text = u.arty_int
         If mgt = "insert" Then
             comd.SelectedIndex = 6 - orbat(n.parent).comd + 1
-        ElseIf u.parent = "root" Then
-            comd.Enabled = False
-            strength.Enabled = False
+            quality.SelectedItem = Trim(Str(orbat(n.parent).quality))
+
+            If u.comd > 0 Or mgt = "insert" Then
+                strength.Enabled = False
+                equip.Text = "HQ"
+                arty_rating.Enabled = True
+            End If
+            'ElseIf u.parent = "root" Then
+            'comd.Enabled = False
+            'strength.Enabled = False
+        ElseIf mgt = "edit" Then
+            If u.comd > 0 Then
+                comd.Enabled = True
+                strength.Enabled = False
+                quality.Enabled = True
+                equip.Enabled = False
+                arty_rating.Enabled = True
+            Else
+                comd.Enabled = False
+                strength.Enabled = True
+                quality.Enabled = True
+                equip.Enabled = False
+                equip.Text = u.equipment
+                arty_rating.Enabled = False
+            End If
         ElseIf mgt = "clone" Then
             comd.Enabled = False
             strength.Enabled = False
             quality.Enabled = False
             equip.Enabled = False
             arty_rating.Enabled = False
-        ElseIf u.comd > 0 Or mgt = "insert" Then
-            strength.Enabled = False
-            equip.Text = "HQ"
-            If u.comd >= 2 Then arty_rating.Enabled = True
-        ElseIf mgt = "reject" Then
-            strength.Enabled = False
-            equip.Text = "HQ"
-            arty_rating.Enabled = False
         ElseIf u.comd = 0 Then
-            strength.Enabled = True
-            equip.Enabled = False
             equip.Text = u.equipment
-            arty_rating.Enabled = False
         Else
         End If
     End Sub
 
     Private Sub comd_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comd.SelectedIndexChanged
-        If 6 - sender.SelectedIndex <= 0 Then
+        Dim comd_level As Integer = 6 - sender.SelectedIndex
+        If comd_level = 0 Then
             strength.Enabled = True
             'equip.Enabled = True
             'equip.Text = u.equipment
-        Else
+        ElseIf comd_level <= 6 Then
             arty_rating.Enabled = False
             strength.Enabled = False
             equip.Enabled = False
             equip.Text = "HQ"
+        Else
         End If
     End Sub
 
@@ -447,9 +471,9 @@
         no = comdtree.SelectedNode
         comdtree.Enabled = False
         selectedunit.Enabled = True
-        n = New cunit
-        n.parent = comdtree.SelectedNode.Text
-        selectunit(n)
+        'n = New cunit
+        'n.parent = comdtree.SelectedNode.Text
+        selectunit(orbat(comdtree.SelectedNode.Text))
     End Sub
 
     Private Sub edit_selected_units_Click(sender As Object, e As EventArgs) Handles edit_selected_units.Click
@@ -497,6 +521,7 @@
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles printorbat.Click
         printorbattofile()
     End Sub
+
 
     'Private Sub select_type_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
     '    For Each x As cunittype In unittypes

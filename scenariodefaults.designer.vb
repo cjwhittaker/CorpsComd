@@ -479,7 +479,7 @@ Partial Class scenariodefaults
         Me.p2_c2.Name = "p2_c2"
         Me.p2_c2.Size = New System.Drawing.Size(132, 35)
         Me.p2_c2.TabIndex = 37
-        Me.p2_c2.Text = "P2 Comd Cntrl"
+        Me.p2_c2.Text = "P2 Initial Comd"
         Me.p2_c2.UseVisualStyleBackColor = True
         '
         'p1_c2
@@ -490,7 +490,7 @@ Partial Class scenariodefaults
         Me.p1_c2.Name = "p1_c2"
         Me.p1_c2.Size = New System.Drawing.Size(132, 35)
         Me.p1_c2.TabIndex = 36
-        Me.p1_c2.Text = "P1 Comd Cntrl"
+        Me.p1_c2.Text = "P1 Initial Comd"
         Me.p1_c2.UseVisualStyleBackColor = True
         '
         'scenariodefaults

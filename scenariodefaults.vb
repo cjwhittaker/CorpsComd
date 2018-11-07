@@ -42,7 +42,7 @@
                         player2.Tag = player2.Text
                     ElseIf currentRow(0) = "gamedate=" Then
                         gamedate = Convert.ToDateTime(currentRow(1))
-                        DateTimePicker1.Value = gamedate
+                        'DateTimePicker1.Value = gamedate
                     ElseIf currentRow(0) = "starttime=" Then
                         start_time.Text = currentRow(1)
                         'If lock_1.Text <> "Locked" And lock_2.Text <> "Locked" Then start_time_inc.Value = Val(currentRow(1))
@@ -76,6 +76,8 @@
                 End Try
             End While
         End Using
+        DateTimePicker1.Value = gamedate
+
         scenario_name.Text = Replace(Mid(Replace(scenario, sys_dir, ""), 2), ".sce", "")
         load_orbat()
         load_events()
@@ -97,6 +99,7 @@
 
     Private Sub savescenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles savescenario.Click
         Dim newscenario As String
+        If player1.Text = "" Or player2.Text = "" Then Exit Sub
         SaveFileDialog1.Filter = "Scenario files (*.sce)|*.sce|All files (*.*)|*.*"
         If SaveFileDialog1.ShowDialog Then
             newscenario = SaveFileDialog1.FileName
@@ -149,6 +152,7 @@
         orbat = New Collection
         start_time.Text = TimeValue("00:00")
         DateTimePicker1_ValueChanged(DateTimePicker1, Nothing)
+        scenario_name.Text = ""
         start_time_inc.Value = (10)
         Current_time.Text = start_time.Text
         player1.Text = "" : player1.Tag = "" : player1_init.Text = "" : ph = ""
@@ -173,7 +177,9 @@
         With orbatmanager
             .Text = "Orbat Manager"
             .orbattitle.Text = orbatmanager.orbatside + " - Order of Battle"
+            .clear_selected_unit()
             .selectedunit.Visible = True
+            .selectedunit.Enabled = False
             .comdtree.HideSelection = False
             .ShowDialog()
         End With
@@ -183,6 +189,7 @@
 
     Private Sub maintain_player_names(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles player1.Leave, player2.Leave
         Dim t As TextBox = sender
+        If sender.name = "player1" Then p1 = player1.Text Else p2 = player2.Text
         If t.Tag = t.Text Then
             Exit Sub
         ElseIf t.Tag = "" And t.Text <> "" Then
@@ -199,6 +206,7 @@
             t.Text = t.Tag
         Else
         End If
+
     End Sub
 
     Private Sub reset_scenario_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
@@ -337,7 +345,8 @@
     End Sub
 
     Private Sub DateTimePicker1_ValueChanged(sender As Object, e As EventArgs) Handles DateTimePicker1.ValueChanged
-        gamedate = DateTimePicker1.Value
+        gamedate = Convert.ToDateTime(Format(DateTimePicker1.Value, "dd/MMM/yyyy ") + start_time.Text)
+
         calcdawn()
     End Sub
 

@@ -100,6 +100,12 @@
     End Sub
 
     Private Sub save_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles save_event.Click
+        For Each ev As cevents In event_list
+            If ev.id <> event_list(selected_event).id And ev.time = event_time.Text And ev.unit = side_options.Text Then
+                discard_event_Click(discard_event, Nothing)
+                Exit Sub
+            End If
+        Next
         If selected_event <> "" Then
             With event_list(selected_event)
                 .side = nation
@@ -134,7 +140,7 @@
     End Sub
 
     Private Sub edit_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles edit_event.Click
-        If selected_event <> "" And event_list.Count <> 0 Then
+        If side_options.Items.Count > 0 And selected_event <> "" And event_list.Count <> 0 Then
             Dim v As New cevents
             v = event_list(selected_event)
             reset_fields(True)
@@ -155,9 +161,35 @@
             End With
             enable_edits(True)
         End If
-
+    End Sub
+    Private Sub clone_event_click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles clone_event.Click
+        If side_options.Items.Count = 0 Or selected_event = "" Or event_list.Count = 0 Then Exit Sub
+        Dim v As New cevents
+        v = event_list(selected_event).clone
+        v.unit = ""
+        v.create_id()
+        event_list.Add(v, v.id)
+        selected_event = v.id
+        reset_fields(True)
+        event_time_inc.Value = 0
+        Do Until event_time.Text = v.time
+            event_time_inc.Value = event_time_inc.Value + 1
+            event_time.Text = Format(DateAdd(DateInterval.Hour, event_time_inc.Value, gamedate), "dd/MMM/yyyy HH:mm")
+        Loop
+        With Me
+            .side_options.Text = v.unit
+            .event_time.Text = v.time
+            .detail.Text = v.text
+            .dice_type.SelectedItem = v.die
+            .dice_score.Enabled = IIf(v.die = "None", False, True)
+            .dice_score.Text = IIf(v.die = "None", "0", v.score)
+            .dec_dice.Enabled = IIf(v.die = "None", False, True)
+            .dec_dice.SelectedItem = IIf(v.dec, "Yes", "No")
+        End With
+        enable_edits(True)
 
     End Sub
+
 
     Private Sub new_event_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles new_event.Click
         Dim v As cevents
@@ -193,7 +225,7 @@
     End Sub
 
     Private Sub event_table_Selection(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles event_table.Click
-        If event_list.Count = 0 Then selected_event = 0 : Exit Sub
+        If event_list.Count = 0 Then selected_event = "" : Exit Sub
         selected_event = event_table.FocusedItem.SubItems(7).Text
         sel_row = event_table.FocusedItem.Index
         ' Dim x As Integer = selected_event

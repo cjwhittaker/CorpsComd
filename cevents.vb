@@ -1,4 +1,8 @@
-﻿Public Class cevents
+﻿Imports System.IO
+Imports System.Runtime.Serialization.Formatters.Binary
+
+<Serializable()> Public Class cevents
+    Implements ICloneable
     Private pside As String
     Private punit As String
     Private ptext As String
@@ -106,4 +110,12 @@
             i = i + 1
         Loop Until Not event_list.Contains(id)
     End Sub
+    Public Function Clone() As Object Implements System.ICloneable.Clone
+        Dim m As New MemoryStream()
+        Dim f As New BinaryFormatter()
+        f.Serialize(m, Me)
+        m.Seek(0, SeekOrigin.Begin)
+        Return f.Deserialize(m)
+    End Function
+
 End Class

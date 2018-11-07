@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class event_manager
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class event_manager
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(event_manager))
         Me.Label1 = New System.Windows.Forms.Label()
@@ -49,6 +49,7 @@ Partial Class event_manager
         Me.ColumnHeader5 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader6 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader7 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.clone_event = New System.Windows.Forms.Button()
         CType(Me.event_time_inc, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -92,7 +93,7 @@ Partial Class event_manager
         Me.Label3.AutoSize = True
         Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(151, 273)
+        Me.Label3.Location = New System.Drawing.Point(151, 276)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(85, 23)
         Me.Label3.TabIndex = 10
@@ -195,9 +196,9 @@ Partial Class event_manager
         'new_event
         '
         Me.new_event.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.new_event.Location = New System.Drawing.Point(78, 215)
+        Me.new_event.Location = New System.Drawing.Point(28, 215)
         Me.new_event.Name = "new_event"
-        Me.new_event.Size = New System.Drawing.Size(158, 40)
+        Me.new_event.Size = New System.Drawing.Size(145, 40)
         Me.new_event.TabIndex = 19
         Me.new_event.Text = "Add New Event"
         Me.new_event.UseVisualStyleBackColor = True
@@ -216,9 +217,9 @@ Partial Class event_manager
         'delete_event
         '
         Me.delete_event.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.delete_event.Location = New System.Drawing.Point(446, 215)
+        Me.delete_event.Location = New System.Drawing.Point(514, 215)
         Me.delete_event.Name = "delete_event"
-        Me.delete_event.Size = New System.Drawing.Size(158, 40)
+        Me.delete_event.Size = New System.Drawing.Size(145, 40)
         Me.delete_event.TabIndex = 21
         Me.delete_event.Text = "Delete Event"
         Me.delete_event.UseVisualStyleBackColor = True
@@ -237,9 +238,9 @@ Partial Class event_manager
         'edit_event
         '
         Me.edit_event.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.edit_event.Location = New System.Drawing.Point(262, 215)
+        Me.edit_event.Location = New System.Drawing.Point(190, 215)
         Me.edit_event.Name = "edit_event"
-        Me.edit_event.Size = New System.Drawing.Size(158, 40)
+        Me.edit_event.Size = New System.Drawing.Size(145, 40)
         Me.edit_event.TabIndex = 19
         Me.edit_event.Text = "Edit Event"
         Me.edit_event.UseVisualStyleBackColor = True
@@ -290,18 +291,30 @@ Partial Class event_manager
         '
         Me.ColumnHeader6.Text = "Time"
         Me.ColumnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.ColumnHeader6.Width = 164
+        Me.ColumnHeader6.Width = 167
         '
         'ColumnHeader7
         '
         Me.ColumnHeader7.Text = "Tested"
         Me.ColumnHeader7.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.ColumnHeader7.Width = 56
+        '
+        'clone_event
+        '
+        Me.clone_event.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.clone_event.Location = New System.Drawing.Point(352, 215)
+        Me.clone_event.Name = "clone_event"
+        Me.clone_event.Size = New System.Drawing.Size(145, 40)
+        Me.clone_event.TabIndex = 25
+        Me.clone_event.Text = "Clone Event"
+        Me.clone_event.UseVisualStyleBackColor = True
         '
         'event_manager
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(684, 661)
+        Me.Controls.Add(Me.clone_event)
         Me.Controls.Add(Me.event_table)
         Me.Controls.Add(Me.discard_event)
         Me.Controls.Add(Me.delete_event)
@@ -357,4 +370,5 @@ Partial Class event_manager
     Friend WithEvents ColumnHeader5 As System.Windows.Forms.ColumnHeader
     Friend WithEvents ColumnHeader6 As System.Windows.Forms.ColumnHeader
     Friend WithEvents ColumnHeader7 As System.Windows.Forms.ColumnHeader
+    Friend WithEvents clone_event As Button
 End Class

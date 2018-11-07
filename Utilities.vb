@@ -389,14 +389,14 @@
     End Sub
     Public Sub link_event_to_unit(unit_name As String, t As String)
         Dim a As Integer = 0
-        If t = "-1" Then a = Val(t) Else a = convert_time_to_gt(t)
+        If Val(t) <= 0 Then a = Val(t) Else a = convert_time_to_gt(t)
         For Each u As cunit In orbat
             If (u.parent = orbat(unit_name).title And u.comd = 0 And Not u.aircraft) Or u.title = unit_name Then u.arrives = a
         Next
     End Sub
     Public Function convert_time_to_gt(x As String) As Integer
         Dim turns As Integer = 0, inc As Integer = IIf(night, 2, 1), hrs As Integer = 0
-        Do
+        Do Until Format(DateAdd(DateInterval.Hour, hrs, gamedate), "dd/MMM/yyyy HH:mm") = x
             If Hour(DateAdd(DateInterval.Hour, hrs, gamedate)) = dusk Then
                 inc = 2
             ElseIf Hour(DateAdd(DateInterval.Hour, hrs, gamedate)) = dawn Then
@@ -406,7 +406,7 @@
             End If
             hrs = hrs + inc
             turns = turns + 1
-        Loop Until Format(DateAdd(DateInterval.Hour, hrs, gamedate), "dd/MMM/yyyy HH:mm") = x
+        Loop
         convert_time_to_gt = val(scenariodefaults.gameturn.text)+turns
     End Function
 

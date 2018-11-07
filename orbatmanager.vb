@@ -616,22 +616,12 @@
         If Val(sub_unit_quality.SelectedItem) > orbat(comdtree.SelectedNode.Text).quality Then sub_unit_quality.SelectedItem = Str(orbat(comdtree.SelectedNode.Text).quality)
     End Sub
     Private Sub generate_click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles generate.Click
-        Dim n As New cunit, i As Integer = 0, l As String = "", passengers As Boolean = False, t As String = "", orbattitle As String = comdtree.SelectedNode.Text
-        Dim same_desig As Boolean = False, ch As Integer = 65, pas As String = "*", subunits As Integer = 0, desig As String = ""
+        Dim n As New cunit, i As Integer = 0, l As String = "", passengers As Boolean = False, t As String = "", sub_unit_comd As String = "", orbattitle As String = comdtree.SelectedNode.Text
+        Dim same_desig As Boolean = False, ch As Integer = 65, pas As String = "*", subunits As Integer = 0, desig As String = "", unit_root As Boolean = True
         If Not sub_1.BackColor = golden And Not sub_a.BackColor = golden Then Exit Sub
-        'For Each s As csubunit In TOE
-        '    If s.title = unittype.SelectedItem And s.unit_comd <> 1 Then
-        '        If s.desig = "" And Not passengers And Not s.equipment = "ACV" Then subunits = subunits + s.quantity
-        '        passengers = False
-        '        If eq_list(s.equipment).role = "MICV" Or eq_list(s.equipment).role = "APC" Then
-        '            passengers = True
-        '        Else
-        '            passengers = False
-        '        End If
-        '    End If
-        'Next
         For Each s As csubunit In TOE
             If s.title = unittype.SelectedItem Then
+                If unit_root Then subunits = s.quantity : unit_root = False
                 If s.airhq Then orbat(orbattitle).role = "Air HQ"
                 If s.quantity > 9 Or sub_a.BackColor = golden Then
                     ch = 65
@@ -654,42 +644,25 @@
                     i = 0
                 End If
                 For x As Integer = 0 To s.quantity - 1
-                    If s.desig = "" Then
-                        t = Chr(ch + i)
-                    Else
-                        t = Chr(ch + IIf(same_desig, i, x))
-                    End If
+                    If s.desig = "" Then t = Chr(ch + i) Else t = Chr(ch + IIf(same_desig, i, x))
+
                     If s.unit_comd > 0 Then
                         l = IIf(s.desig = "", Chr(49 + x), s.desig) + "-"
                     ElseIf s.equipment = "ACV" And s.desig = "" Then
                         l = "HQ/"
                     ElseIf s.desig <> "" Then
                         If s.passengers Then
-                            If s.sub_comd Then
-                                l = Replace(s.desig, "/", pas + "/") + t + "-"
-                            Else
-                                l = IIf(s.sub_units, t + pas + "/", "1/") + s.desig
-                            End If
+                            If s.sub_comd And s.quantity <= subunits Then l = Replace(s.desig, "/", pas + "/") + t + "-" Else l = IIf(s.sub_units, t + pas + "/", "1/") + s.desig
                         Else
-                            If s.sub_comd Then
-                                l = s.desig + t + "-"
-                            Else
-                                l = IIf(s.sub_units, t + "/", "") + s.desig
-                            End If
+                            If s.sub_comd And s.quantity <= subunits Then l = s.desig + t + "-" Else l = IIf(s.sub_units, t + "/", "") + s.desig
                         End If
                     ElseIf s.desig = "" Then
-                        If s.passengers Then
-                            l = t + pas + "/"
-                        Else
-                            l = t + "/"
-                        End If
+                        If s.passengers Then l = t + pas + "/" Else l = t + "/"
                     Else
                     End If
-                    'If l = "HQ" And x = 1 Then
-                    '    l = l
-                    'ElseIf l = "HQ" And x > 1 And Not s.sub_comd Then
-                    '    l = l + Trim(Str(x - 1))
-                    'Else
+                    If s.sub_comd Then
+                        sub_unit_comd = IIf(s.quantity > subunits, Trim(Str((Int(x / subunits)) + 1)) + "-", Trim(Str(x + 1)) + "-")
+                    End If
                     If s.sub_units Or s.quantity > 1 Or (same_desig And s.unit_comd = 0 And s.equipment <> "ACV") Or (s.desig = "" And s.unit_comd = 0 And s.equipment <> "ACV") Then
                         i = i + 1
                     End If
@@ -707,7 +680,7 @@
                         .strength = IIf(s.unit_comd = 0, s.strength, 0)
                         .equipment = IIf(s.unit_comd = 0, s.equipment, "")
                         .quality = Val(sub_unit_quality.SelectedItem)
-                        .parent = orbattitle
+                        .parent = IIf(s.sub_comd, sub_unit_comd + orbattitle, orbattitle)
                     End With
                     If n.comd = 0 Then n.role = "|" + eq_list(s.equipment).role + "|"
                     Dim j As Integer = 0

@@ -554,7 +554,7 @@
                 Else
                     ch = 49
                 End If
-                If s.desig = "RECON/" Then Stop
+                'If s.desig = "RECON/" Then Stop
                 If s.desig <> desig Then
                     desig = s.desig
                     same_desig = False

@@ -155,6 +155,7 @@
 
                 ElseIf l.Name = "undercommand" Then
                     If purpose = "Movement" Or InStr(purpose, "Command") > 0 Or purpose = "Morale Recovery" Then
+                        If u.mode = "" Then u.mode = disp
                         info = UCase(Strings.Left(u.mode, 1))
                         listitem.BackColor = u.status(purpose)
                         If purpose = "Morale Recovery" Then
@@ -362,9 +363,9 @@
         tree.Nodes.Clear()
         TopNode = tree.Nodes.Add(u.title, u.title)
         CreateNodes(side, TopNode, u.title, purpose)
-        tree.ExpandAll()
+        'tree.ExpandAll()
         tree.SelectedNode = TopNode
-
+        TopNode.Expand()
         'selectunit(orbat(tree.SelectedNode.Text))
     End Sub
     Public Sub CreateNodes(ByRef side As String, ByRef ParentNode As TreeNode, ByRef currentcomd As String, ByRef purpose As String)
@@ -374,14 +375,18 @@
             If UCase(orbat(x).nation) = UCase(side) Then
                 If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
                     If (orbat(x).comd = 0 And purpose = "Orbat") Or orbat(x).comd > 0 Then
-                        subNode = ParentNode.Nodes.Add(orbat(x).Title, orbat(x).Title)
-                        subNode.BackColor = orbat(x).status(purpose)
-                        If orbat(x).comd = 0 Then
-                            If purpose = "Orbat" And orbat(x).Inf Then If orbat(x).dismounted Then subNode.ToolTipText = "Dismounted" Else subNode.ToolTipText = "Embused"
+                        If (orbat(x).comd = 0 And (orbat(x).carrying = "" Or (orbat(x).carrying) <> "" And Not orbat(x).inf)) Or orbat(x).comd > 0 Then
+                            subNode = ParentNode.Nodes.Add(orbat(x).Title, orbat(x).Title)
+                            subNode.BackColor = orbat(x).status(purpose)
+                        End If
+                        If orbat(x).carrying <> "" And orbat(x).troopcarrier Then
+                            subNode = subNode.Nodes.Add(orbat(x).carrying, orbat(x).carrying)
+                            subNode.Collapse()
                         End If
                     End If
                     If (purpose = "Orbat" And orbat(x).comd > 0) Or (purpose <> "Orbat" And orbat(x).comd > 1) Then
                         CreateNodes(side, subNode, orbat(x).title, purpose)
+                        subNode.Expand()
                     End If
                 End If
             End If
@@ -389,7 +394,7 @@
     End Sub
     Public Sub link_event_to_unit(unit_name As String, t As String)
         Dim a As Integer = 0
-        If Val(t) <= 0 Then a = Val(t) Else a = convert_time_to_gt(t)
+        If Val(t) <= 0 Then a= Val(t) Else a= convert_time_to_gt(t)
         For Each u As cunit In orbat
             If (u.parent = orbat(unit_name).title And u.comd = 0 And Not u.aircraft) Or u.title = unit_name Then u.arrives = a
         Next

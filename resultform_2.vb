@@ -1,5 +1,5 @@
 ﻿Public Class resultform_2
-    Dim button_press As String = ""
+    Public button_press As String = ""
     Private Sub ok_Click() Handles ok_button.Click
         Me.Close()
     End Sub
@@ -21,25 +21,29 @@
             If sender.name = "yb" Then first_player = ph Else first_player = nph
             button_press = sender.text
             Me.Close()
-        ElseIf Me.Tag = "firing" And (sender.name = "yb" Or sender.name = "nb") Then
+        ElseIf (Tag = "firing" Or tag = "air to air") And (sender.name = "yb" Or sender.name = "nb" Or sender.name = "hvy1") Then
             If sender.backcolor = defa Then
                 sender.backcolor = golden
                 result_option = result_option + sender.text
-                If sender.name = "yb" Then
-                    hvy1.Visible = combat_2.firer.hvy_loss(False) Or combat_2.target.heavy_fire
-                Else
-                    hvy2.Visible = combat_2.target.hvy_loss(False) Or combat_2.firer.heavy_fire
+                If Tag = "firing" Then
+                    If sender.name = "yb" Then 
+                        hvy1.Visible = combat_2.firer.hvy_loss(False) Or combat_2.target.heavy_fire
+                    Else
+                        hvy2.Visible = combat_2.target.hvy_loss(False) Or combat_2.firer.heavy_fire
+                    End If
                 End If
             Else
                 sender.backcolor = defa
                 result_option = Replace(result_option, sender.text, "")
-                If sender.name = "yb" Then
-                    hvy1.Visible = combat_2.firer.hvy_loss(False)
-                Else
-                    hvy2.Visible = combat_2.target.hvy_loss(False)
+                If Tag = "firing" Then
+                    If sender.name = "yb" Then
+                        hvy1.Visible = combat_2.firer.hvy_loss(False)
+                    Else
+                        hvy2.Visible = combat_2.target.hvy_loss(False)
+                    End If
                 End If
             End If
-            button_press = sender.text
+                button_press = sender.text
         ElseIf Tag = "ca" Then
             If sender.name = "yb" Then
                 sender.backcolor = golden
@@ -53,7 +57,6 @@
             If sender.backcolor = defa Then
                 sender.backcolor = golden
                 result_option = "surrender"
-                button_press = result_option
             Else
                 sender.backcolor = defa
                 result_option = ""

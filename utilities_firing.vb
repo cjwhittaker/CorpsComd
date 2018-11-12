@@ -1,15 +1,15 @@
 ﻿Module utilities_firing
     Public Sub resolvefire(ByVal firer As cunit, ByVal target As cunit, stage As Integer)
-        Dim unobserved As Boolean = Not target.spotted, abort_firer As Boolean = False, abort_target As Boolean = False
+        Dim unobserved As Boolean = Not target.spotted, abort_firer As Boolean = False, abort_target As Boolean = False, bounce As Boolean = False
         Dim airtoair As Boolean
         If fire_type = "Air to Air" Then airtoair = True Else airtoair = False
         firer.set_fire_parameters()
         target.set_fire_parameters()
 
-        Dim tgtrange As Integer = CInt(Val(combat_2.tgt_range.Text))
+        Dim tgtrange As Integer = Val(combat_2.tgt_range.Text)
         If target.firers = 0 Then
             target.fires = False
-            target.msg = CType(IIf(fire_type = "Direct ire", target.title + " does not return fire", ""), String)
+            target.msg = CType(IIf(fire_type = "Direct Fire", target.title + " does not return fire", ""), String)
         ElseIf stage = 1 And target.airborne And firer.airborne And target.tacticalpts = 2 And firer.tacticalpts = 3 Then
             target.fires = False
             target.msg = target.title + " does not return fire"
@@ -60,11 +60,19 @@
                 Case 2 : air_air_stage = "SRAAM"
                 Case 3 : air_air_stage = "Guns"
             End Select
-            init_msg = "Air-to-Air" + air_air_stage + "combat Result "
+            init_msg = "Air-to-Air " + air_air_stage + " combat Result "
             If firer.effective Then
                 firer.result = firecasualties(firer, target, tgtrange, False)
                 apply_result(target, firer.result) : firer.result = 0
                 firer.msg = firer.title + " fired at " + target.title + generateresult(target, firer.result, False, airtoair, False)
+                If firer.task = "CAP" Then
+                    If target.task = "Escort" Then
+                        firer.support = True
+                    ElseIf target.task <> "CAP" Then
+                        firer.assault = True
+                    Else
+                    End If
+                End If
             End If
             If target.fires Then
                 If target.effective Then
@@ -73,6 +81,7 @@
                     target.msg = target.title + " fired at " + firer.title + generateresult(firer, target.result, False, airtoair, False)
                 End If
             End If
+            If stage = 1 And firer.task = "CAP" And target.task = "Escort" Then bounce = True Else bounce = False
             abort_firer = abort_option(firer, target, stage)
             abort_target = abort_option(target, firer, stage)
         ElseIf fire_type = "Ground to Air" Or target.heli Then
@@ -128,15 +137,15 @@
         Dim show_yb As Boolean = IIf((InStr(target.msg, "disperse") > 0 Or abort_firer) And Not firer.destroyed, True, False), show_nb As Boolean = IIf((InStr(firer.msg, "disperse") > 0 Or abort_target) And Not target.destroyed, True, False)
         With resultform_2
             .result.Text = "Results" + vbNewLine + init_msg + vbNewLine + firer.msg + vbNewLine + target.msg
-            .Tag = "firing"
+            .Tag = IIf(airtoair, "air to air", "firing")
             .ok_button.Visible = True
             .yb.Text = IIf(abort_firer, "Abort Firer", "Disperse Firer")
             .yb.Visible = show_yb
             .yb.Enabled = show_yb
-            .hvy1.Text = "Hvy Loss Firer"
-            .hvy1.Visible = IIf(f, True, False)
-            .hvy1.BackColor = IIf(f, golden, defa)
-            .hvy1.Enabled = IIf(f, False, True)
+            .hvy1.Text = IIf(Not bounce, "Hvy Loss Firer", "Ignore Escort")
+            .hvy1.Visible = IIf(f Or bounce, True, False)
+            .hvy1.BackColor = IIf(f Or Not bounce, golden, defa)
+            .hvy1.Enabled = IIf(f Or Not bounce, False, True)
             .nb.Text = IIf(abort_target, "Abort Target", "Disperse Target")
             .nb.Visible = show_nb
             .nb.Enabled = show_nb
@@ -153,6 +162,7 @@
         If airtoair Then
             If InStr(result_option, "Abort Firer") > 0 Then firer.lands(True)
             If InStr(result_option, "Abort Target") > 0 Then target.lands(True)
+            If InStr(result_option, "Ignore Escort") > 0 Then firer.scoot = True
             Exit Sub
         End If
         If InStr(result_option, "Disperse Firer") > 0 Then
@@ -266,7 +276,7 @@
     Function firecasualties(ByVal firer As cunit, ByVal target As cunit, ByVal rng As Integer, ByVal unobserved As Boolean) As Integer
         firecasualties = 0
         Dim airtoair As Boolean = firer.airborne And target.airborne
-        Dim airdefence As Boolean = firer.valid_air_defence(rng, target.mode) And target.airborne
+        Dim airdefence As Boolean = firer.valid_air_defence(rng, target.mode, target.title) And target.airborne
         Dim directfire As Boolean = IIf(fire_type = "Direct Fire" Or fire_type = "Half Fire" Or (fire_type = "Opportunity Fire" And Not airdefence), True, False)
         Dim indirectfire As Boolean = IIf(fire_type = "Indirect Fire", True, False)
 

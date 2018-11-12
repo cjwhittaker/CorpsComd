@@ -15,33 +15,36 @@
 
     Public Function air_assessment(subphase As Integer, curr As String) As String
         air_assessment = ""
+        If Strings.Left(curr, 9) = "Intercept" Then air_assessment = "None" : Exit Function
         Dim x As Integer = 0, y As Integer = 0, x_ad As Integer = 0, y_ad As Integer = 0, x1 As Integer = 0, y1 As Integer = 0, x2 As Integer = 0, y2 As Integer = 0
         For Each ac As cunit In p1_air
             If ac.airborne And ac.task = "CAP" And ac.tacticalpts = 3 Then x = x + 1
             If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 2 Then x1 = x1 + 1
             If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 1 Then x2 = x2 + 1
-            If ac.area_air_defence Then x_ad = x_ad + 1
+        Next
+        For Each u As cunit In p1_units
+            If u.area_air_defence Then x_ad = x_ad + 1
         Next
         For Each ac As cunit In p2_air
             If ac.airborne And ac.task = "CAP" And ac.tacticalpts = 3 Then y = y + 1
             If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 2 Then y1 = y1 + 1
             If subphase > 2 And ac.airborne And ac.task = "CAP" And ac.tacticalpts = 1 Then y2 = y2 + 1
-            If ac.area_air_defence Then y_ad = y_ad + 1
+        Next
+        For Each u As cunit In p2_Units
+            If u.area_air_defence Then y_ad = y_ad + 1
         Next
         If x + x1 + x2 = 0 And y + y1 + y2 = 0 Then air_assessment = "None" : Exit Function
         If subphase = 1 Then
-            If x = y Then
+            If x = y And x > 0 Then
                 air_assessment = "Parity"
-            ElseIf x > y Then
-                air_assessment = p1
-            Else
-                air_assessment = p2
-            End If
-        ElseIf subphase = 2 Then
-            If x = 0 And y > 0 And x_ad > 0 Then
+            ElseIf x = 0 And y > 0 And x_ad > 0 Then
                 air_assessment = p1 + " ADSAM"
             ElseIf y = 0 And x > 0 And y_ad > 0 Then
-                air_assessment = p2 = " ADSAM"
+                air_assessment = p2 + " ADSAM"
+            ElseIf x > y Then
+                air_assessment = p1
+            ElseIf y > x Then
+                air_assessment = p2
             Else
                 air_assessment = "None"
             End If

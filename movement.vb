@@ -557,7 +557,7 @@
 
     End Sub
     Private Sub select_air_tasking(sender As Object, e As EventArgs) Handles o4.Click
-        If (sender.text = "Air Mission Planning" And commander.primary = "Air Units") Then
+        If (sender.text = "Air Mission Planning" And commander.role = "Air HQ") Then
             If subject.helarm Then options_for("Helarm Tasking") Else options_for("Air Tasking")
 
         End If
@@ -691,14 +691,15 @@
         If oppfire Then conduct_fire(tactical_option)
         If mover.mode Is Nothing Then mover.mode = disp
         'If prev_mode = mover.mode Then
-        If tactical_option = 5 And mover.conc Then
+        Dim t_opt As Integer = IIf(Tag = "Initial Command", tactical_option + 5, tatical_option)
+        If t_opt = 5 And mover.conc Then
             If mover.mode = travel Then
                 mover.mode = conc
             ElseIf mover.mode = conc Then
                 mover.mode = travel
             Else
             End If
-        ElseIf tactical_option = 6 And mover.conc Then
+        ElseIf t_opt = 6 And mover.conc Then
             If mover.mode = conc Then
                 mover.mode = disp
             ElseIf mover.mode = disp Then
@@ -713,7 +714,7 @@
             Else
             End If
         End If
-
+        If Not mover.conc And mover.mode = conc Then mover.mode = disp
         l.SubItems(2).Text = UCase(Strings.Left(mover.mode, 1))
         'End If
         mover.pre_mode = mover.mode
@@ -835,7 +836,17 @@
     End Sub
 
     Private Sub select_all_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles selected_hq.Click
-        If Not select_all Then select_all = True Else select_all = False
+        If undercommand.Items.Count = 0 Then Exit Sub
+        If Not select_all Then
+            subject = orbat(undercommand.Items(0).Text)
+            select_all = True
+        Else
+            subject = New cunit
+            select_all = False
+            reset_tactical_actions()
+            tactical_actions.Enabled = False
+
+        End If
         Dim i As Integer = 1
         For Each l As ListViewItem In undercommand.Items
             If select_all And Not orbat(l.Text).disrupted Then
@@ -880,7 +891,7 @@
         selected_hq.Text = ""
         load_orders(Tag)
         opp_fire.BackColor = golden
-        oppfire = True
+        If Tag = "Movement" Then oppfire = True Else oppfire = False
         With cover
             .Text = "None"
             .BackColor = defa
@@ -895,12 +906,7 @@
     Private Sub movement_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         If Tag = "Movement" Then
             mov_rates.Show()
-            opp_fire.BackColor = golden
-            oppfire = True
-        Else
-            oppfire = False
         End If
-        opportunityfire.Tag = "Opportunity Fire"
     End Sub
 
     Private Sub movement_closed(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Closed
@@ -992,6 +998,10 @@
         Else
 
         End If
+        reset_tactical_actions()
+
+    End Sub
+    Sub reset_tactical_actions()
         For Each ctrl As Control In tactical_actions.Controls
             If Strings.Left(ctrl.Name, 1) = "o" Then
                 ctrl.BackColor = defa
@@ -1000,7 +1010,6 @@
         Next
 
     End Sub
-
     Private Sub orders_changed(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles o0.Click, o1.Click, o2.Click, o3.Click, o4.Click, o5.Click, o6.Click, o7.Click, o8.Click, o9.Click
         Dim t As Integer = Val(Strings.Right(sender.name, 1))
 

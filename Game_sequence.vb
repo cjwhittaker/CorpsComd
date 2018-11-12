@@ -226,7 +226,7 @@
                 populate_lists(combat_2.targets, enemy_air, "CAP Combat", "")
             Else
                 populate_lists(combat_2.firers, IIf(adsam, ph_units, enemy), "ADSAM Fire", IIf(adsam, first, second))
-                populate_lists(combat_2.targets, IIf(adsam, enemy_air, friend_air), "CAP Combat", IIf(adsam, second, first))
+                populate_lists(combat_2.targets, IIf(adsam, enemy_air, friend_air), "CAP Combat", "")
             End If
             With combat_2
                 .Tag = "Air to Air"
@@ -236,14 +236,18 @@
                 .targetpanel.Enabled = True
                 .enable_controls(False, combat_2.directfirepanel)
                 .enable_controls(False, combat_2.targetpanel)
+                .fa_altitude.Visible = Not adsam
+                .fa_altitude_label.Visible = Not adsam
                 .observation(False)
                 .interceptor = cap_result
+                .adsam = adsam
                 .firer = New cunit
                 .target = New cunit
                 .fire.Visible = True
                 .firesmoke.Visible = False
                 .range_not_needed = True
-                .swap.Visible = True
+                .tgt_range.Text = IIf(adsam, "30000", "")
+                .swap.Visible = Not adsam
             End With
             If Not combat_2.Visible Then
                 With combat_2

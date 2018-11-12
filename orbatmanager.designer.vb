@@ -26,11 +26,6 @@ Partial Class orbatmanager
         Me.comdtree = New System.Windows.Forms.TreeView()
         Me.orbattitle = New System.Windows.Forms.Label()
         Me.printorbat = New System.Windows.Forms.Button()
-        Me.dispmode = New System.Windows.Forms.Button()
-        Me.concmode = New System.Windows.Forms.Button()
-        Me.travelmode = New System.Windows.Forms.Button()
-        Me.embusvehicles = New System.Windows.Forms.Button()
-        Me.dismountvehicles = New System.Windows.Forms.Button()
         Me.insert_formation = New System.Windows.Forms.Button()
         Me.clone_formation = New System.Windows.Forms.Button()
         Me.generate_sub_units = New System.Windows.Forms.Button()
@@ -102,56 +97,6 @@ Partial Class orbatmanager
         Me.printorbat.Text = "Print Orbat to File"
         Me.printorbat.UseVisualStyleBackColor = True
         '
-        'dispmode
-        '
-        Me.dispmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dispmode.Location = New System.Drawing.Point(445, 343)
-        Me.dispmode.Name = "dispmode"
-        Me.dispmode.Size = New System.Drawing.Size(181, 42)
-        Me.dispmode.TabIndex = 24
-        Me.dispmode.Text = "Disperse all Units"
-        Me.dispmode.UseVisualStyleBackColor = True
-        '
-        'concmode
-        '
-        Me.concmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.concmode.Location = New System.Drawing.Point(445, 393)
-        Me.concmode.Name = "concmode"
-        Me.concmode.Size = New System.Drawing.Size(181, 42)
-        Me.concmode.TabIndex = 25
-        Me.concmode.Text = "Concentrate all Units"
-        Me.concmode.UseVisualStyleBackColor = True
-        '
-        'travelmode
-        '
-        Me.travelmode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.travelmode.Location = New System.Drawing.Point(445, 443)
-        Me.travelmode.Name = "travelmode"
-        Me.travelmode.Size = New System.Drawing.Size(181, 42)
-        Me.travelmode.TabIndex = 26
-        Me.travelmode.Text = "Travel mode all Units"
-        Me.travelmode.UseVisualStyleBackColor = True
-        '
-        'embusvehicles
-        '
-        Me.embusvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.embusvehicles.Location = New System.Drawing.Point(445, 543)
-        Me.embusvehicles.Name = "embusvehicles"
-        Me.embusvehicles.Size = New System.Drawing.Size(181, 42)
-        Me.embusvehicles.TabIndex = 27
-        Me.embusvehicles.Text = "Embus Passengers"
-        Me.embusvehicles.UseVisualStyleBackColor = True
-        '
-        'dismountvehicles
-        '
-        Me.dismountvehicles.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dismountvehicles.Location = New System.Drawing.Point(445, 493)
-        Me.dismountvehicles.Name = "dismountvehicles"
-        Me.dismountvehicles.Size = New System.Drawing.Size(181, 42)
-        Me.dismountvehicles.TabIndex = 28
-        Me.dismountvehicles.Text = "Dismount Passengers"
-        Me.dismountvehicles.UseVisualStyleBackColor = True
-        '
         'insert_formation
         '
         Me.insert_formation.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -165,7 +110,7 @@ Partial Class orbatmanager
         'clone_formation
         '
         Me.clone_formation.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.clone_formation.Location = New System.Drawing.Point(445, 143)
+        Me.clone_formation.Location = New System.Drawing.Point(445, 203)
         Me.clone_formation.Name = "clone_formation"
         Me.clone_formation.Size = New System.Drawing.Size(181, 42)
         Me.clone_formation.TabIndex = 30
@@ -175,7 +120,7 @@ Partial Class orbatmanager
         'generate_sub_units
         '
         Me.generate_sub_units.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.generate_sub_units.Location = New System.Drawing.Point(445, 193)
+        Me.generate_sub_units.Location = New System.Drawing.Point(445, 313)
         Me.generate_sub_units.Name = "generate_sub_units"
         Me.generate_sub_units.Size = New System.Drawing.Size(181, 42)
         Me.generate_sub_units.TabIndex = 31
@@ -185,7 +130,7 @@ Partial Class orbatmanager
         'edit_selected_units
         '
         Me.edit_selected_units.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.edit_selected_units.Location = New System.Drawing.Point(445, 243)
+        Me.edit_selected_units.Location = New System.Drawing.Point(445, 148)
         Me.edit_selected_units.Name = "edit_selected_units"
         Me.edit_selected_units.Size = New System.Drawing.Size(181, 42)
         Me.edit_selected_units.TabIndex = 32
@@ -311,7 +256,7 @@ Partial Class orbatmanager
         'delete_unit
         '
         Me.delete_unit.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.delete_unit.Location = New System.Drawing.Point(445, 293)
+        Me.delete_unit.Location = New System.Drawing.Point(445, 258)
         Me.delete_unit.Name = "delete_unit"
         Me.delete_unit.Size = New System.Drawing.Size(181, 42)
         Me.delete_unit.TabIndex = 34
@@ -511,11 +456,6 @@ Partial Class orbatmanager
         Me.Controls.Add(Me.generate_sub_units)
         Me.Controls.Add(Me.clone_formation)
         Me.Controls.Add(Me.insert_formation)
-        Me.Controls.Add(Me.dismountvehicles)
-        Me.Controls.Add(Me.embusvehicles)
-        Me.Controls.Add(Me.travelmode)
-        Me.Controls.Add(Me.concmode)
-        Me.Controls.Add(Me.dispmode)
         Me.Controls.Add(Me.printorbat)
         Me.Controls.Add(Me.orbattitle)
         Me.Controls.Add(Me.comdtree)
@@ -536,11 +476,6 @@ Partial Class orbatmanager
     Friend WithEvents comdtree As System.Windows.Forms.TreeView
     Friend WithEvents orbattitle As System.Windows.Forms.Label
     Friend WithEvents printorbat As System.Windows.Forms.Button
-    Friend WithEvents dispmode As Button
-    Friend WithEvents concmode As Button
-    Friend WithEvents travelmode As Button
-    Friend WithEvents embusvehicles As Button
-    Friend WithEvents dismountvehicles As Button
     Friend WithEvents insert_formation As Button
     Friend WithEvents clone_formation As Button
     Friend WithEvents generate_sub_units As Button

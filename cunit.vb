@@ -775,8 +775,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
         End If
 
     End Function
-    Public Function valid_air_defence(r As Integer, altitude As String) As Boolean
+    Public Function valid_air_defence(r As Integer, altitude As String, target As String) As Boolean
         valid_air_defence = False
+        If InStr(msg, target) > 0 Then Exit Function
         'If mode = travel Then Exit Function
         If r / eq_list(equipment).maxrange > 0.67 Or (r / eq_list(equipment).maxrange > 0.5 And role = "|AAA|") Then
             If InStr(eq_list(equipment).radar, "M") > 0 And Not eligibleCB Then Exit Function
@@ -1154,7 +1155,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
     End Function
     Public Function conc() As Boolean
         conc = True
-        If equipment = "" Then If InStr(UCase(eq_list(equipment).special), "D") > 0 Then conc = False
+        If equipment <> "" Then If InStr(UCase(eq_list(equipment).special), "D") > 0 Then conc = False
     End Function
     Public Function smoke_discharger() As Boolean
         smoke_discharger = False
@@ -1628,9 +1629,9 @@ Imports System.Runtime.Serialization.Formatters.Binary
             If (hq = "firer" And tacticalpts > 1) Or hq = "" Then validunit = True
         ElseIf phase = "ADSAM Fire" And Not disrupted And emplaced And area_air_defence() Then
             validunit = True
-        ElseIf phase = "Intercept" And arrives = 0 And airborne And task = "CAP" And tacticalpts > 0 Then
+        ElseIf phase = "Intercept" And arrives = 0 And airborne And (task = "CAP" Or task = "Escort") And tacticalpts > 0 Then
             validunit = True
-        ElseIf phase = "Intercept Targets" And airborne And task <> "CAP" And arrives = 0 Then
+        ElseIf phase = "Intercept Targets" And airborne And Not heli And arrives = 0 Then
             validunit = True
         ElseIf phase = "Select Unit" And Not disrupted Then
             validunit = True
@@ -1675,7 +1676,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
             validunit = True
         ElseIf phase = "Air to Ground" And arrives = 0 And airborne And Airground() And Not sead() And tacticalpts > 0 And Not heli() Then
             validunit = True
-        ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne And task <> "CAP" Then
+        ElseIf phase = "Air Defence Targets" And arrives = 0 And airborne And airground Then
             validunit = True
             'ElseIf strength <= 0 Or (aircraft() And strength - aborts <= 0) Then
             '    validunit = False

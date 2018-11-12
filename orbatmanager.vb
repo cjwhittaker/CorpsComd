@@ -32,14 +32,6 @@
             comdtree.SelectedNode.Expand()
             If comdtree.SelectedNode.BackColor = nostatus Then comdtree.SelectedNode.BackColor = golden Else comdtree.SelectedNode.BackColor = nostatus
             select_all(comdtree.SelectedNode, comdtree.SelectedNode.BackColor)
-            'ElseIf e.Button = Windows.Forms.MouseButtons.Right Then
-            '    'group edit
-            '    edit_selected_units_Click(edit_selected_units, Nothing)
-            '    Dim editunit As Boolean = False
-            '    mgt = "edit"
-            '    purpose.Text = "Editing a Command"
-            '    If e.Node.BackColor <> golden Then e.Node.BackColor = golden
-            '    group_edit()
         ElseIf Control.ModifierKeys = Keys.Shift + Keys.Control Then
             'delete units
             delete_unit_Click(delete_unit, Nothing)
@@ -75,6 +67,7 @@
             comdtree.Enabled = True
             selectedunit.Enabled = False
             purpose.Text = ""
+            mgt = ""
 
         End If
     End Sub
@@ -124,7 +117,7 @@
             group_edit()
             clear_selected_unit()
         ElseIf mgt = "edit" And sender.name = "confirm" Then
-            'currcomd = orbat(orbat(no.Text).parent).comd
+            currcomd = orbat(n.parent).comd
             orbat.Remove(no.Text)
             If orbat.Contains(title.Text) Or nullentry() Then
                 orbat.Add(n, n.title)
@@ -148,6 +141,7 @@
             selectedunit.Enabled = False
             purpose.Text = ""
             clear_selected_unit()
+            mgt = ""
         ElseIf mgt = "clone" And sender.name = "confirm" Then
             If orbat.Contains(title.Text) Then title.Text = renamed(title.Text)
             cloneorbat(no, no.Text, orbat(no.Text).parent)
@@ -156,10 +150,11 @@
             selectedunit.Enabled = False
             selectunit(orbat(comdtree.SelectedNode.Text))
             purpose.Text = ""
+            mgt = ""
+
         Else
 
         End If
-        mgt = ""
     End Sub
 
     Private Sub cloneorbat(nt As TreeNode, origin As String, newpar As String)
@@ -208,7 +203,7 @@
         comd.SelectedIndex = 6 - u.comd
         comd.Enabled = True
         quality.SelectedItem = Trim(Str(u.quality))
-        strength.Text = u.initial
+        strength.Text = u.strength
         arty_rating.Text = u.arty_int
         If mgt = "insert" Then
             comd.SelectedIndex = 6 - orbat(n.parent).comd + 1
@@ -356,9 +351,18 @@
         If targetNode Is Nothing Then Exit Sub
         orbat(dropNode.Text).parent = targetNode.Text
         orbat(dropNode.Text).arrives = orbat(targetNode.Text).arrives
-        l = orbat(dropNode.Text).carrying
-        If orbat(dropNode.Text).carrying <> "" And orbat(dropNode.Text).carrying <> "Arty Units" Then orbat(orbat(dropNode.Text).carrying).parent = targetNode.Text
-
+        If InStr(dropNode.Text, "#") > 0 Then
+            l = orbat(dropNode.Text).carrying
+            If l = "" Then
+                If targetNode.Text <> Replace(dropNode.Text, "#", "") Then Exit Sub
+                orbat(targetNode.Text).carrying = dropNode.Text
+                orbat(dropNode.Text).carrying = targetNode.Text
+                orbat(dropNode.Text).parent = orbat(targetNode.Text).parent
+            Else
+                orbat(l).carrying = ""
+                orbat(dropNode.Text).carrying = ""
+            End If
+        End If
         'Remove the drop node from its current location
         dropNode.Remove()
 
@@ -368,12 +372,9 @@
         'Else
         targetNode.Nodes.Add(dropNode)
         'End If
-
         'Ensure the newley created node is visible to the user and select it
         'dropNode.EnsureVisible()
         'comdtree.SelectedNode = dropNode
-
-
     End Sub
 
     Private Sub go_generate_subunits(ByVal u As cunit)
@@ -415,35 +416,6 @@
 
     End Sub
 
-    Private Sub change_mode_click(sender As Object, e As EventArgs) Handles dispmode.Click, concmode.Click, travelmode.Click, dismountvehicles.Click, embusvehicles.Click
-        change_mode(comdtree.Nodes(0), sender.name)
-        populate_command_structure(comdtree, orbatside, "Orbat")
-
-    End Sub
-
-    Private Sub change_mode(n As TreeNode, mode As String)
-        For Each no As TreeNode In n.Nodes
-            change_mode(no, mode)
-            If no.BackColor = golden And orbat(no.Text).comd = 0 Then
-                If InStr(mode, disp) > 0 Then
-                    orbat(no.Text).mode = disp
-                ElseIf InStr(mode, travel) > 0 Then
-                    orbat(no.Text).mode = travel
-                ElseIf InStr(mode, conc) > 0 And Not orbat(no.Text).not_conc Then
-                    orbat(no.Text).mode = conc
-                ElseIf InStr(mode, "embus") > 0 Then
-                    loadvehicles("Embus", no)
-                ElseIf InStr(mode, "debus") > 0 Then
-                    loadvehicles("Debus", no)
-                ElseIf InStr(mode, "dismount") > 0 Then
-                    loadvehicles("Dismount", no)
-
-                Else
-                End If
-            End If
-            no.BackColor = orbat(no.Text).status("Orbat")
-        Next
-    End Sub
 
     Private Sub insert_formation_click(sender As Object, e As EventArgs) Handles insert_formation.Click
         mgt = "insert"
@@ -481,6 +453,7 @@
         purpose.Text = "Editing a Command"
         If comdtree.SelectedNode.BackColor <> golden Then comdtree.SelectedNode.BackColor = golden
         group_edit()
+        Dim t As String = orbat(32).title
 
     End Sub
 
@@ -522,62 +495,16 @@
         printorbattofile()
     End Sub
 
-
-    'Private Sub select_type_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
-    '    For Each x As cunittype In unittypes
-    '        If u.nation = x.nation And u.comd = x.comd Then
-    '            generate_subunits.unittype.Items.Add(x.title)
-    '        End If
-    '    Next
-    '    With generate_subunits
-    '        .orbattitle = u.title
-    '        .ShowDialog()
-    '    End With
-    'End Sub
-
-    Private Sub loadvehicles(action As String, no As TreeNode)
-        Dim tpt As String = "", title As String = no.Text
-        If action = "Embus" Then
-            If orbat(title).inf And orbat(title).carrying = "" And orbat(title).debussed Then
-                tpt = Replace(orbat(title).title, "#", "")
-                If orbat.Contains(tpt) Then
-                    orbat(title).carrying = tpt
-                    orbat(title).debussed = False
-                    orbat(tpt).carrying = orbat(title).title
-                    orbat(tpt).debussed = False
-                End If
-            ElseIf orbat(title).inf And orbat(title).carrying <> "" And orbat(title).debussed Then
-                tpt = Replace(orbat(title).title, "#", "")
-                orbat(title).debussed = False
-                orbat(tpt).debussed = False
-            Else
-            End If
-        ElseIf action = "Dismount" Then
-            If orbat(title).inf And orbat(title).carrying <> "" Then
-                orbat(orbat(title).carrying).carrying = ""
-                orbat(orbat(title).carrying).debussed = True
-                orbat(title).carrying = ""
-                orbat(title).debussed = True
-            End If
-        ElseIf action = "Debus" Then
-            If orbat(title).inf And orbat(title).carrying <> "" Then
-                orbat(orbat(title).carrying).debussed = True
-                orbat(title).debussed = True
-                no.Text = orbat(title).carrying
-            ElseIf orbat(title).inf And orbat(title).carrying = "" And orbat(title).debussed Then
-                tpt = Replace(orbat(title).title, "#", "")
-                If orbat.Contains(tpt) Then
-                    orbat(title).carrying = tpt
-                    orbat(title).debussed = True
-                    orbat(tpt).carrying = orbat(title).title
-                    orbat(tpt).debussed = True
-                End If
-            Else
-
-            End If
-        Else
-        End If
+    Private Sub reject_sub_Click(sender As Object, e As EventArgs) Handles reject_sub.Click
+        unittype.SelectedIndex = -1
+        sub_unit_quality.SelectedIndex = -1
+        sub_1.BackColor = defa
+        sub_a.BackColor = defa
+        select_unit_template.Enabled = False
     End Sub
+
+
+
 
     Public Function renamed(ByVal title As String)
         Dim prefix As String, t As String

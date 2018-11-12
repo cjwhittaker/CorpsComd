@@ -48,8 +48,6 @@
     End Sub
     Public Sub save_orbat()
         If IsNothing(orbat) Then Exit Sub
-        order_command_structure(p1)
-        order_command_structure(p2)
         file = My.Computer.FileSystem.OpenTextFileWriter(Replace(scenario, ".sce", ".orb"), False)
         Dim y As String = "", n As String = ""
         Dim myType As Type = GetType(cunit)
@@ -58,12 +56,7 @@
             y = y + IIf(y <> "", ",", "") + p.Name
         Next
         file.WriteLine(y)
-        save_command_structure(p1_tree)
-        save_command_structure(p2_tree)
-        file.Close()
-    End Sub
-    Public Sub save_command_structure(comdtree As Collection)
-        For Each u As cunit In comdtree
+        For Each u As cunit In orbat
             x = ""
             For Each p As System.Reflection.PropertyInfo In properties
                 If x <> "" Then x = x + ","
@@ -77,42 +70,9 @@
             Next
             file.WriteLine(x)
         Next
+
+        file.Close()
     End Sub
-
-    Public Sub order_command_structure(side As String)
-
-        Dim Topunit As String, u As New cunit, x As Integer = 0
-        If side = scenariodefaults.player1.Text Then
-            p1_tree = New Collection
-            p1_tree.Clear()
-        Else
-            p2_tree = New Collection
-            p2_tree.Clear()
-        End If
-        For Each u In orbat
-            x = x + 1
-            If UCase(u.nation) = UCase(side) And u.parent = "root" Then Exit For
-        Next
-        Topunit = u.title
-        create_structure(Topunit)
-
-    End Sub
-
-    Public Sub create_structure(ByVal currentcomd As String)
-        If UCase(orbat(currentcomd).nation) = UCase(p1) Then
-            p1_tree.Add(orbat(currentcomd), orbat(currentcomd).title)
-        Else
-            p2_tree.Add(orbat(currentcomd), orbat(currentcomd).title)
-        End If
-        If orbat(currentcomd).comd = 0 Then Exit Sub
-
-        For x As Integer = 1 To orbat.Count
-            If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
-                create_structure(orbat(x).title)
-            End If
-        Next
-    End Sub
-
 
     Public Sub load_equipment()
         If Not My.Computer.FileSystem.FileExists(d_dir + "equipment.dat") Then Exit Sub

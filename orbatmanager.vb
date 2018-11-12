@@ -67,6 +67,7 @@
             comdtree.Enabled = True
             selectedunit.Enabled = False
             purpose.Text = ""
+            If mgt = "edit" Then populate_command_structure(comdtree, orbatside, "Orbat")
             mgt = ""
 
         End If
@@ -114,8 +115,8 @@
     End Sub
     Private Sub finish_edit(sender As Object, e As EventArgs) Handles confirm.Click, reject.Click
         If sender.name = "reject" Or title.Text = "" Then
-            group_edit()
             clear_selected_unit()
+            group_edit()
         ElseIf mgt = "edit" And sender.name = "confirm" Then
             currcomd = orbat(n.parent).comd
             orbat.Remove(no.Text)
@@ -126,9 +127,9 @@
                 If no.Text <> title.Text And orbat(title.Text).comd > 0 Then
                     For Each u As cunit In orbat
                         If u.parent = no.Text Then u.parent = title.Text
+                        If InStr(u.title, no.Text) > 0 Then u.title = Replace(u.title, no.Text, title.Text)
                     Next
                 End If
-                no.Text = title.Text
             End If
             group_edit()
         ElseIf mgt = "insert" And sender.name = "confirm" Then
@@ -402,22 +403,25 @@
         End If
 
     End Sub
+    Private Sub printunit(no As TreeNode, ByVal indentlevel As Integer)
+        Dim currentcomd As String = no.Text
+        Dim o As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
+        file.WriteLine(Space(indentlevel * 5) + o) 'Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
 
-    Private Sub printorbattofile()
-
-        Dim Topunit As String, u As New cunit, x As Integer = 0
-        file = My.Computer.FileSystem.OpenTextFileWriter(Strings.Left(scenario, (Len(scenario) - 4)) + "_" + orbatside + "_orbat.txt", False)
-
-        For Each u In orbat
-            x = x + 1
-            If UCase(u.nation) = UCase(orbatside) And u.parent = "root" Then Exit For
+        For Each n As TreeNode In no.Nodes
+            printunit(n, indentlevel + 1)
         Next
-        Topunit = u.title
-        printunit(Topunit, 0)
-        file.Close()
-
     End Sub
 
+    Private Sub create_structure(no As TreeNode)
+        Dim u As New cunit
+        u = orbat(no.Text)
+        orbat.Remove(no.Text)
+        orbat.Add(u, u.title)
+        For Each n As TreeNode In no.Nodes
+            create_structure(n)
+        Next
+    End Sub
 
     Private Sub insert_formation_click(sender As Object, e As EventArgs) Handles insert_formation.Click
         mgt = "insert"
@@ -468,7 +472,7 @@
     End Sub
     Private Sub remove_comd_branches(parent As String)
         For x As Integer = orbat.Count To 1 Step -1
-            If orbat(x).parent = parent Then
+            If orbat(x).parent = parent Or (InStr(orbat(x).title, parent) > 0 And orbat(x).title <> parent) Then
                 If orbat(x).comd > 0 Then
                     remove_comd_branches(orbat(x).title)
                     orbat.Remove(x)
@@ -478,19 +482,13 @@
             End If
         Next
     End Sub
-    Private Sub printunit(ByVal currentcomd As String, ByVal indentlevel As Integer)
-        Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
-        file.WriteLine(Space(indentlevel * 5) + n) 'Space(50 - (indentlevel * 5) - Len(n)) + orbat(currentcomd).text_status)
-
-        For x As Integer = 1 To orbat.Count
-            If orbat(x).parent = currentcomd And orbat(x).comd < 6 Then
-                printunit(orbat(x).title, indentlevel + 1)
-            End If
-        Next
-    End Sub
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles printorbat.Click
-        printorbattofile()
+
+        file = My.Computer.FileSystem.OpenTextFileWriter(Strings.Left(scenario, (Len(scenario) - 4)) + "_" + orbatside + "_orbat.txt", False)
+        printunit(comdtree.Nodes(0), 1)
+        file.Close()
+
     End Sub
 
     Private Sub reject_sub_Click(sender As Object, e As EventArgs) Handles reject_sub.Click
@@ -500,10 +498,6 @@
         sub_a.BackColor = defa
         select_unit_template.Enabled = False
     End Sub
-
-
-
-
     Public Function renamed(ByVal title As String)
         Dim prefix As String, t As String
         If InStr(title, "/") = 0 Then
@@ -639,4 +633,7 @@
 
     End Sub
 
+    Private Sub orbatmanager_Closed(sender As Object, e As EventArgs) Handles Me.Closed
+        create_structure(comdtree.Nodes(0))
+    End Sub
 End Class

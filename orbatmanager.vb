@@ -136,7 +136,7 @@
             If orbat.Contains(title.Text) Or nullentry() Then Exit Sub
             accept_unit_properties(n)
             comdtree.SelectedNode.Nodes.Add(n.title, n.title)
-            comdtree.ExpandAll()
+            'comdtree.ExpandAll()
             comdtree.Enabled = True
             selectedunit.Enabled = False
             purpose.Text = ""
@@ -380,7 +380,9 @@
     Private Sub go_generate_subunits(ByVal u As cunit)
         If u.comd = 0 Then Exit Sub
         For Each x As cunit In orbat
-            If InStr(x.title, "/" + u.title) > 0 Then Exit Sub
+            If InStr(x.title, "/" + u.title) > 0 Then
+                Exit Sub
+            End If
         Next
         unittype.Items.Clear()
         For Each t As csubunit In TOE
@@ -465,8 +467,7 @@
         populate_command_structure(comdtree, orbatside, "Orbat")
     End Sub
     Private Sub remove_comd_branches(parent As String)
-        Dim x As Integer = 1
-        Do
+        For x As Integer = orbat.Count To 1 Step -1
             If orbat(x).parent = parent Then
                 If orbat(x).comd > 0 Then
                     remove_comd_branches(orbat(x).title)
@@ -474,11 +475,8 @@
                 Else
                     orbat.Remove(x)
                 End If
-                If x = orbat.Count Then Exit Sub
-            Else
-                x = x + 1
             End If
-        Loop Until x = orbat.Count
+        Next
     End Sub
     Private Sub printunit(ByVal currentcomd As String, ByVal indentlevel As Integer)
         Dim n As String = orbat(currentcomd).title + " " + IIf(orbat(currentcomd).equipment <> "", "(" + Trim(Str(orbat(currentcomd).strength) + "-" + orbat(currentcomd).equipment + ")"), "")
@@ -543,10 +541,11 @@
         If Val(sub_unit_quality.SelectedItem) > orbat(comdtree.SelectedNode.Text).quality Then sub_unit_quality.SelectedItem = Str(orbat(comdtree.SelectedNode.Text).quality)
     End Sub
     Private Sub generate_click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles generate.Click
-        Dim n As New cunit, i As Integer = 0, l As String = "", passengers As Boolean = False, t As String = "", sub_unit_comd As String = "", orbattitle As String = comdtree.SelectedNode.Text
+        Dim n As New cunit, i As Integer = 0, k As Integer = 0, l As String = "", passengers As Boolean = False, t As String = "", sub_unit_comd As String = "", orbattitle As String = comdtree.SelectedNode.Text
         Dim same_desig As Boolean = False, ch As Integer = 65, pas As String = "*", subunits As Integer = 0, desig As String = "", unit_root As Boolean = True
         If Not sub_1.BackColor = golden And Not sub_a.BackColor = golden Then Exit Sub
         For Each s As csubunit In TOE
+            k = k + 1
             If s.title = unittype.SelectedItem Then
                 If unit_root Then subunits = s.quantity : unit_root = False
                 If s.airhq Then orbat(orbattitle).role = "Air HQ"
@@ -555,10 +554,16 @@
                 Else
                     ch = 49
                 End If
-                'If s.desig = "RECON/" Then Stop
+                If s.desig = "RECON/" Then Stop
                 If s.desig <> desig Then
                     desig = s.desig
                     same_desig = False
+                    If k + 2 <= TOE.Count Then
+                        If (Not TOE(k + 1).passengers And TOE(k + 1).desig = s.desig) Or (TOE(k + 1).passengers And TOE(k + 2).desig = s.desig) Then
+                            same_desig = True
+                            i = 0
+                        End If
+                    End If
                 Else
                     same_desig = True
                 End If
@@ -576,12 +581,16 @@
                     If s.unit_comd > 0 Then
                         l = IIf(s.desig = "", Chr(49 + x), s.desig) + "-"
                     ElseIf s.equipment = "ACV" And s.desig = "" Then
-                        l = "HQ/"
+                        If s.quantity = 1 Then l = "HQ/" Else l = "HQ" + t + "/"
                     ElseIf s.desig <> "" Then
-                        If s.passengers Then
-                            If s.sub_comd And s.quantity <= subunits Then l = Replace(s.desig, "/", pas + "/") + t + "-" Else l = IIf(s.sub_units, t + pas + "/", "1/") + s.desig
+                        Dim d As String = s.desig
+                        If s.passengers Then d = Strings.Left(d, InStr(d, "/") - 1) + pas + Mid(d, InStr(d, "/"))
+                        If s.sub_comd And s.quantity <= subunits Then
+                            l = d + t + "-"
+                        ElseIf s.quantity > 1 Or same_desig Then
+                            l = IIf(s.sub_units, t + "/", "") + d
                         Else
-                            If s.sub_comd And s.quantity <= subunits Then l = s.desig + t + "-" Else l = IIf(s.sub_units, t + "/", "") + s.desig
+                            l = d
                         End If
                     ElseIf s.desig = "" Then
                         If s.passengers Then l = t + pas + "/" Else l = t + "/"

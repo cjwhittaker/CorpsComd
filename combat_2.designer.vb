@@ -106,6 +106,7 @@ Partial Class combat_2
         Me.ColumnHeader12 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader13 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.Label20 = New System.Windows.Forms.Label()
+        Me.ta_close_escort = New System.Windows.Forms.Label()
         Me.directfirepanel.SuspendLayout()
         Me.targetpanel.SuspendLayout()
         Me.centrepanel.SuspendLayout()
@@ -570,6 +571,7 @@ Partial Class combat_2
         'targetpanel
         '
         Me.targetpanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.targetpanel.Controls.Add(Me.ta_close_escort)
         Me.targetpanel.Controls.Add(Me.ta_ecm_ds)
         Me.targetpanel.Controls.Add(Me.ta_ecm_gs)
         Me.targetpanel.Controls.Add(Me.t2)
@@ -608,8 +610,8 @@ Partial Class combat_2
         Me.ta_ecm_ds.Name = "ta_ecm_ds"
         Me.ta_ecm_ds.Size = New System.Drawing.Size(132, 30)
         Me.ta_ecm_ds.TabIndex = 96
-        Me.ta_ecm_ds.Tag = "None"
-        Me.ta_ecm_ds.Text = "None"
+        Me.ta_ecm_ds.Tag = "ECM in DS"
+        Me.ta_ecm_ds.Text = "ECM in DS"
         Me.ta_ecm_ds.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'ta_ecm_gs
@@ -620,8 +622,8 @@ Partial Class combat_2
         Me.ta_ecm_gs.Name = "ta_ecm_gs"
         Me.ta_ecm_gs.Size = New System.Drawing.Size(132, 30)
         Me.ta_ecm_gs.TabIndex = 95
-        Me.ta_ecm_gs.Tag = "None"
-        Me.ta_ecm_gs.Text = "None"
+        Me.ta_ecm_gs.Tag = "ECM in GS"
+        Me.ta_ecm_gs.Text = "ECM in GS"
         Me.ta_ecm_gs.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         't2
@@ -850,9 +852,9 @@ Partial Class combat_2
         Me.ta_ecm_label.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ta_ecm_label.Location = New System.Drawing.Point(341, 85)
         Me.ta_ecm_label.Name = "ta_ecm_label"
-        Me.ta_ecm_label.Size = New System.Drawing.Size(123, 20)
+        Me.ta_ecm_label.Size = New System.Drawing.Size(124, 20)
         Me.ta_ecm_label.TabIndex = 97
-        Me.ta_ecm_label.Text = "Target ECM Spt"
+        Me.ta_ecm_label.Text = "Target Supports"
         Me.ta_ecm_label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'return_fire
@@ -1109,6 +1111,18 @@ Partial Class combat_2
         Me.Label20.Text = "Firer Firing Strength"
         Me.Label20.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'ta_close_escort
+        '
+        Me.ta_close_escort.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.ta_close_escort.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ta_close_escort.Location = New System.Drawing.Point(337, 186)
+        Me.ta_close_escort.Name = "ta_close_escort"
+        Me.ta_close_escort.Size = New System.Drawing.Size(132, 30)
+        Me.ta_close_escort.TabIndex = 98
+        Me.ta_close_escort.Tag = "Escorted"
+        Me.ta_close_escort.Text = "Escorted"
+        Me.ta_close_escort.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
         'combat_2
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1218,4 +1232,5 @@ Partial Class combat_2
     Friend WithEvents ta_ecm_gs As Label
     Friend WithEvents ta_ecm_label As Label
     Friend WithEvents obs_insmoke As Label
+    Friend WithEvents ta_close_escort As Label
 End Class

@@ -301,6 +301,8 @@
         If airtoair Or airdefence Then
             If combat_2.ta_ecm_ds.BackColor = golden Then modifiers = modifiers + IIf(firer.missile_armed, eq_list(combat_2.ta_ecm_ds.Text).ecm_miss, eq_list(combat_2.ta_ecm_ds.Text).ecm_gun)
             If combat_2.ta_ecm_gs.BackColor = golden Then modifiers = modifiers + Int(IIf(firer.missile_armed, eq_list(combat_2.ta_ecm_gs.Text).ecm_miss, eq_list(combat_2.ta_ecm_gs.Text).ecm_gun) / 2)
+            If combat_2.ta_close_escort.BackColor = golden Then modifiers = modifiers - 1
+
         End If
         If airdefence Then
             'If combat_2.ta_ecm_ds.BackColor = golden Then modifiers = modifiers + IIf(firer.missile_armed, eq_list(combat_2.ta_ecm_ds.Text).ecm_miss, eq_list(combat_2.ta_ecm_ds.Text).ecm_gun)

@@ -889,20 +889,18 @@
 
     End Sub
 
-    Private Sub ta_ecm_gs_Click(sender As Object, e As EventArgs) Handles ta_ecm_gs.Click, ta_ecm_ds.Click
-        Dim no_ecm As Boolean = True
+    Private Sub ta_ecm_gs_Click(sender As Object, e As EventArgs) Handles ta_ecm_gs.Click, ta_ecm_ds.Click, ta_close_escort.Click
+        Dim spt As Boolean = IIf(sender.backcolor = golden, True, False)
         For Each ac As cunit In enemy_air
-            If (ac.task = "ECM GS" And sender.name = "ta_ecm_gs") Or (ac.task = "ECM DS" And sender.name = "ta_ecm_ds") Then
+            If spt And ac.title = sender.text Then spt = False
+            If Not spt And ac.airborne And ((ac.task = "ECM GS" And sender.name = "ta_ecm_gs") Or (ac.task = "ECM DS" And sender.name = "ta_ecm_ds") Or (ac.task = "Escort" And sender.name = "ta_close_escort")) Then
                 sender.text = ac.title
                 sender.backcolor = golden
-                no_ecm = False
                 Exit Sub
             End If
         Next
-        If no_ecm Then
-            sender.text = "None"
-            sender.backcolor = defa
-        End If
+        sender.backcolor = defa
+        sender.text = sender.tag
     End Sub
 
 

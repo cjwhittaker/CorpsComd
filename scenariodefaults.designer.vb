@@ -470,6 +470,7 @@ Partial Class scenariodefaults
         Me.Button1.TabIndex = 35
         Me.Button1.Text = "Button1"
         Me.Button1.UseVisualStyleBackColor = True
+        Me.Button1.Visible = False
         '
         'p2_c2
         '
